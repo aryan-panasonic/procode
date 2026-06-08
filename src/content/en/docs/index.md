@@ -1,6 +1,6 @@
-# Intelligent Shelf Analyzer API
+# INTELLIGENT SHELF ANALYZER API
 
-Welcome to the **Intelligent Shelf Analyzer** documentation. This platform provides APIs for automated shelf analysis, enabling retailers to register product catalogs, define shelf layouts (planograms), and analyze real-world shelf images to detect product placement, compliance, and pricing.
+Welcome to the **INTELLIGENT SHELF ANALYZER** documentation. This platform provides APIs for automated shelf analysis, enabling retailers to register product catalogs, define shelf layouts (planograms), and analyze real-world shelf images to detect product placement, compliance, and pricing.
 
 ## What Can You Do?
 

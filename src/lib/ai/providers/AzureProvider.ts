@@ -31,6 +31,24 @@ export class AzureProvider
     );
   }
 
+  async *chatStream(messages: any[]): AsyncGenerator<string, void, unknown> {
+    const stream =
+      await this.client.chat.completions.create({
+        model:
+          process.env
+            .AZURE_OPENAI_CHAT_DEPLOYMENT!,
+        messages,
+        stream: true
+      });
+
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        yield content;
+      }
+    }
+  }
+
   async embed(text: string) {
     return [];
   }

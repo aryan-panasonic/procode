@@ -1,0 +1,7 @@
+.switcher {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 0.78rem; color: var(--slate-400);
+}
+.link { transition: color 0.18s; }
+.link:hover { color: var(--text-primary); }
+.sep { color: var(--slate-600); }

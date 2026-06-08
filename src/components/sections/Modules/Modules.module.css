@@ -1,19 +1,48 @@
-.section {
-  padding: 80px 0;
-  background: var(--surface);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
-  gap: 24px;
-  margin-top: 40px;
-}
-
+.section { background: linear-gradient(180deg, var(--ink-950) 0%, var(--ink-900) 50%, var(--ink-950) 100%); }
+.head { display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:3.5rem; }
+.grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
 .card {
-  background: white;
-  border: 1px solid var(--border);
-  padding: 24px;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  display:flex; flex-direction:column; gap:.6rem;
+  position:relative; overflow:hidden;
+  background:rgba(255,255,255,0.032);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:var(--radius-lg);
+  padding:1.75rem;
+  text-decoration:none;
+  transition:var(--ease);
 }
+.card::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(140deg,rgba(0,200,232,0.05) 0%,transparent 55%);
+  opacity:0; transition:opacity .3s;
+}
+.card:hover { border-color:rgba(0,200,232,0.24); transform:translateY(-2px); box-shadow:var(--shadow-card); }
+.card:hover::before { opacity:1; }
+.iconWrap {
+  width:44px; height:44px;
+  background:rgba(0,200,232,0.1);
+  border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--cyan); margin-bottom:.5rem;
+}
+.iconWrap svg { width:22px; height:22px; }
+.chipRow { display:flex; justify-content:flex-end; margin-top:-2.5rem; }
+.modChip {
+  font-family:var(--font-mono); font-size:.62rem;
+  letter-spacing:.1em; text-transform:uppercase;
+  color:var(--cyan); padding:3px 9px;
+  border:1px solid rgba(0,200,232,0.22);
+  background:rgba(0,200,232,0.07);
+  border-radius:100px;
+}
+.title { font-family:var(--font-display); font-size:.95rem; font-weight:600; color:var(--text-primary); line-height:1.4; }
+.sub   { font-size:.68rem; color:var(--cyan); font-family:var(--font-mono); letter-spacing:.03em; }
+.desc  { font-size:.8rem; color:var(--slate-400); line-height:1.8; flex:1; }
+.arrow {
+  font-size:1.1rem; color:var(--cyan); opacity:0;
+  transition:opacity .2s, transform .2s;
+  align-self:flex-start;
+}
+.card:hover .arrow { opacity:1; transform:translateX(5px); }
+@media(max-width:900px){ .grid{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:580px){ .grid{grid-template-columns:1fr;} }

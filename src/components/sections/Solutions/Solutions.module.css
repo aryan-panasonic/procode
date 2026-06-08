@@ -1,30 +1,33 @@
-.section {
-  padding: 80px 0;
-}
-
-.flow {
-  margin-top: 50px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: center;
-}
-
-.item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
+.section { background: var(--ink-950); }
+.head { display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:3.5rem; }
+.grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1.25rem; }
 .card {
-  background: white;
-  border: 1px solid var(--border);
-  padding: 20px 24px;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  position:relative; overflow:hidden;
+  background:rgba(255,255,255,0.032);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:var(--radius-lg); padding:2rem;
+  display:flex; flex-direction:column; gap:.85rem;
+  transition:var(--ease);
 }
-
-.arrow {
-  font-size: 24px;
-  color: var(--primary);
+.card::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(0,200,232,0.04) 0%, transparent 60%);
+  opacity:0; transition:opacity .3s;
 }
+.card:hover { border-color:rgba(0,200,232,0.22); transform:translateY(-3px); box-shadow:var(--shadow-card); }
+.card:hover::before { opacity:1; }
+.topLine { position:absolute; top:0; left:0; right:0; height:2px; border-radius:2px 2px 0 0; }
+.topRow { display:flex; justify-content:space-between; align-items:flex-start; }
+.tagLabel { font-size:.75rem; font-weight:700; letter-spacing:.03em; }
+.tagSub   { font-size:.65rem; color:var(--slate-500); margin-top:1px; }
+.metric {}
+.metricNum { font-family:var(--font-mono); font-size:2rem; font-weight:500; line-height:1; display:block; }
+.metricLbl { font-size:.65rem; color:var(--slate-500); display:block; margin-top:2px; }
+.cardTitle { font-family:var(--font-display); font-size:1.05rem; font-weight:600; color:var(--text-primary); line-height:1.4; }
+.cardDesc  { font-size:.82rem; color:var(--slate-400); line-height:1.8; flex:1; }
+.features  { display:flex; flex-direction:column; gap:5px; }
+.feat { display:flex; align-items:center; gap:7px; font-size:.79rem; color:var(--slate-300); }
+.featDot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.link { display:inline-flex; align-items:center; gap:5px; font-size:.82rem; font-weight:500; transition:gap .2s; margin-top:.25rem; }
+.link:hover { gap:9px; }
+@media(max-width:860px){ .grid{grid-template-columns:1fr;} }

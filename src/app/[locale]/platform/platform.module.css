@@ -1,0 +1,52 @@
+.page { padding-top: 68px; min-height: 100vh; background: var(--ink-950); }
+.hero { padding: 5rem 0 3.5rem; text-align: center; }
+.grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1.25rem; margin-bottom: 2.5rem;
+}
+.moduleCard {
+  background: rgba(255,255,255,0.032);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem; display: flex; flex-direction: column; gap: .75rem;
+  transition: var(--ease); position: relative; overflow: hidden;
+}
+.moduleCard::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg,rgba(0,200,232,0.04) 0%,transparent 60%);
+  opacity: 0; transition: opacity .3s;
+}
+.moduleCard:hover { border-color: rgba(0,200,232,0.22); transform: translateY(-2px); box-shadow: var(--shadow-card); }
+.moduleCard:hover::before { opacity: 1; }
+.moduleHead { display: flex; align-items: center; justify-content: space-between; }
+.moduleIconWrap {
+  width: 44px; height: 44px;
+  background: rgba(0,200,232,0.1); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.moduleIcon { font-size: 1.4rem; }
+.moduleTitle { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--text-primary); line-height: 1.4; }
+.moduleDesc  { font-size: .82rem; color: var(--slate-400); line-height: 1.8; flex: 1; }
+.detailList  { display: flex; flex-direction: column; gap: 7px; }
+.detailItem  { display: flex; align-items: flex-start; gap: 8px; font-size: .79rem; color: var(--slate-300); }
+.detailItem svg { flex-shrink: 0; margin-top: 2px; }
+.moduleLink { font-size: .82rem; font-weight: 500; color: var(--cyan); transition: letter-spacing .2s; }
+.moduleLink:hover { letter-spacing: .02em; }
+
+.integBanner {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem;
+  background: rgba(255,255,255,0.032); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius-xl); padding: 2.5rem;
+}
+.integLeft {}
+.integTitle { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin-bottom: .5rem; }
+.integDesc  { font-size: .84rem; color: var(--slate-400); max-width: 480px; line-height: 1.7; }
+.integLogos { display: flex; gap: .75rem; flex-wrap: wrap; }
+.integLogo {
+  padding: 7px 18px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius); font-size: .8rem; color: var(--slate-400);
+}
+
+@media (max-width: 960px) { .grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 600px)  { .grid { grid-template-columns: 1fr; } }

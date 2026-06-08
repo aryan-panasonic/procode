@@ -1,19 +1,80 @@
+/* ─── Corporate Design Tokens ─── */
 :root {
-  --primary: #005bac;
-  --primary-dark: #004a8c;
+  /* Light Corporate Theme (Default) */
+  --ink-950: #ffffff;
+  --ink-900: #f8f9fa;
+  --ink-800: #e9ecef;
+  --ink-700: #dee2e6;
+  --ink-600: #ced4da;
 
-  --text: #222;
-  --text-light: #666;
+  --slate-600: #adb5bd;
+  --slate-500: #6c757d;
+  --slate-400: #495057;
+  --slate-300: #343a40;
+  --slate-200: #212529;
+  --slate-100: #10151a;
+  --slate-50:  #000000;
 
-  --border: #d9d9d9;
+  /* Brand Accents - Corporate Blue */
+  --cyan:      #0056b3; /* Primary Blue */
+  --cyan-dim:  #004085;
+  --cyan-pale: rgba(0, 86, 179, 0.08);
+  --gold:      #fd7e14; /* Accent Orange */
+  --gold-dim:  rgba(253, 126, 20, 0.12);
+  --green:     #28a745;
+  --red:       #dc3545;
+  --white:     #ffffff; /* Literal white */
+  --text-primary: #10151a; /* Dark text for light mode */
 
-  --background: #ffffff;
-  --surface: #f7f8fa;
+  /* Typography */
+  --font-sans:    'Inter', 'Noto Sans JP', system-ui, sans-serif;
+  --font-display: 'Inter', 'Noto Sans JP', system-ui, sans-serif;
+  --font-mono:    'Fira Code', 'Courier New', monospace;
 
-  --container: 1280px;
+  /* Layout */
+  --container: 1200px;
+  --radius:    4px; /* More rigid corporate border radius */
+  --radius-lg: 8px;
+  --radius-xl: 12px;
 
-  --radius: 6px;
+  /* Effects */
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-glow: none; /* No glow in corporate */
+  --ease:        all 0.2s ease-in-out;
 
-  --shadow:
-    0 2px 10px rgba(0,0,0,0.05);
+  /* Legacy compat */
+  --primary:    var(--cyan);
+  --text:       var(--slate-200);
+  --text-light: var(--slate-400);
+  --border:     rgba(0,0,0,0.1);
+  --background: var(--ink-950);
+  --surface:    var(--ink-950);
+}
+
+/* Dark Theme overrides (Corporate Dark) */
+[data-theme="dark"] {
+  --ink-950: #0a0e17; /* Deep Navy */
+  --ink-900: #111827;
+  --ink-800: #1f2937;
+  --ink-700: #374151;
+  --ink-600: #4b5563;
+
+  --slate-600: #6b7280;
+  --slate-500: #9ca3af;
+  --slate-400: #d1d5db;
+  --slate-300: #e5e7eb;
+  --slate-200: #f3f4f6;
+  --slate-100: #f9fafb;
+  --slate-50:  #ffffff;
+
+  --cyan:      #3b82f6; /* Brighter Blue for Dark Mode */
+  --cyan-dim:  #2563eb;
+  --cyan-pale: rgba(59, 130, 246, 0.15);
+  --white:     #ffffff; /* Literal white remains white */
+  --text-primary: #ffffff; /* White text for dark mode */
+  
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.3);
+  --border:     rgba(255,255,255,0.08);
+  --background: var(--ink-950);
+  --surface:    var(--ink-900);
 }

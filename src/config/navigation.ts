@@ -32,132 +32,68 @@ export interface NavigationSection {
 
 export const navigation: NavigationSection[] = [
   {
-    label: "Solutions",
-    groups: [
-      {
-        title: "Business Type",
-        items: [
-          {
-            label: "Retailers",
-            href: "/solutions/retailers"
-          },
-          {
-            label: "FMCG Brands",
-            href: "/solutions/fmcg-brands"
-          },
-          {
-            label: "Merchandising Teams",
-            href: "/solutions/merchandising-teams"
-          },
-          {
-            label: "Distributors",
-            href: "/solutions/distributors"
-          }
-        ]
-      }
-    ]
-  },
-
-  {
     label: "Platform",
     groups: [
       {
         title: "Capabilities",
         items: [
-          {
-            label: "AI Product Recognition",
-            href: "/platform/product-recognition"
-          },
-          {
-            label: "Planogram Compliance",
-            href: "/platform/planogram-compliance"
-          },
-          {
-            label: "OCR & Pricing",
-            href: "/platform/ocr-pricing"
-          },
-          {
-            label: "Analytics",
-            href: "/platform/analytics"
-          },
-          {
-            label: "API Integration",
-            href: "/platform/api"
-          }
+          { label: "Overview", href: "/platform" },
+          { label: "Shelf Recognition", href: "/platform#recognition" },
+          { label: "Compliance Monitoring", href: "/platform#compliance" },
+          { label: "Analytics Dashboard", href: "/platform#analytics" },
+          { label: "Integrations", href: "/platform#integrations" },
+          { label: "Security", href: "/platform#security" }
         ]
       }
     ]
   },
-
   {
-    label: "Industries",
+    label: "Solutions",
     groups: [
       {
-        title: "Industry",
+        title: "By Format",
         items: [
-          {
-            label: "Supermarkets",
-            href: "/industries/supermarkets"
-          },
-          {
-            label: "Convenience Stores",
-            href: "/industries/convenience-stores"
-          },
-          {
-            label: "Drug Stores",
-            href: "/industries/drug-stores"
-          },
-          {
-            label: "Electronics Retail",
-            href: "/industries/electronics"
-          }
+          { label: "Retail Chains", href: "/solutions#retail-chains" },
+          { label: "FMCG Brands", href: "/solutions#fmcg-brands" },
+          { label: "Convenience Stores", href: "/solutions#convenience-stores" },
+          { label: "Drug Stores", href: "/solutions#drug-stores" },
+          { label: "Electronics Retailers", href: "/solutions#electronics" }
         ]
       }
     ]
   },
-
-  {
-    label: "Documentation",
-    href: "/documentation"
-  },
-
-  {
-    label: "Resources",
-    href: "/resources"
-  },
-
   {
     label: "Pricing",
     href: "/pricing"
   },
-
   {
-    label: "Company",
+    label: "Resources",
     groups: [
       {
-        title: "Company",
+        title: "Developer & User Resources",
         items: [
-          {
-            label: "About",
-            href: "/company/about"
-          },
-          {
-            label: "Partners",
-            href: "/company/partners"
-          },
-          {
-            label: "Security",
-            href: "/company/security"
-          },
-          {
-            label: "Careers",
-            href: "/company/careers"
-          }
+          { label: "Documentation", href: "/documentation" },
+          { label: "Product Brochure", href: "/resources#brochure" },
+          { label: "FAQ", href: "/resources#faq" },
+          { label: "API Reference", href: "/documentation#api" }
         ]
       }
     ]
   },
-
+  {
+    label: "Support",
+    groups: [
+      {
+        title: "Help & Contact",
+        items: [
+          { label: "Support Chatbot", href: "/support#chatbot" },
+          { label: "Contact Support", href: "/support#contact" },
+          { label: "Knowledge Base", href: "/support#knowledge-base" },
+          { label: "System Status", href: "/support#status" }
+        ]
+      }
+    ]
+  },
   {
     label: "Contact",
     href: "/contact"

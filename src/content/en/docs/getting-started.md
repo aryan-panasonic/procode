@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide walks you through setting up authentication and making your first API calls to the Intelligent Shelf Analyzer.
+This guide walks you through setting up authentication and making your first API calls to the INTELLIGENT SHELF ANALYZER.
 
 ## Prerequisites
 

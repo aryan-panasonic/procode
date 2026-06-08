@@ -1,14 +1,87 @@
 .footer {
-  margin-top: 80px;
-
-  border-top: 1px solid var(--border);
-
-  padding: 40px 0;
-
-  background: var(--surface);
+  background: var(--ink-900);
+  margin-top: 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
-
-.grid {
+.topLine {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0.4;
+}
+.inner {
   display: grid;
-  gap: 32px;
+  grid-template-columns: 280px 1fr;
+  gap: 4rem;
+  padding: 4rem 0 3rem;
+}
+.brand {}
+.logoRow {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 1.1rem;
+}
+.logoMark {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--cyan), #3a8fff);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 800; font-size: 1rem;
+  color: var(--ink-950);
+}
+.logoName {
+  font-family: var(--font-display);
+  font-size: 1.1rem; font-weight: 700; color: var(--text-primary);
+}
+.tagline {
+  font-size: 0.82rem; color: var(--slate-400);
+  line-height: 1.75; margin-bottom: 1.25rem;
+}
+.badges { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Links */
+.links {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 2rem;
+}
+.col {}
+.colTitle {
+  font-size: 0.75rem; font-weight: 700;
+  color: var(--text-primary); margin-bottom: 1rem;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.colList {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.colLink {
+  font-size: 0.8rem; color: var(--slate-400);
+  transition: color 0.18s;
+}
+.colLink:hover { color: var(--cyan); }
+
+/* Bottom */
+.bottom {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem;
+  padding: 1.25rem 0 2rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.72rem; color: var(--slate-500);
+}
+.bottomLinks { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+.bottomLink { color: var(--slate-500); transition: color 0.18s; }
+.bottomLink:hover { color: var(--text-primary); }
+.langs { display: flex; gap: 1rem; }
+.langBtn {
+  font-size: 0.72rem; color: var(--slate-500);
+  cursor: pointer; transition: color 0.18s;
+}
+.langBtn:hover { color: var(--text-primary); }
+
+@media (max-width: 1024px) {
+  .inner { grid-template-columns: 1fr; gap: 2rem; }
+  .links { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 640px) {
+  .links { grid-template-columns: 1fr; }
+  .bottom { flex-direction: column; align-items: flex-start; }
 }

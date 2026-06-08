@@ -1,31 +1,33 @@
-.section {
-  padding: 80px 0;
+.section { background: var(--ink-950); }
+.head { display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:4rem; }
+.steps { display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative; margin-bottom:2.5rem; }
+.step { position:relative; padding:0 1.25rem; display:flex; flex-direction:column; align-items:center; text-align:center; }
+.connector {
+  position:absolute; top:27px; right:-1px;
+  width:50%; height:1px;
+  background:linear-gradient(90deg,rgba(0,200,232,0.35),rgba(0,200,232,0.08));
 }
-
-.steps {
-  margin-top: 40px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-  gap: 24px;
+.numWrap {
+  width:54px; height:54px; border-radius:50%;
+  border:1px solid rgba(0,200,232,0.28);
+  background:rgba(0,200,232,0.07);
+  display:flex; align-items:center; justify-content:center;
+  position:relative; z-index:1;
+  margin-bottom:1.25rem; flex-shrink:0;
 }
-
-.step {
-  text-align: center;
-  padding: 24px;
+.num { font-family:var(--font-mono); font-size:.8rem; font-weight:500; color:var(--cyan); }
+.stepTitle { font-family:var(--font-display); font-size:.95rem; font-weight:600; color:var(--text-primary); margin-bottom:.2rem; }
+.stepSub   { font-size:.66rem; color:var(--cyan); font-family:var(--font-mono); letter-spacing:.06em; text-transform:uppercase; margin-bottom:.65rem; }
+.stepDesc  { font-size:.79rem; color:var(--slate-400); line-height:1.8; }
+.techRow   { display:flex; flex-wrap:wrap; gap:.65rem; justify-content:center; padding-top:2rem; border-top:1px solid rgba(255,255,255,0.06); }
+.chip {
+  display:flex; align-items:center; gap:5px;
+  padding:5px 13px;
+  background:rgba(255,255,255,0.035);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:100px;
+  font-size:.74rem; color:var(--slate-300);
 }
-
-.number {
-  width: 50px;
-  height: 50px;
-  margin: auto;
-  margin-bottom: 16px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-  background: var(--primary);
-  color: white;
-  font-weight: bold;
-}
+.chipDot { width:5px; height:5px; border-radius:50%; background:var(--cyan); flex-shrink:0; }
+@media(max-width:860px){ .steps{grid-template-columns:repeat(2,1fr);gap:2rem;} .connector{display:none;} }
+@media(max-width:580px){ .steps{grid-template-columns:1fr;} }

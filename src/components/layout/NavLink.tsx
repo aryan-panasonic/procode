@@ -1,30 +1,5 @@
-"use client";
-
+// NavLink utility — used by Header
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-
-export default function NavLink({
-  href,
-  children
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  const pathname = usePathname();
-
-  const active =
-    pathname.startsWith(href);
-
-  return (
-    <Link
-      href={href}
-      style={{
-        color: active
-          ? "var(--primary)"
-          : undefined
-      }}
-    >
-      {children}
-    </Link>
-  );
+export default function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return <Link href={href}>{children}</Link>;
 }

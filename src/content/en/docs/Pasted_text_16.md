@@ -1,6 +1,6 @@
 **Executive Summary**
 
-This repository implements an API-first “Intelligent Shelf Analyzer” platform for retail shelf operations. The main business flow is:
+This repository implements an API-first “INTELLIGENT SHELF ANALYZER” platform for retail shelf operations. The main business flow is:
 
 1. Create a tenant/retailer.
 2. Register products and reference product images.
