@@ -1,0 +1,434 @@
+[
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-0",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "**Executive Summary**\n\nThis repository implements an API-first “Intelligent Shelf Analyzer” platform for retail shelf operations. The main business flow is:\n\n1. Create a tenant/retailer.\n2. Register products and reference product images.\n3. Register planogram layouts, either as JSON or from PSA files.\n4. Submit shelf images for analysis.\n5. Retrieve structured product-placement, compliance, price, and capture-analysis results.\n\nThat purpose is stated in the public docs and is reflected directly in the code paths for tenant, product, planogram, capture-upload, price-upload, and analysis retrieval APIs in [README.md](/home/panasonic/Planogram_Service-final-migration/README.md), [docs/public/index.md](/home/panasonic/Planogram_Service-final-migration/docs/public/index.md), [planogram/src/api.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/api.py), and the route modules under [planogram/src](/home/panasonic/Planogram_Service-final-migration/planogram/src).\n\nWhat problem"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-1",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "ion/planogram/src/api.py), and the route modules under [planogram/src](/home/panasonic/Planogram_Service-final-migration/planogram/src).\n\nWhat problem it solves:\n- It turns shelf photos into structured operational data.\n- It compares actual shelf state against expected shelf state.\n- It extracts price-tag information from shelf images.\n- It supports automated planogram generation from shelf photos.\n\nTarget users:\n- The code and docs consistently use `tenant`, `retailer`, `product`, `planogram`, `capture`, and `webhook_url`, which indicates B2B customers such as retailers and shelf-operations teams rather than consumers. This is visible in [planogram/src/tenant/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/tenant/routes.py), [planogram/src/product/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/product/routes.py), and [docs/public/getting-started.md](/home/panasonic/Planogram_Service-final-migration/docs/public/getting-started.md)."
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-2",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "nogram/src/product/routes.py), and [docs/public/getting-started.md](/home/panasonic/Planogram_Service-final-migration/docs/public/getting-started.md).\n\nCore business value:\n- Product-catalog onboarding and searchable visual index.\n- Shelf compliance analysis against planograms.\n- Price-tag extraction workflow.\n- Capture-result persistence and retrieval.\n- Webhook-driven automation for asynchronous workflows.\n- Auto-generation of planograms from real shelf imagery.\n\nMajor capabilities:\n- OAuth client authentication with JWT issuance.\n- Tenant creation with automatic store creation.\n- Product upsert and tenant-product association.\n- Product image registration with embedding generation and rotated variants.\n- Similar-product search by product ID or image.\n- Planogram registration from JSON and PSA.\n- Synchronous shelf analysis.\n- Asynchronous shelf analysis via Temporal workflows.\n- Price-capture OCR pipeline.\n- Capture-analysis retrieval, cropped-image retrieval, and alternative-product "
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-3",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "s shelf analysis via Temporal workflows.\n- Price-capture OCR pipeline.\n- Capture-analysis retrieval, cropped-image retrieval, and alternative-product retrieval.\n- Admin-style vector-point inspection.\n- Static documentation site with public and internal variants.\n\nOverall system purpose:\n- This is a multi-service retail computer-vision platform centered on the `planogram` API, supported by dedicated inference services (`embedding`, `detection`), and a Temporal-based orchestration layer for asynchronous shelf-analysis execution. That structure is visible in [DEVELOPMENT.md](/home/panasonic/Planogram_Service-final-migration/DEVELOPMENT.md), [planogram/src/capture_upload/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/routes.py#L38), [orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py](/home/panasonic/Planogram_Service-final-migration/orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py#L106), and the Kubernete"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-4",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": ".py](/home/panasonic/Planogram_Service-final-migration/orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py#L106), and the Kubernetes manifests under [manifest/staging-primary](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary).\n\n**Product Capability Analysis**\n\n| Capability | Purpose | How it works | Components | Evidence |\n|---|---|---|---|---|\n| OAuth client auth + JWT | Secure API access | `/api/v1/auth/token` validates client credentials against `oauth_client`, then issues HS256 JWTs | `planogram` auth routes/services/models | [planogram/src/auth/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/auth/routes.py#L26), [planogram/src/auth/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/auth/services.py), [planogram/src/auth/jwt.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/auth/jwt.py#L12), [planogram/src/models/oauth_client.py](/home/panasonic/Planogram_Service-fina"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-5",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "asonic/Planogram_Service-final-migration/planogram/src/auth/jwt.py#L12), [planogram/src/models/oauth_client.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/oauth_client.py) |\n| Tenant onboarding | Create retailer entities | `POST /tenants` creates a tenant and auto-creates a default store | tenant/country/store services and models | [planogram/src/tenant/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/tenant/routes.py), [planogram/src/tenant/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/tenant/services.py), [planogram/src/models/tenant.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/tenant.py), [planogram/src/models/store.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/store.py) |\n| Tenant maintenance | Update retailer metadata and list linked products | `PATCH /tenants/<id>` updates fields; `GET /tenants/<id>/products` lists associated catalog entr"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-6",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "| Update retailer metadata and list linked products | `PATCH /tenants/<id>` updates fields; `GET /tenants/<id>/products` lists associated catalog entries | tenant routes/services/repository | [planogram/src/tenant/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/tenant/routes.py) |\n| Product catalog upsert | Load or update product master data | Product upsert splits incoming products into insert/update/link-only paths using `product` and `tenant_product` tables | product service/repository/models | [planogram/src/product/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/product/routes.py#L39), [planogram/src/product/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/product/services.py), [planogram/src/product/repository.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/product/repository.py), [planogram/src/models/product.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/mo"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-7",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "l-migration/planogram/src/product/repository.py), [planogram/src/models/product.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/product.py), [planogram/src/models/tenant_product.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/tenant_product.py) |\n| Product image registration | Build the searchable visual product index | Registers original image plus configured rotated variants; each image is embedded and stored as a `product_embedding` row | product service + embedding service + pgvector model | [planogram/src/product/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/product/services.py#L308), [planogram/src/vector_db/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/vector_db/services.py#L32), [planogram/src/models/product_embedding.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/product_embedding.py#L17), [embedding/src/feature_extractor/routes.py](/h"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-8",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "g.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/product_embedding.py#L17), [embedding/src/feature_extractor/routes.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/feature_extractor/routes.py) |\n| Similar-product search | Search by product ID or by uploaded image | For product ID, retrieves an existing embedding and runs cosine similarity search; for image, first calls embedding service then searches | product service + embedding service + `product_embedding` table | [planogram/src/product/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/product/routes.py#L73), [planogram/src/product/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/product/services.py#L389), [planogram/src/product/repository.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/product/repository.py#L98) |\n| Planogram registration by JSON | Store expected shelf layout | Writes planogram, segment, fixture,"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-9",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "ration/planogram/src/product/repository.py#L98) |\n| Planogram registration by JSON | Store expected shelf layout | Writes planogram, segment, fixture, and position hierarchy; also handles fixture type `11` special processing | planogram/segment/fixture/position services and helpers | [planogram/src/planogram/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/planogram/routes.py#L32), [planogram/src/planogram/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/planogram/services.py#L38) |\n| Planogram registration by PSA | Import PSA shelf-layout files | Parses PSA, validates planogram/product/segment/fixture/position data, then upserts the same core hierarchy | planogram PSA parser/validation/service | [planogram/src/planogram/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/planogram/routes.py#L48), [planogram/src/planogram/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/planogram/se"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-10",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "ogram/src/planogram/routes.py#L48), [planogram/src/planogram/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/planogram/services.py#L151), [planogram/src/planogram/psa](/home/panasonic/Planogram_Service-final-migration/planogram/src/planogram/psa) |\n| Planogram retrieval | Return the stored expected layout | Reads planogram, segments, fixtures, positions for a planogram ID | planogram + dependent services | [planogram/src/planogram/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/planogram/routes.py#L79), [planogram/src/planogram/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/planogram/services.py#L114) |\n| Synchronous shelf analysis | Immediate product analysis result | Detection -> embedding similarity search -> post-processing -> optional blob persistence | `planogram` service pipeline | [planogram/src/capture_upload/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_u"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-11",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "ce | `planogram` service pipeline | [planogram/src/capture_upload/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/routes.py#L38), [planogram/src/capture_upload/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/services.py), [planogram/src/capture_upload/pipelines/builders.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/pipelines/builders.py) |\n| Asynchronous shelf analysis | Webhook-driven non-blocking analysis | Uploads shelf image to blob, starts Temporal workflow, workers call detection/embedding/post-processing, then webhook sends result | planogram Temporal client + orchestration workflow + workers | [planogram/src/capture_upload/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/routes.py#L57), [planogram/src/capture_upload/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/services.p"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-12",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "d/routes.py#L57), [planogram/src/capture_upload/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/services.py#L424), [planogram/src/capture_upload/temporal_client.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/temporal_client.py), [orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py](/home/panasonic/Planogram_Service-final-migration/orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py#L106) |\n| Post-processing API | Worker-facing semantic conversion | Converts raw detection boxes + embeddings into shelf/business results, including compliance and alternatives | post-processing route/service/repository | [planogram/src/capture_upload/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/routes.py#L72), [planogram/src/capture_upload/post_processing_service.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/po"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-13",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "s.py#L72), [planogram/src/capture_upload/post_processing_service.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/post_processing_service.py) |\n| Price capture analysis | OCR-driven price-tag extraction | Uses Azure Vision OCR pipeline, price parsing, coordinate post-processing, optional async webhook callback | price routes/services/pipeline steps | [planogram/src/capture_upload_price/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload_price/routes.py), [planogram/src/capture_upload_price/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload_price/services.py), [planogram/src/capture_upload_price/pipelines/steps/processing/azure_ocr_extraction_step.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload_price/pipelines/steps/processing/azure_ocr_extraction_step.py), [planogram/src/capture_upload_price/pipelines/steps/processing/extract_price_step.py]"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-14",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "_price/pipelines/steps/processing/azure_ocr_extraction_step.py), [planogram/src/capture_upload_price/pipelines/steps/processing/extract_price_step.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload_price/pipelines/steps/processing/extract_price_step.py) |\n| Capture-analysis retrieval | Retrieve persisted analysis results | Reads capture-analysis metadata from DB and downloads result/image blobs | capture-analysis routes/services + Azure blob helper | [planogram/src/capture_analysis/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_analysis/routes.py), [planogram/src/capture_analysis/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_analysis/services.py) |\n| Cropped product-image retrieval | Access crops from a previous capture | Lists or retrieves per-product crop images from blob storage | capture-analysis routes + analysis blob helper | [planogram/src/capture_analysis/routes.py](/home/"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-15",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "trieves per-product crop images from blob storage | capture-analysis routes + analysis blob helper | [planogram/src/capture_analysis/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_analysis/routes.py#L86) |\n| Alternative product retrieval | Explain near matches | Downloads stored alternative-product JSON for a capture and filters it per selected product | product service + capture-analysis record + blob | [planogram/src/product/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/product/routes.py#L88), [planogram/src/product/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/product/services.py#L242) |\n| Vector inspection | Internal/admin inspection of stored embeddings | Returns payloads and optionally vectors from `product_embedding` rows | point route/service/repository | [planogram/src/point/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/point/routes.py), [planogram/src/p"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-16",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "ervice/repository | [planogram/src/point/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/point/routes.py), [planogram/src/point/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/point/services.py), [planogram/src/point/repository.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/point/repository.py) |\n| Automatic planogram generation | Convert shelf image to PSA | Marker detection, perspective warp, fixture estimation, PSA generation pipeline | planogram-generator routes/services/pipeline/utils | [planogram/src/planogram_generator/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/planogram_generator/routes.py), [planogram/src/planogram_generator/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/planogram_generator/services.py), [planogram/src/planogram_generator/pipelines/builders.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/planogram_genera"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-17",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "rvices.py), [planogram/src/planogram_generator/pipelines/builders.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/planogram_generator/pipelines/builders.py) |\n| AI-assisted OCR/LLM refinement | Improve recognition beyond image similarity | OCR text is embedded and combined with image similarity; unknowns can go through LLM-based product-name extraction and fuzzy matching | recogs-processing + refine-unknown + Azure OpenAI + Azure Vision | [planogram/src/capture_upload/pipelines/steps/postprocessing/recogs_processing_step.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/pipelines/steps/postprocessing/recogs_processing_step.py), [planogram/src/capture_upload/pipelines/steps/postprocessing/refine_unknown_item_step.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/pipelines/steps/postprocessing/refine_unknown_item_step.py), [planogram/src/kit/product_info_embedder.py](/home/panasonic/Planogram_Service-fi"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-18",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "_upload/pipelines/steps/postprocessing/refine_unknown_item_step.py), [planogram/src/kit/product_info_embedder.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/kit/product_info_embedder.py), [planogram/src/kit/product_info_extractor.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/kit/product_info_extractor.py) |\n| Documentation delivery | Public/internal docs and interactive API references | MkDocs builds two sites, served by Nginx, with public/internal routes separated in deployment | docs Dockerfile, MkDocs configs, manifests | [docs/Dockerfile](/home/panasonic/Planogram_Service-final-migration/docs/Dockerfile), [docs/mkdocs-public.yml](/home/panasonic/Planogram_Service-final-migration/docs/mkdocs-public.yml), [docs/mkdocs-internal.yml](/home/panasonic/Planogram_Service-final-migration/docs/mkdocs-internal.yml), [manifest/staging-primary/documentation.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/documentation.y"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-19",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "nternal.yml), [manifest/staging-primary/documentation.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/documentation.yaml) |\n\n**Complete Architecture Analysis**\n\n**High-Level Architecture**\n\n```mermaid\nflowchart LR\n    Client[API Client / Retail System] --> Planogram[Planogram API<br/>Flask + flask-openapi3]\n    Client --> Docs[Docs Site<br/>MkDocs + Nginx]\n\n    Planogram --> Postgres[(PostgreSQL + pgvector)]\n    Planogram --> Blob[Azure Blob Storage]\n    Planogram --> Detection[Detection Service<br/>Flask + ONNX Runtime]\n    Planogram --> Embedding[Embedding Service<br/>Flask + OpenVINO]\n    Planogram --> Vision[Azure Computer Vision]\n    Planogram --> OpenAI[Azure OpenAI]\n\n    Planogram --> Temporal[(Temporal)]\n    Temporal --> WfWorker[Workflow Worker]\n    Temporal --> DetWorker[Detection Worker]\n    Temporal --> EmbWorker[Embedding Worker]\n\n    DetWorker --> Detection\n    EmbWorker --> Embedding\n    WfWorker --> Planogram\n```\n\nCurrent architecture fr"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-20",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "poral --> EmbWorker[Embedding Worker]\n\n    DetWorker --> Detection\n    EmbWorker --> Embedding\n    WfWorker --> Planogram\n```\n\nCurrent architecture from code:\n- `planogram` is the central API and business layer.\n- `embedding` is a focused inference microservice for vector generation.\n- `detection` is a focused inference microservice for bounding-box detection.\n- `orchestration` contains Temporal workflows and worker processes for asynchronous shelf analysis.\n- `docs` is a separate static documentation deployment.\n\nEvidence:\n- [planogram/src/__init__.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/__init__.py)\n- [embedding/src/__init__.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/__init__.py)\n- [detection/app.py](/home/panasonic/Planogram_Service-final-migration/detection/app.py)\n- [orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py](/home/panasonic/Planogram_Service-final-migration/orchestration/capture_upload/workflows/mai"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-21",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "capture_upload/workflows/main/shelf_analysis_workflow.py](/home/panasonic/Planogram_Service-final-migration/orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py)\n- [docs/Dockerfile](/home/panasonic/Planogram_Service-final-migration/docs/Dockerfile)\n\n**Frontend Architecture**\n\nThere is no customer-facing web frontend application in this repository. The only frontend-like surface is the documentation site:\n- MkDocs builds `public` and `internal` static sites.\n- Nginx serves them on separate ports.\n- Kubernetes exposes them behind path-based routes.\n- Internal docs are additionally protected by a custom authorization policy.\n\nEvidence:\n- [docs/Dockerfile](/home/panasonic/Planogram_Service-final-migration/docs/Dockerfile)\n- [manifest/staging-primary/documentation.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/documentation.yaml)\n- [manifest/develop/authorization-policy.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/devel"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-22",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "st/staging-primary/documentation.yaml)\n- [manifest/develop/authorization-policy.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/develop/authorization-policy.yaml)\n- [manifest/staging-primary/httproute.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/httproute.yaml)\n\n**Backend Architecture**\n\nThe backend is split by responsibility.\n\n`planogram`:\n- Owns authentication, domain validation, persistence, business workflows, Azure integration, and synchronous capture analysis.\n- Also acts as the semantic post-processing service used by Temporal workers.\n\n`embedding`:\n- Loads an OpenVINO model either from local files or Azure Blob Storage.\n- Exposes `/embedding` and `/embedding/url`.\n- Normalizes embeddings after inference.\n\n`detection`:\n- Legacy-style Flask service centered on `app.py`.\n- Loads ONNX detection model from local or Azure-backed storage.\n- Exposes `/detection` and `/detection/url`.\n\n`orchestration`:\n- Uses Temporal for asynchronous"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-23",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "NX detection model from local or Azure-backed storage.\n- Exposes `/detection` and `/detection/url`.\n\n`orchestration`:\n- Uses Temporal for asynchronous shelf analysis.\n- Runs detection, embedding, post-processing, and notification as activity boundaries.\n- Keeps worker deployments separate from the main API deployment.\n\n**Request Lifecycle**\n\nSynchronous product-capture path:\n```mermaid\nsequenceDiagram\n    participant Client\n    participant API as Planogram API\n    participant Det as Detection Service\n    participant Emb as Embedding Service\n    participant DB as PostgreSQL/pgvector\n    participant Blob as Azure Blob Storage\n\n    Client->>API: POST /synccaptureupload\n    API->>API: Validate JWT, image quality, image size\n    API->>DB: Load tenant products, planogram, fixtures, positions\n    API->>Det: POST /detection\n    Det-->>API: bounding boxes\n    API->>Emb: POST /embedding\n    Emb-->>API: feature vectors\n    API->>DB: cosine similarity search on product_embedding\n    API->>API: OCR"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-24",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "ng boxes\n    API->>Emb: POST /embedding\n    Emb-->>API: feature vectors\n    API->>DB: cosine similarity search on product_embedding\n    API->>API: OCR/LLM refinement, compliance, numbering\n    API-->>Client: analysis result\n    API->>Blob: optional async persistence of image/results/crops\n    API->>DB: capture_analysis record\n```\n\nAsynchronous product-capture path:\n```mermaid\nsequenceDiagram\n    participant Client\n    participant API as Planogram API\n    participant Blob as Azure Blob Storage\n    participant Temporal\n    participant Wf as Workflow Worker\n    participant DetW as Detection Worker\n    participant EmbW as Embedding Worker\n    participant API2 as Planogram Post-Processing API\n    participant Hook as Tenant Webhook\n\n    Client->>API: POST /captureupload\n    API->>API: Validate JWT, entities, image\n    API->>Blob: upload shelf image\n    API->>Temporal: start ShelfAnalysisWorkflow\n    API-->>Client: 202 + workflow id\n\n    Temporal->>Wf: run workflow\n    Wf->>DetW: detection ac"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-25",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "mage\n    API->>Temporal: start ShelfAnalysisWorkflow\n    API-->>Client: 202 + workflow id\n\n    Temporal->>Wf: run workflow\n    Wf->>DetW: detection activity\n    DetW->>API2: no\n    DetW->>Blob: read via blob_url through detection service\n    Wf->>EmbW: embedding activity\n    Wf->>API2: post-processing activity -> /capture-upload/post-processing\n    API2-->>Wf: business result\n    Wf->>Hook: webhook notification\n```\n\nEvidence:\n- [planogram/src/capture_upload/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/routes.py#L38)\n- [planogram/src/capture_upload/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/services.py#L424)\n- [orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py](/home/panasonic/Planogram_Service-final-migration/orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py#L111)\n\n**Authentication and Authorization Flow**\n\nAPI auth flow:\n1. Client posts `clientId` and"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-26",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "pture_upload/workflows/main/shelf_analysis_workflow.py#L111)\n\n**Authentication and Authorization Flow**\n\nAPI auth flow:\n1. Client posts `clientId` and `clientSecret` to `/api/v1/auth/token`.\n2. `OAuthClientService.verify` checks the hashed secret in `oauth_client`.\n3. `generate_jwt_token` creates an HS256 JWT with `client_id`, `scopes`, and `exp`.\n4. `require_jwt` validates Bearer token on protected routes and stores claims in `flask.g`.\n\nEvidence:\n- [planogram/src/auth/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/auth/routes.py#L26)\n- [planogram/src/auth/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/auth/services.py)\n- [planogram/src/auth/jwt.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/auth/jwt.py#L12)\n\nAuthorization model:\n- Route protection is binary: protected vs unprotected.\n- The repo stores `scopes` on OAuth clients and embeds `scopes` in JWTs, but no route-level scope checks are implemented in "
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-27",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "protected vs unprotected.\n- The repo stores `scopes` on OAuth clients and embeds `scopes` in JWTs, but no route-level scope checks are implemented in `require_jwt`.\n- Internal docs are protected separately at ingress by `oauth2-proxy` via Istio `AuthorizationPolicy`.\n\nEvidence:\n- [planogram/src/models/oauth_client.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/oauth_client.py)\n- [planogram/src/auth/jwt.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/auth/jwt.py#L17)\n- [manifest/develop/authorization-policy.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/develop/authorization-policy.yaml)\n\n**Database Architecture**\n\nCurrent data architecture is PostgreSQL-centered, with `pgvector` extension enabled by [init-db.sql](/home/panasonic/Planogram_Service-final-migration/init-db.sql).\n\nCore relational entities:\n- `country`\n- `tenant`\n- `store`\n- `product`\n- `tenant_product`\n- `planogram`\n- `segment`\n- `fixture`\n- `position`\n- `ca"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-28",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": ").\n\nCore relational entities:\n- `country`\n- `tenant`\n- `store`\n- `product`\n- `tenant_product`\n- `planogram`\n- `segment`\n- `fixture`\n- `position`\n- `capture_analysis`\n- `oauth_client`\n- `product_embedding`\n\nVector storage:\n- Product vectors are stored in `product_embedding.embedding` as `Vector(256)`.\n- OCR/text vectors are stored in `product_embedding.product_info_vector`.\n- Similarity queries use `cosine_distance` through SQLAlchemy/pgvector.\n\nEvidence:\n- [planogram/src/models/product_embedding.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/product_embedding.py#L17)\n- [planogram/src/vector_db/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/vector_db/services.py#L18)\n- [planogram/src/product/repository.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/product/repository.py#L98)\n- [planogram/migrations/versions/2026-01-26-1036_add_product_embedding_table.py](/home/panasonic/Planogram_Service-final-migration/plano"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-29",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "itory.py#L98)\n- [planogram/migrations/versions/2026-01-26-1036_add_product_embedding_table.py](/home/panasonic/Planogram_Service-final-migration/planogram/migrations/versions/2026-01-26-1036_add_product_embedding_table.py)\n\n**Infrastructure Architecture**\n\nFrom manifests, the runtime architecture includes:\n- Kubernetes Deployments for `planogram`, `embedding`, `detection`, and docs.\n- Separate worker Deployments for Temporal activity and workflow workers.\n- `ClusterIP` Services for internal service-to-service traffic.\n- `HTTPRoute` path routing for public exposure.\n- `AuthorizationPolicy` for internal docs auth.\n- KEDA `ScaledObject`s for queue- and resource-based scaling.\n- Azure Workload Identity labels and Key Vault CSI secret mounts.\n- DB migrations as an initContainer in `planogram`.\n\nEvidence:\n- [manifest/staging-primary/planogram.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/planogram.yaml#L1)\n- [manifest/staging-primary/orchestration-worker.ya"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-30",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "aml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/planogram.yaml#L1)\n- [manifest/staging-primary/orchestration-worker.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/orchestration-worker.yaml)\n- [manifest/staging-primary/embedding.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/embedding.yaml)\n- [manifest/staging-primary/detection.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/detection.yaml)\n- [manifest/staging-primary/httproute.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/httproute.yaml)\n- [manifest/staging-primary/secretprovider.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/secretprovider.yaml)\n\n**Deployment Architecture**\n\nThe repo supports:\n- Local development via Docker Compose for PostgreSQL with `pgvector`.\n- Containerized deployment for all services.\n- GitHub Actions image build "
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-31",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "rts:\n- Local development via Docker Compose for PostgreSQL with `pgvector`.\n- Containerized deployment for all services.\n- GitHub Actions image build and push.\n- GitOps-style deployment updates into a separate `planogramDeployment` repository.\n- Environment-specific promotion for dev, UAT, prod.\n- Docs as a separately deployed artifact.\n\nEvidence:\n- [docker-compose.yml](/home/panasonic/Planogram_Service-final-migration/docker-compose.yml)\n- [planogram/Dockerfile](/home/panasonic/Planogram_Service-final-migration/planogram/Dockerfile)\n- [embedding/Dockerfile](/home/panasonic/Planogram_Service-final-migration/embedding/Dockerfile)\n- [detection/Dockerfile](/home/panasonic/Planogram_Service-final-migration/detection/Dockerfile)\n- [orchestration/Dockerfile](/home/panasonic/Planogram_Service-final-migration/orchestration/Dockerfile)\n- [.github/workflows/build-and-push-planogram.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/build-and-push-planogram.yml)\n- [.github/w"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-32",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "workflows/build-and-push-planogram.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/build-and-push-planogram.yml)\n- [.github/workflows/build-and-push-documentation.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/build-and-push-documentation.yml)\n\n**Repository & Module Breakdown**\n\nTop-level structure:\n\n| Directory | Responsibility |\n|---|---|\n| `planogram/` | Main API, database models, business logic, capture workflows |\n| `embedding/` | Image embedding inference API |\n| `detection/` | Object detection inference API |\n| `orchestration/` | Temporal workflows, activities, workers |\n| `docs/` | Public/internal documentation sources and docs tooling |\n| `manifest/` | Kubernetes manifests for develop and staging-primary |\n| `.github/workflows/` | CI, build, deploy, security, docs, E2E |\n| `assets/` | Static image assets used in docs/README |\n\nImportant `planogram/src` packages:\n\n| Package | Responsibility |\n|---|---|\n| `auth` | OAuth client a"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-33",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "s/` | Static image assets used in docs/README |\n\nImportant `planogram/src` packages:\n\n| Package | Responsibility |\n|---|---|\n| `auth` | OAuth client auth, JWT generation/validation |\n| `tenant`, `store`, `country` | Retailer and location domain |\n| `product` | Product onboarding, image registration, search, alternatives |\n| `planogram`, `segment`, `fixture`, `position` | Shelf-layout domain |\n| `capture_upload` | Product shelf-analysis flow |\n| `capture_upload_price` | OCR-based price analysis flow |\n| `capture_analysis` | Retrieval of stored capture results and crops |\n| `planogram_generator` | Image-to-PSA generation |\n| `point` | Vector inspection endpoint |\n| `models` | SQLAlchemy schema |\n| `kit` | Shared pipeline base classes, prompts, utility AI helpers |\n| `vector_db` | Product embedding registration and similarity search |\n\nImportant `embedding/src` packages:\n- `feature_extractor`: route, schema, preprocessing, embedding extraction.\n- `inference`: model loading and inference s"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-34",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "tant `embedding/src` packages:\n- `feature_extractor`: route, schema, preprocessing, embedding extraction.\n- `inference`: model loading and inference session lifecycle.\n- `health`, `logger`, `otel_setup`: operational support.\n\nImportant `orchestration/capture_upload` packages:\n- `activities`: Temporal activity wrappers for detection, embedding, post-processing, notification.\n- `services`: HTTP clients for downstream services.\n- `workflows/main`: shelf-analysis workflow definition.\n- `workers`: startup processes that register workers on task queues.\n\nImportant `detection/modules` packages:\n- `rObjectDetectionInfLibPython`: legacy model/inference library.\n- `blob_storage_mng`, `ex_object_detect`, `utils`: model loading and detection support.\n- `parse_jwt_mng`, `environ_mng`, `log_print`: legacy support utilities.\n\nInternal dependencies:\n- `planogram` depends on `embedding` and `detection` over HTTP.\n- `orchestration` depends on `planogram`, `embedding`, and `detection` over HTTP.\n- `plano"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-35",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "lanogram` depends on `embedding` and `detection` over HTTP.\n- `orchestration` depends on `planogram`, `embedding`, and `detection` over HTTP.\n- `planogram` persists both relational and vector-like data in PostgreSQL through SQLAlchemy + pgvector.\n- `embedding` and `detection` are intentionally stateless apart from in-memory models and blob access.\n\n**Technology Stack Analysis**\n\n| Technology | Role in system | Evidence |\n|---|---|---|\n| Python 3.10 / 3.12 | Primary implementation language | [planogram/pyproject.toml](/home/panasonic/Planogram_Service-final-migration/planogram/pyproject.toml), [orchestration/pyproject.toml](/home/panasonic/Planogram_Service-final-migration/orchestration/pyproject.toml) |\n| Flask | Core web framework for `planogram`, `embedding`, `detection` | [planogram/pyproject.toml](/home/panasonic/Planogram_Service-final-migration/planogram/pyproject.toml), [embedding/pyproject.toml](/home/panasonic/Planogram_Service-final-migration/embedding/pyproject.toml), [detec"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-36",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "al-migration/planogram/pyproject.toml), [embedding/pyproject.toml](/home/panasonic/Planogram_Service-final-migration/embedding/pyproject.toml), [detection/app.py](/home/panasonic/Planogram_Service-final-migration/detection/app.py) |\n| flask-openapi3 | OpenAPI-driven request/response layer | [planogram/src/__init__.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/__init__.py), [embedding/src/__init__.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/__init__.py) |\n| SQLAlchemy + Flask-SQLAlchemy | ORM and DB access | [planogram/src/models/base.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/base.py) |\n| Alembic / Flask-Migrate | Schema migration management | [planogram/migrations](/home/panasonic/Planogram_Service-final-migration/planogram/migrations), [planogram/src/__init__.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/__init__.py) |\n| PostgreSQL | Primary relational DB | [planogram/src/config.py](/h"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-37",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "py](/home/panasonic/Planogram_Service-final-migration/planogram/src/__init__.py) |\n| PostgreSQL | Primary relational DB | [planogram/src/config.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/config.py), [manifest/staging-primary/planogram.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/planogram.yaml#L43) |\n| pgvector | Vector storage and cosine similarity in PostgreSQL | [init-db.sql](/home/panasonic/Planogram_Service-final-migration/init-db.sql), [planogram/src/models/product_embedding.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/product_embedding.py#L31) |\n| OpenVINO | Embedding inference runtime | [embedding/src/inference/services.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/inference/services.py), [embedding/pyproject.toml](/home/panasonic/Planogram_Service-final-migration/embedding/pyproject.toml) |\n| ONNX Runtime | Detection inference runtime | [detection/modules/ex_object_"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-38",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "e/panasonic/Planogram_Service-final-migration/embedding/pyproject.toml) |\n| ONNX Runtime | Detection inference runtime | [detection/modules/ex_object_detect.py](/home/panasonic/Planogram_Service-final-migration/detection/modules/ex_object_detect.py), [detection/pyproject.toml](/home/panasonic/Planogram_Service-final-migration/detection/pyproject.toml) |\n| OpenCV | Image processing throughout capture, OCR, and generation pipelines | present across `planogram`, `embedding`, `detection` |\n| PyTorch | Tensor normalization / embedding tensor handling | [embedding/src/feature_extractor/services.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/feature_extractor/services.py), [planogram/pyproject.toml](/home/panasonic/Planogram_Service-final-migration/planogram/pyproject.toml) |\n| Azure Blob Storage SDK | Model download, shelf-image storage, result persistence | [embedding/src/inference/services.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/inference/se"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-39",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "image storage, result persistence | [embedding/src/inference/services.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/inference/services.py), [planogram/src/capture_upload/utils/analysis_blob_storage.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/utils/analysis_blob_storage.py), [detection/modules/blob_storage_mng.py](/home/panasonic/Planogram_Service-final-migration/detection/modules/blob_storage_mng.py) |\n| Azure Identity | Managed identity / Entra auth | [planogram/src/config.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/config.py), [embedding/src/inference/services.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/inference/services.py) |\n| Azure OpenAI | Text embedding and vision/LLM-assisted refinement | [planogram/src/kit/product_info_embedder.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/kit/product_info_embedder.py), [planogram/src/kit/product_info_extractor.py"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-40",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "bedder.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/kit/product_info_embedder.py), [planogram/src/kit/product_info_extractor.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/kit/product_info_extractor.py) |\n| Azure Computer Vision | OCR for price pipeline and OCR-assisted refinement | [planogram/src/capture_upload_price/pipelines/steps/processing/azure_ocr_extraction_step.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload_price/pipelines/steps/processing/azure_ocr_extraction_step.py) |\n| Temporal | Asynchronous shelf-analysis workflow orchestration | [orchestration/pyproject.toml](/home/panasonic/Planogram_Service-final-migration/orchestration/pyproject.toml), [orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py](/home/panasonic/Planogram_Service-final-migration/orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py) |\n| Gunicorn + gevent | Production process manager for Flask s"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-41",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "final-migration/orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py) |\n| Gunicorn + gevent | Production process manager for Flask services | Dockerfiles for `planogram`, `embedding`, `detection` |\n| MkDocs + Nginx | Static docs generation and serving | [docs/Dockerfile](/home/panasonic/Planogram_Service-final-migration/docs/Dockerfile) |\n| Ruff | Linting and formatting | [ruff.toml](/home/panasonic/Planogram_Service-final-migration/ruff.toml), [.pre-commit-config.yaml](/home/panasonic/Planogram_Service-final-migration/.pre-commit-config.yaml) |\n| Pytest | Unit/integration/system testing | test directories and workflow files |\n| GitHub Actions | CI/CD orchestration | [.github/workflows](/home/panasonic/Planogram_Service-final-migration/.github/workflows) |\n| CodeQL + Black Duck | Security and OSS-risk analysis | [codeql.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/codeql.yml), Black Duck workflows |\n| KEDA | Autoscaling based on Temporal qu"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-42",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/codeql.yml), Black Duck workflows |\n| KEDA | Autoscaling based on Temporal queue + CPU/memory | manifests under `manifest/*/*.yaml` |\n| Gateway API + Istio policy | Ingress routing and custom authz | [manifest/staging-primary/httproute.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/httproute.yaml), [manifest/develop/authorization-policy.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/develop/authorization-policy.yaml) |\n\n**API & Integration Analysis**\n\n**Planogram API endpoint inventory**\n\n| Method | Path | Purpose | Auth |\n|---|---|---|---|\n| `POST` | `/api/v1/auth/token` | Get access token | No |\n| `POST` | `/api/v1/productdata` | Upsert products | JWT |\n| `POST` | `/api/v1/productimage` | Register product image | JWT |\n| `POST` | `/api/v1/productsearch` | Search products | JWT |\n| `GET` | `/api/v1/tenants/{tenant_id}/products/{product_id}/alternativeProducts` |"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-43",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "JWT |\n| `POST` | `/api/v1/productsearch` | Search products | JWT |\n| `GET` | `/api/v1/tenants/{tenant_id}/products/{product_id}/alternativeProducts` | Alternative products | JWT |\n| `POST` | `/api/v1/tenants` | Create tenant | JWT |\n| `PATCH` | `/api/v1/tenants/{id}` | Update tenant | JWT |\n| `GET` | `/api/v1/tenants/{id}/products` | List tenant products | JWT |\n| `POST` | `/api/v1/planogramdata` | Register planogram JSON | JWT |\n| `POST` | `/api/v1/planogramdata/from-file` | Register planogram from PSA | JWT |\n| `GET` | `/api/v1/planogramdata/{planogram_id}` | Get planogram data | JWT |\n| `POST` | `/api/v1/synccaptureupload` | Sync shelf analysis | JWT |\n| `POST` | `/api/v1/captureupload` | Async shelf analysis | JWT |\n| `POST` | `/api/v1/capture-upload/post-processing` | Worker post-processing | JWT |\n| `POST` | `/api/v1/synccaptureuploadprice` | Sync price extraction | JWT |\n| `POST` | `/api/v1/captureuploadprice` | Async price extraction | JWT |\n| `GET` | `/api/v1/tenants/{tenant_i"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-44",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "adprice` | Sync price extraction | JWT |\n| `POST` | `/api/v1/captureuploadprice` | Async price extraction | JWT |\n| `GET` | `/api/v1/tenants/{tenant_id}/captureAnalysis/{capture_id}` | Get capture analysis | JWT |\n| `GET` | `/api/v1/tenants/{tenant_id}/captureAnalysis/{capture_id}/products` | List product crops | JWT |\n| `GET` | `/api/v1/tenants/{tenant_id}/captureAnalysis/{capture_id}/products/{product_id}` | Get one crop | JWT |\n| `GET` | `/api/v1/tenants/{id}/points` | Inspect vector rows | JWT |\n| `POST` | `/api/v1/planogramgenerator` | Generate PSA from shelf image | JWT |\n| `GET` | `/health` | Health check | No |\n\nEvidence:\n- [planogram/src/api.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/api.py)\n- route files under [planogram/src](/home/panasonic/Planogram_Service-final-migration/planogram/src)\n\n**Embedding service endpoints**\n\n| Method | Path | Purpose |\n|---|---|---|\n| `POST` | `/embedding` | Generate embeddings from base64 image |\n| `POST` | `/embedding"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-45",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "ervice endpoints**\n\n| Method | Path | Purpose |\n|---|---|---|\n| `POST` | `/embedding` | Generate embeddings from base64 image |\n| `POST` | `/embedding/url` | Generate embeddings from blob URL |\n| `GET` | `/health` | Health check |\n\nEvidence:\n- [embedding/src/feature_extractor/routes.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/feature_extractor/routes.py)\n- [embedding/src/health/routes.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/health/routes.py)\n\n**Detection service endpoints**\n\n| Method | Path | Purpose |\n|---|---|---|\n| `GET` | `/` | Simple home/version string |\n| `GET` | `/health` | Health check |\n| `POST` | `/detection` | Detect from base64 image |\n| `POST` | `/detection/url` | Detect from blob URL |\n\nEvidence:\n- [detection/app.py](/home/panasonic/Planogram_Service-final-migration/detection/app.py)\n\n**External integrations**\n\n| Integration | Usage |\n|---|---|\n| Azure Blob Storage | Shelf-image upload, result storage, model download |\n"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-46",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "ion/app.py)\n\n**External integrations**\n\n| Integration | Usage |\n|---|---|\n| Azure Blob Storage | Shelf-image upload, result storage, model download |\n| Azure OpenAI | Text embeddings and LLM product extraction |\n| Azure Computer Vision | OCR for price and recognition refinement |\n| Temporal | Async workflow execution |\n| Webhooks | Delivery of async analysis results |\n\n**Data & Storage Analysis**\n\n**Entity relationships**\n\n```mermaid\nerDiagram\n    COUNTRY ||--o{ TENANT : has\n    COUNTRY ||--o{ STORE : has\n    TENANT ||--o{ STORE : owns\n    TENANT ||--o{ TENANT_PRODUCT : links\n    PRODUCT ||--o{ TENANT_PRODUCT : links\n    STORE ||--o{ PLANOGRAM : contains\n    PLANOGRAM ||--o{ SEGMENT : contains\n    SEGMENT ||--o{ FIXTURE : contains\n    SEGMENT ||--o{ POSITION : contains\n    PRODUCT ||--o{ POSITION : placed_as\n    TENANT ||--o{ PRODUCT_EMBEDDING : owns\n```\n\nSchema observations:\n- IDs are string-based for most domain entities, with UUID-based IDs for `product_embedding`.\n- `capture_analys"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-47",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "DDING : owns\n```\n\nSchema observations:\n- IDs are string-based for most domain entities, with UUID-based IDs for `product_embedding`.\n- `capture_analysis.id` is application-generated.\n- `product_embedding` is the current vector-search store, not a sidecar DB service.\n\nEvidence:\n- [planogram/src/models](/home/panasonic/Planogram_Service-final-migration/planogram/src/models)\n- [planogram/migrations/versions](/home/panasonic/Planogram_Service-final-migration/planogram/migrations/versions)\n\nBlob storage lifecycle:\n- Shelf images and analysis outputs are uploaded into Azure Blob Storage.\n- Product capture persists annotated images, JSON results, alternative products, and cropped item images.\n- Price capture uses separate image/result containers.\n- `capture_analysis` stores blob URLs for later retrieval.\n\nEvidence:\n- [planogram/src/capture_upload/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/services.py)\n- [planogram/src/capture_upload/post_proces"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-48",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "d/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/services.py)\n- [planogram/src/capture_upload/post_processing_service.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/post_processing_service.py)\n- [planogram/src/models/capture_analysis.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/capture_analysis.py)\n\nCaching strategy:\n- There is no general-purpose cache such as Redis in this repository.\n- Instead, inference services cache model state in process memory.\n- `TemporalClientManager` holds a singleton Temporal client on a persistent loop.\n- Embedding service loads model bytes once and warms up inference once at startup.\n\nEvidence:\n- [planogram/src/capture_upload/temporal_client.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/temporal_client.py)\n- [embedding/src/inference/services.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/in"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-49",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "gram/src/capture_upload/temporal_client.py)\n- [embedding/src/inference/services.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/inference/services.py)\n\n**Security Review**\n\nStrengths:\n- JWT-protected application endpoints.\n- OAuth client secrets are hashed before storage.\n- Non-root containers in service manifests and Dockerfiles.\n- Azure Key Vault CSI integration for secrets in Kubernetes.\n- Azure Workload Identity / Entra auth support for cloud resources and PostgreSQL.\n- Structured ECS logs with OpenTelemetry correlation.\n- Detection and embedding are deployed as internal `ClusterIP` services in manifests.\n\nEvidence:\n- [planogram/src/auth/hash.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/auth/hash.py)\n- [planogram/src/auth/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/auth/services.py)\n- [manifest/staging-primary/planogram.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/planogr"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-50",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "m/src/auth/services.py)\n- [manifest/staging-primary/planogram.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/planogram.yaml#L25)\n- [manifest/staging-primary/secretprovider.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/secretprovider.yaml)\n- [planogram/src/config.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/config.py)\n\nRisks and gaps:\n1. Scope claims are stored but not enforced.\n   Evidence: [planogram/src/auth/jwt.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/auth/jwt.py#L17)\n\n2. `embedding` and `detection` do not implement application-layer auth.\n   They appear intended to rely on internal network boundaries.\n   Evidence: [embedding/src/feature_extractor/routes.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/feature_extractor/routes.py), [detection/app.py](/home/panasonic/Planogram_Service-final-migration/detection/app.py)\n\n3. Some synchronous service-t"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-51",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "rc/feature_extractor/routes.py), [detection/app.py](/home/panasonic/Planogram_Service-final-migration/detection/app.py)\n\n3. Some synchronous service-to-service calls use `requests.post` without explicit timeout in `planogram` vector-registration/search paths.\n   Evidence: [planogram/src/vector_db/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/vector_db/services.py#L78)\n\n4. Some asynchronous behavior still uses unmanaged background threads instead of durable orchestration.\n   This is true for price capture async and blob-upload background tasks.\n   Evidence: [planogram/src/capture_upload_price/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload_price/routes.py), [planogram/src/capture_upload/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/services.py#L352), [planogram/src/capture_upload/post_processing_service.py](/home/panasonic/Planogram_Service-final-migration/planogram/src"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-52",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "re_upload/services.py#L352), [planogram/src/capture_upload/post_processing_service.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/post_processing_service.py#L290)\n\n5. Secrets are handled well in manifests, but `.env` files exist locally in service directories. I did not expose their contents.\n\n**Scalability & Performance Review**\n\nCurrent scalability strengths:\n- Temporal decouples async shelf analysis from the request/response path.\n- KEDA scales API/worker deployments based on Temporal queue size plus CPU/memory.\n- Embedding model is loaded once, kept in memory, and warmed up.\n- Product upsert uses bulk insert/upsert patterns.\n- OCR tasks in recognition post-processing use thread pools.\n- Blob-based async workflow input avoids shipping large base64 payloads through Temporal.\n\nEvidence:\n- [orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py](/home/panasonic/Planogram_Service-final-migration/orchestration/capture_upload/workflows/m"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-53",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "n/capture_upload/workflows/main/shelf_analysis_workflow.py](/home/panasonic/Planogram_Service-final-migration/orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py)\n- [manifest/staging-primary/planogram.yaml](/home/panasonic/Planogram_Service-final-migration/manifest/staging-primary/planogram.yaml#L190)\n- [embedding/src/inference/services.py](/home/panasonic/Planogram_Service-final-migration/embedding/src/inference/services.py)\n- [planogram/src/product/repository.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/product/repository.py#L37)\n- [planogram/src/capture_upload/pipelines/steps/postprocessing/recogs_processing_step.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/pipelines/steps/postprocessing/recogs_processing_step.py)\n\nLikely bottlenecks:\n- `planogram` still performs synchronous HTTP calls to inference services in sync flows.\n- Similarity search includes repeated product lookups while assembling top-k matche"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-54",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "rforms synchronous HTTP calls to inference services in sync flows.\n- Similarity search includes repeated product lookups while assembling top-k matches in `PGVectorDB.recognize_item_request`.\n- Background-thread persistence/webhook work can be lost on process crashes.\n- Detection service remains a single-file legacy-style app with a complex support library, which may be harder to tune and evolve.\n\nEvidence:\n- [planogram/src/vector_db/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/vector_db/services.py#L205)\n- [detection/app.py](/home/panasonic/Planogram_Service-final-migration/detection/app.py)\n\nProduction readiness:\n- Stronger than a prototype because it has migrations, health probes, init-container DB upgrade, autoscaling, CI, E2E, observability, and separate worker deployments.\n- Not yet fully uniform because some async paths are Temporal-backed and some still rely on raw threads.\n\n**Development & Operations**\n\nLocal development:\n- `uv` for dependency m"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-55",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "use some async paths are Temporal-backed and some still rely on raw threads.\n\n**Development & Operations**\n\nLocal development:\n- `uv` for dependency management.\n- Docker Compose starts PostgreSQL with `pgvector`.\n- Services run independently via `task` targets.\n- Docs have local setup scripts and separate MkDocs configs.\n\nEvidence:\n- [DEVELOPMENT.md](/home/panasonic/Planogram_Service-final-migration/DEVELOPMENT.md)\n- [docker-compose.yml](/home/panasonic/Planogram_Service-final-migration/docker-compose.yml)\n- service `pyproject.toml` files\n\nTesting strategy:\n- `planogram`: 70 unit/integration test files plus 21 system-test files.\n- `embedding`: 10 test files.\n- `detection`: 14 test files.\n- `orchestration`: 11 test files.\n- `docs`: 1 system test file.\n\nEvidence:\n- repository file inventory under [planogram/tests](/home/panasonic/Planogram_Service-final-migration/planogram/tests), [planogram/system_test](/home/panasonic/Planogram_Service-final-migration/planogram/system_test), [embedding"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-56",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "Service-final-migration/planogram/tests), [planogram/system_test](/home/panasonic/Planogram_Service-final-migration/planogram/system_test), [embedding/tests](/home/panasonic/Planogram_Service-final-migration/embedding/tests), [detection/tests](/home/panasonic/Planogram_Service-final-migration/detection/tests), [orchestration/tests](/home/panasonic/Planogram_Service-final-migration/orchestration/tests), [docs/system_test](/home/panasonic/Planogram_Service-final-migration/docs/system_test)\n\nCI/CD:\n- Per-service path-filtered lint/test workflows.\n- Per-service build-and-push workflows.\n- GitOps promotion by updating another deployment repo.\n- Black Duck source and Docker scans.\n- CodeQL scanning.\n- E2E workflow that launches DB, builds service containers, downloads real models from Azure Blob, and runs system tests.\n- Documentation build-test and Docker build-test.\n\nEvidence:\n- [.github/workflows/test-planogram.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/test-"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-57",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "t and Docker build-test.\n\nEvidence:\n- [.github/workflows/test-planogram.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/test-planogram.yml)\n- [.github/workflows/test-embedding.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/test-embedding.yml)\n- [.github/workflows/test-detection.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/test-detection.yml)\n- [.github/workflows/test-orchestration.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/test-orchestration.yml)\n- [.github/workflows/e2e-test.yaml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/e2e-test.yaml)\n- [.github/workflows/build-and-push-planogram.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/build-and-push-planogram.yml)\n- [.github/workflows/test-documentation.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/test-documentation.yml)\n\n**Code Quality Assessment**\n\nStren"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-58",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "est-documentation.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/test-documentation.yml)\n\n**Code Quality Assessment**\n\nStrengths:\n- Clear service boundaries in the monorepo.\n- Strong route/service/repository/model separation inside `planogram`.\n- Good operational discipline: migrations, structured logging, OTEL, health probes.\n- Durable async architecture for the main shelf-analysis async flow.\n- Broad test coverage across routes, services, pipelines, and workers.\n\nTechnical debt and maintainability concerns:\n- Documentation drift is significant in some areas.\n- `detection` is older and structurally less modern than the other services.\n- Mixed async strategies: Temporal for product capture, raw threads for price async and some background uploads.\n- Some “vector DB” naming still points to historical architecture even though storage moved into PostgreSQL.\n- The repository still carries `vendor` model and migration history, but `tenant` no longer references `vend"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-59",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "ven though storage moved into PostgreSQL.\n- The repository still carries `vendor` model and migration history, but `tenant` no longer references `vendor` in the current model.\n\nEvidence:\n- stale docs referencing Qdrant in [docs/internal/architecture/overview.md](/home/panasonic/Planogram_Service-final-migration/docs/internal/architecture/overview.md), [docs/internal/runbooks/deployment.md](/home/panasonic/Planogram_Service-final-migration/docs/internal/runbooks/deployment.md), [docs/internal/workflows-technical/capture-pipeline.md](/home/panasonic/Planogram_Service-final-migration/docs/internal/workflows-technical/capture-pipeline.md)\n- current pgvector implementation in [planogram/src/vector_db/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/vector_db/services.py#L18) and [planogram/src/models/product_embedding.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/product_embedding.py#L17)\n- vendor removal migration in [planogram/migra"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-60",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "ng.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/product_embedding.py#L17)\n- vendor removal migration in [planogram/migrations/versions/2025-05-05-1345_add_country_iso_name_and_update_.py](/home/panasonic/Planogram_Service-final-migration/planogram/migrations/versions/2025-05-05-1345_add_country_iso_name_and_update_.py)\n\n**Technical Strengths & Differentiators**\n\nMost impressive engineering aspects:\n1. The async shelf-analysis architecture is thoughtfully split.\n   The API uploads the image once, Temporal coordinates durable work, and specialized workers invoke inference and business post-processing. Evidence: [planogram/src/capture_upload/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/services.py#L424), [orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py](/home/panasonic/Planogram_Service-final-migration/orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py#L106).\n\n2. The pla"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-61",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "rkflow.py](/home/panasonic/Planogram_Service-final-migration/orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py#L106).\n\n2. The platform combines several AI techniques rather than relying on one.\n   It uses object detection, image embeddings, OCR-assisted reranking, Azure OpenAI text embeddings, and LLM-assisted unknown-product refinement. Evidence: [planogram/src/capture_upload/pipelines/steps/postprocessing/recogs_processing_step.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/pipelines/steps/postprocessing/recogs_processing_step.py), [planogram/src/capture_upload/pipelines/steps/postprocessing/refine_unknown_item_step.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/pipelines/steps/postprocessing/refine_unknown_item_step.py).\n\n3. The vector-search layer is operationally simplified.\n   The current implementation stores vectors directly in PostgreSQL via `pgvector`, which reduces moving parts compa"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-62",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "ayer is operationally simplified.\n   The current implementation stores vectors directly in PostgreSQL via `pgvector`, which reduces moving parts compared with a separate vector database. Evidence: [init-db.sql](/home/panasonic/Planogram_Service-final-migration/init-db.sql), [planogram/src/models/product_embedding.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/product_embedding.py#L31).\n\n4. The docs are treated as deployable product artifacts.\n   The repo builds public and internal docs, tests them, containerizes them, and routes them separately. Evidence: [docs/Dockerfile](/home/panasonic/Planogram_Service-final-migration/docs/Dockerfile), [.github/workflows/test-documentation.yml](/home/panasonic/Planogram_Service-final-migration/.github/workflows/test-documentation.yml).\n\n5. The deployment story is mature.\n   Per-service images, init-container migrations, KEDA scaling, OTEL, security scanning, GitOps promotion, and E2E CI all point to production-oriented e"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-63",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": " Per-service images, init-container migrations, KEDA scaling, OTEL, security scanning, GitOps promotion, and E2E CI all point to production-oriented engineering discipline.\n\n**Important Current-vs-Legacy Notes**\n\nThe repository contains meaningful documentation drift, so the most accurate current-state reading is:\n\n- Current vector store: PostgreSQL + `pgvector`.\n  Not Qdrant in the runtime code.\n  Evidence: [planogram/src/vector_db/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/vector_db/services.py#L18), [planogram/src/models/product_embedding.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/product_embedding.py#L17), [docker-compose.yml](/home/panasonic/Planogram_Service-final-migration/docker-compose.yml)\n\n- Current async product capture: Temporal-backed.\n  Some docs still describe thread-only async behavior.\n  Evidence: [planogram/src/capture_upload/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/ca"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-64",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "be thread-only async behavior.\n  Evidence: [planogram/src/capture_upload/routes.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/routes.py#L57), [planogram/src/capture_upload/services.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/capture_upload/services.py#L424), [orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py](/home/panasonic/Planogram_Service-final-migration/orchestration/capture_upload/workflows/main/shelf_analysis_workflow.py#L106)\n\n- Current tenant model: no `vendor_id`.\n  Migration history shows vendor was once part of tenant schema.\n  Evidence: [planogram/src/models/tenant.py](/home/panasonic/Planogram_Service-final-migration/planogram/src/models/tenant.py), [planogram/migrations/versions/2025-05-05-1345_add_country_iso_name_and_update_.py](/home/panasonic/Planogram_Service-final-migration/planogram/migrations/versions/2025-05-05-1345_add_country_iso_name_and_update_.py)\n\nThat drift does not invalida"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-65",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "nic/Planogram_Service-final-migration/planogram/migrations/versions/2025-05-05-1345_add_country_iso_name_and_update_.py)\n\nThat drift does not invalidate the codebase, but it does matter for architecture reviews, onboarding, and operational runbooks.\n\n**Bottom Line**\n\nThis is a serious multi-service retail computer-vision platform with:\n- a strong domain model,\n- durable async orchestration for the primary shelf-analysis workflow,\n- good operational maturity,\n- meaningful AI/ML layering,\n- and broad automated testing.\n\nIts biggest weaknesses are not missing fundamentals; they are consistency issues:\n- stale documentation in a few architecture/runbook areas,\n- mixed async execution patterns,\n- and an authorization model that authenticates clients but does not yet enforce scopes.\n\nNatural next steps:\n1. Align all docs and runbooks with the current `pgvector` and Temporal architecture.\n2. Move remaining raw-thread async paths onto Temporal or another durable job mechanism.\n3. Add route-lev"
+  },
+  {
+    "id": "src/content/en/docs/Pasted_text_16.md-66",
+    "title": "Untitled",
+    "source": "src/content/en/docs/Pasted_text_16.md",
+    "content": "urrent `pgvector` and Temporal architecture.\n2. Move remaining raw-thread async paths onto Temporal or another durable job mechanism.\n3. Add route-level scope enforcement if OAuth scopes are intended to matter.\n4. Review internal-service auth posture for `embedding` and `detection` if those services could ever be exposed beyond cluster-internal traffic."
+  },
+  {
+    "id": "src/content/en/docs/getting-started.md-0",
+    "title": "Untitled",
+    "source": "src/content/en/docs/getting-started.md",
+    "content": "# Getting Started\n\nThis guide walks you through setting up authentication and making your first API calls to the Intelligent Shelf Analyzer.\n\n## Prerequisites\n\n- API client credentials (`clientId` and `clientSecret`) provided by your administrator\n- An HTTP client (e.g., cURL, Postman, or any programming language with HTTP support)\n\n## Step 1: Obtain an Access Token\n\nAll API calls (except health check) require a Bearer JWT token. Obtain one by calling the authentication endpoint:\n\n```bash\ncurl -X POST https://<your-deployment>/api/v1/auth/token \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"clientId\": \"your-client-id\",\n    \"clientSecret\": \"your-client-secret\"\n  }'\n```\n\n**Response:**\n\n```json\n{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}\n```\n\n!!! warning \"Token Expiration\"\n    Access tokens have a limited lifetime. When your token expires, you will receive a `401 Unauthorized` response. Simply request a new token.\n\n## Step 2: Use the Token in API Calls\n\nInclude "
+  },
+  {
+    "id": "src/content/en/docs/getting-started.md-1",
+    "title": "Untitled",
+    "source": "src/content/en/docs/getting-started.md",
+    "content": " When your token expires, you will receive a `401 Unauthorized` response. Simply request a new token.\n\n## Step 2: Use the Token in API Calls\n\nInclude the token in the `Authorization` header of all subsequent requests:\n\n```bash\ncurl -X POST https://<your-deployment>/api/v1/tenants \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\" \\\n  -d '{\n    \"id\": \"retailer-001\",\n    \"name\": \"My Retail Store\",\n    \"webhook_url\": \"https://my-store.com/webhook\",\n    \"country_iso_name\": \"USA\"\n  }'\n```\n\n## Step 3: Follow the Integration Workflow\n\nThe APIs must be called in a specific order due to data dependencies. See the [Workflow Overview](workflows/overview.md) for the complete integration sequence:\n\n1. **Register your organization** (tenant)\n2. **Add your product catalog**\n3. **Upload product reference images**\n4. **Define your shelf layouts** (planograms)\n5. **Analyze shelf photos**\n6. **Retrieve results**\n\n## Health Check\n\nVerify the serv"
+  },
+  {
+    "id": "src/content/en/docs/getting-started.md-2",
+    "title": "Untitled",
+    "source": "src/content/en/docs/getting-started.md",
+    "content": "reference images**\n4. **Define your shelf layouts** (planograms)\n5. **Analyze shelf photos**\n6. **Retrieve results**\n\n## Health Check\n\nVerify the service is running:\n\n```bash\ncurl https://<your-deployment>/api/v1/health\n```\n\n**Response (healthy):**\n\n```json\n{\n  \"status\": \"ok\"\n}\n```\n\n## Error Handling\n\nAll errors follow a consistent JSON format:\n\n```json\n{\n  \"error\": \"Error type\",\n  \"detail\": \"Human-readable error description\"\n}\n```\n\n| HTTP Status | Meaning |\n|-------------|---------|\n| `200` | Success |\n| `201` | Resource created |\n| `400` | Bad request (invalid input) |\n| `401` | Unauthorized (missing or invalid token) |\n| `404` | Resource not found |\n| `409` | Conflict (duplicate resource) |\n| `422` | Validation error (invalid field values) |\n| `500` | Internal server error |\n| `503` | Service unavailable |\n"
+  },
+  {
+    "id": "src/content/en/docs/index.md-0",
+    "title": "Untitled",
+    "source": "src/content/en/docs/index.md",
+    "content": "# Intelligent Shelf Analyzer API\n\nWelcome to the **Intelligent Shelf Analyzer** documentation. This platform provides APIs for automated shelf analysis, enabling retailers to register product catalogs, define shelf layouts (planograms), and analyze real-world shelf images to detect product placement, compliance, and pricing.\n\n## What Can You Do?\n\n- **Register your organization** and product catalog\n- **Upload product reference images** for recognition\n- **Define shelf layouts** (planograms) describing expected product placement\n- **Analyze shelf photos** to detect which products are on the shelf, their positions, and compliance status\n- **Extract price tag data** from shelf images\n- **Search for similar products** across your catalog\n- **Generate shelf layouts** automatically from photos\n\n## Quick Navigation\n\n| Section | Description |\n|---------|-------------|\n| [Getting Started](getting-started.md) | Set up authentication and make your first API call |\n| [Workflows](workflows/overview"
+  },
+  {
+    "id": "src/content/en/docs/index.md-1",
+    "title": "Untitled",
+    "source": "src/content/en/docs/index.md",
+    "content": "-------|-------------|\n| [Getting Started](getting-started.md) | Set up authentication and make your first API call |\n| [Workflows](workflows/overview.md) | Step-by-step integration guide showing the correct order of operations |\n| [API Reference](api/overview.md) | Complete API reference with all endpoints |\n| [Changelog](changelog.md) | Version history and breaking changes |\n\n## Base URL\n\nAll API endpoints are available under:\n\n```\nhttps://<your-deployment>/api/v1/\n```\n\n## Authentication\n\nAll endpoints (except the health check) require a **Bearer JWT token**. See the [Authentication Guide](api/overview.md) for details on obtaining and using tokens.\n"
+  }
+]

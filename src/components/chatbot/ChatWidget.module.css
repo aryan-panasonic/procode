@@ -1,0 +1,22 @@
+.floatingButton {
+  position: fixed;
+
+  bottom: 24px;
+  right: 24px;
+
+  width: 64px;
+  height: 64px;
+
+  border: none;
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  background: var(--primary);
+  color: white;
+
+  z-index: 9999;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.2);
+}

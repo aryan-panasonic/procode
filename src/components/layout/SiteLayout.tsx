@@ -1,5 +1,6 @@
 import Header from "./Header";
 import Footer from "./Footer";
+import ChatWidget from "../chatbot/ChatWidget";
 
 export default function SiteLayout({
   children
@@ -15,6 +16,7 @@ export default function SiteLayout({
       </main>
 
       <Footer />
+       <ChatWidget />
     </>
   );
 }
