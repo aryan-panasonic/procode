@@ -1,57 +1,87 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+
+import { v4 as uuid } from "uuid";
+
 import styles from "./ChatWindow.module.css";
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
+import MessageList from "./MessageList";
+import ChatInput from "./ChatInput";
+import TypingIndicator from "./TypingIndicator";
+
+import { Message } from "./types";
+
+interface Props {
+  onClose: () => void;
 }
 
-export default function ChatWindow() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
-
-  async function sendMessage() {
-    if (!input.trim() || loading) return;
-
-    const userMessage = {
-      role: "user" as const,
-      content: input
-    };
-
-    const currentMessages = [
-      ...messages,
-      userMessage
-    ];
-
-    setMessages(currentMessages);
-
-    setInput("");
-
-    setLoading(true);
-
-    const assistantIndex =
-      currentMessages.length;
-
-    setMessages([
-      ...currentMessages,
+export default function ChatWindow({
+  onClose
+}: Props) {
+  const [messages, setMessages] =
+    useState<Message[]>([
       {
+        id: uuid(),
         role: "assistant",
-        content: ""
+        content:
+          `Welcome to Retail AI Support.
+
+I can help with:
+
+- API usage
+- Documentation
+- Platform setup
+- Product questions`
       }
     ]);
 
+  const [loading, setLoading] =
+    useState(false);
+
+  const messagesEndRef =
+    useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth"
+    });
+  }, [messages]);
+
+  async function sendMessage(
+    text: string
+  ) {
+    if (!text.trim() || loading)
+      return;
+
+    const userMessage: Message = {
+      id: uuid(),
+      role: "user",
+      content: text
+    };
+
+    const assistantId = uuid();
+
+    const assistantMessage: Message = {
+      id: assistantId,
+      role: "assistant",
+      content: "",
+      streaming: true
+    };
+
+    const updatedMessages: Message[] = [
+      ...messages,
+      userMessage,
+      assistantMessage
+    ];
+
+    setMessages(updatedMessages);
+
+    setLoading(true);
+
     try {
-      const response = await fetch(
-        "/api/chat",
-        {
+      const response =
+        await fetch("/api/chat", {
           method: "POST",
 
           headers: {
@@ -60,19 +90,20 @@ export default function ChatWindow() {
           },
 
           body: JSON.stringify({
-            messages: currentMessages
+            messages: [
+              ...messages,
+              userMessage
+            ]
           })
-        }
-      );
-
-      if (!response.body) {
-        throw new Error(
-          "No response body"
-        );
-      }
+        });
 
       const reader =
-        response.body.getReader();
+        response.body?.getReader();
+
+      if (!reader)
+        throw new Error(
+          "No stream"
+        );
 
       const decoder =
         new TextDecoder();
@@ -90,17 +121,32 @@ export default function ChatWindow() {
         assistantText +=
           decoder.decode(value);
 
-        setMessages(prev => {
-          const copy = [...prev];
-
-          copy[assistantIndex] = {
-            role: "assistant",
-            content: assistantText
-          };
-
-          return copy;
-        });
+        setMessages(prev =>
+          prev.map(message =>
+            message.id === assistantId
+              ? {
+                  ...message,
+                  content:
+                    assistantText,
+                  streaming: true
+                }
+              : message
+          )
+        );
       }
+
+      setMessages(prev =>
+        prev.map(message =>
+          message.id === assistantId
+            ? {
+                ...message,
+                content:
+                  assistantText,
+                streaming: false
+              }
+            : message
+        )
+      );
     } catch (error) {
       console.error(error);
     }
@@ -109,49 +155,43 @@ export default function ChatWindow() {
   }
 
   return (
-    <div className={styles.chatWindow}>
+    <div className={styles.window}>
       <div className={styles.header}>
-        AI Assistant
-      </div>
+        <div>
+          <h3>AI Support</h3>
 
-      <div className={styles.messages}>
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={
-              message.role === "user"
-                ? styles.userMessage
-                : styles.assistantMessage
-            }
-          >
-            {message.content}
-          </div>
-        ))}
-
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div className={styles.inputArea}>
-        <input
-          type="text"
-          value={input}
-          placeholder="Ask a question..."
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              sendMessage();
-            }
-          }}
-          className={styles.input}
-        />
+          <span>
+            Ask about APIs,
+            setup and docs
+          </span>
+        </div>
 
         <button
-          onClick={sendMessage}
-          className={styles.sendButton}
+          onClick={onClose}
+          className={styles.close}
         >
-          Send
+          ✕
         </button>
       </div>
+
+      <main className={styles.messages}>
+        <MessageList
+          messages={messages}
+        />
+
+        {loading && (
+          <TypingIndicator />
+        )}
+
+        <div
+          ref={messagesEndRef}
+        />
+      </main>
+
+      <ChatInput
+        onSend={sendMessage}
+        disabled={loading}
+      />
     </div>
   );
 }

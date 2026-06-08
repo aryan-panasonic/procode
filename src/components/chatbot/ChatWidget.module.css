@@ -1,22 +1,25 @@
-.floatingButton {
+.chatButton {
   position: fixed;
 
-  bottom: 24px;
   right: 24px;
+  bottom: 24px;
 
-  width: 64px;
-  height: 64px;
+  background: #005bac;
+
+  color: white;
 
   border: none;
-  border-radius: 50%;
+
+  border-radius: 999px;
+
+  padding: 14px 20px;
 
   cursor: pointer;
 
-  background: var(--primary);
-  color: white;
-
-  z-index: 9999;
+  font-weight: 600;
 
   box-shadow:
-    0 4px 12px rgba(0,0,0,0.2);
+    0 8px 25px rgba(0,0,0,0.2);
+
+  z-index: 9999;
 }

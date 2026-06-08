@@ -1,19 +1,73 @@
-.floatingButton {
-  position: fixed;
+.userWrapper {
+  display: flex;
 
-  bottom: 24px;
-  right: 24px;
+  justify-content: flex-end;
 
-  padding: 14px 20px;
+  margin-bottom: 16px;
+}
 
-  border-radius: 999px;
+.assistantWrapper {
+  display: flex;
 
-  background: var(--primary);
+  justify-content: flex-start;
+
+  margin-bottom: 16px;
+}
+
+.userBubble,
+.assistantBubble {
+  max-width: 90%;
+
+  padding: 14px 16px;
+
+  border-radius: 16px;
+
+  line-height: 1.6;
+
+  overflow-wrap: break-word;
+
+  word-break: break-word;
+}
+
+.userBubble {
+  background: #005bac;
 
   color: white;
+}
 
-  font-size: 14px;
-  font-weight: 600;
+.assistantBubble {
+  background: white;
 
-  z-index: 9999;
+  border: 1px solid #e5e7eb;
+}
+
+.assistantBubble pre,
+.userBubble pre {
+  overflow-x: auto;
+
+  max-width: 100%;
+
+  white-space: pre-wrap;
+}
+
+.assistantBubble *,
+.userBubble * {
+  max-width: 100%;
+}
+
+.assistantBubble ul,
+.userBubble ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.assistantBubble ol,
+.userBubble ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.assistantBubble li,
+.userBubble li {
+  margin: 4px 0;
 }
