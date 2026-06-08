@@ -1,0 +1,14 @@
+.footer {
+  margin-top: 80px;
+
+  border-top: 1px solid var(--border);
+
+  padding: 40px 0;
+
+  background: var(--surface);
+}
+
+.grid {
+  display: grid;
+  gap: 32px;
+}

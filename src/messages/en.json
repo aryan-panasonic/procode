@@ -1,0 +1,13 @@
+{
+  "nav": {
+    "home": "Home",
+    "solutions": "Solutions",
+    "platform": "Platform",
+    "industries": "Industries",
+    "documentation": "Documentation",
+    "resources": "Resources",
+    "pricing": "Pricing",
+    "company": "Company",
+    "contact": "Contact"
+  }
+}

@@ -1,0 +1,62 @@
+.header {
+  border-bottom: 1px solid var(--border);
+  background: white;
+}
+
+.inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  height: 72px;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.nav {
+  display: flex;
+  gap: 28px;
+}
+
+.nav a {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.navItem {
+  position: relative;
+}
+
+.navItem button {
+  border: none;
+  background: none;
+
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+.navItem a {
+  font-size: 14px;
+}
+
+.cta {
+  background: var(--primary);
+
+  color: white;
+
+  padding: 10px 18px;
+
+  border-radius: 4px;
+
+  font-size: 14px;
+}

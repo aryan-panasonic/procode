@@ -1,0 +1,30 @@
+.section {
+  padding: 80px 0;
+}
+
+.flow {
+  margin-top: 50px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.arrow {
+  font-size: 24px;
+  color: var(--primary);
+}
