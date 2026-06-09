@@ -1,7 +1,9 @@
-import { retrieve } from "../vectorstore/retrieve";
+import { PgVectorRetriever } from "../retrieval/PgVectorRetriever";
 import { buildContext } from "../prompt/buildContext";
 import { getProvider } from "@/lib/ai/providers/ProviderFactory";
 import { ChatMessage } from "@/lib/ai/types/ChatMessage";
+
+const retriever = new PgVectorRetriever();
 
 // ─── Language detection ────────────────────────────────────────────────────
 // Scan backwards through the conversation so a Japanese follow-up after an
@@ -81,7 +83,7 @@ export async function ragChatStream(
   const language = detectLanguage(messages as ChatMessage[]);
 
   // Retrieve up to 8 chunks (raised from 5 to provide more context surface)
-  const chunks = await retrieve(query, 8);
+  const chunks = await retriever.retrieve(query, 8);
   const context = buildContext(chunks);
 
   const systemMessage: ChatMessage = {

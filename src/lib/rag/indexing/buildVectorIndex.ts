@@ -1,53 +1,79 @@
-import fs from "fs/promises";
-
+import { buildIndex } from "./buildIndex";
 import { getEmbeddingProvider } from "../embeddings/EmbeddingFactory";
+import { PgVectorStore } from "../storage/PgVectorStore";
 
-import { EmbeddedChunk } from "../types/EmbeddedChunk";
+type IndexedChunk = {
+  id: string;
+  title: string;
+  source: string;
+  content: string;
+};
 
 export async function buildVectorIndex() {
+  const provider = getEmbeddingProvider();
+  const store = new PgVectorStore();
 
-  const provider =
-    getEmbeddingProvider();
+  const chunks = (await buildIndex()) as IndexedChunk[];
 
-  const raw =
-    await fs.readFile(
-      "data/index.json",
-      "utf8"
-    );
+  console.log(`Loaded ${chunks.length} chunks`);
 
-  const chunks =
-    JSON.parse(raw);
-
-  const embedded:
-    EmbeddedChunk[] = [];
+  const documentsBySource = new Map<
+    string,
+    { title: string; sourcePath: string }
+  >();
 
   for (const chunk of chunks) {
-
-    console.log(
-      `Embedding: ${chunk.title}`
-    );
-
-    const embedding =
-      await provider.embed(
-        chunk.content
-      );
-
-    embedded.push({
-      ...chunk,
-      embedding
-    });
+    if (!documentsBySource.has(chunk.source)) {
+      documentsBySource.set(chunk.source, {
+        title: chunk.title,
+        sourcePath: chunk.source,
+      });
+    }
   }
 
-  await fs.writeFile(
-    "data/vector-index.json",
-    JSON.stringify(
-      embedded,
-      null,
-      2
-    )
-  );
+  const documentIds = new Map<string, string>();
 
-  console.log(
-    `Embedded ${embedded.length} chunks`
-  );
+  for (const doc of documentsBySource.values()) {
+    const documentId = await store.createOrGetDocument({
+      sourcePath: doc.sourcePath,
+      title: doc.title,
+      language: null,
+    });
+
+    documentIds.set(doc.sourcePath, documentId);
+    await store.deleteDocumentChunks(documentId);
+  }
+
+  const chunkCounters = new Map<string, number>();
+
+  for (const chunk of chunks) {
+    const documentId = documentIds.get(chunk.source);
+
+    if (!documentId) {
+      continue;
+    }
+
+    const chunkIndex = chunkCounters.get(chunk.source) ?? 0;
+    chunkCounters.set(chunk.source, chunkIndex + 1);
+
+    console.log(
+      `Embedding ${chunkIndex + 1}/${chunks.length}: ${chunk.title}`
+    );
+
+    const embedding = await provider.embed(chunk.content);
+
+    await store.insertChunk(
+      documentId,
+      chunkIndex,
+      chunk.content,
+      embedding,
+      {
+        title: chunk.title,
+        source: chunk.source,
+        originalChunkId: chunk.id,
+      }
+    );
+  }
+
+  console.log(`Stored ${chunks.length} chunks in PostgreSQL`);
 }
