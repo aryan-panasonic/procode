@@ -200,3 +200,37 @@
 }
 .historyItem:hover .historyDeleteBtn { opacity:1; }
 .historyDeleteBtn:hover { background:rgba(255,60,60,0.15); color:#f55; }
+
+/* ─── Feedback buttons ─── */
+.feedbackRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding-left: 2px;
+}
+
+.feedbackLabel {
+  font-size: 0.68rem;
+  color: var(--slate-500);
+}
+
+.feedbackBtn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: var(--ease);
+  opacity: 0.6;
+  line-height: 1.6;
+}
+.feedbackBtn:hover:not(:disabled) { opacity: 1; background: rgba(255,255,255,0.07); }
+.feedbackBtn:disabled { cursor: default; }
+.feedbackActive { opacity: 1 !important; background: rgba(59,130,246,0.15) !important; border-color: rgba(59,130,246,0.4) !important; }
+
+.feedbackThanks {
+  font-size: 0.68rem;
+  color: var(--green, #28a745);
+}

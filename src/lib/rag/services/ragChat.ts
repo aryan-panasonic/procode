@@ -8,9 +8,24 @@ import { redactSensitiveData }   from "@/lib/security/redaction";
 
 const retriever = new PgVectorRetriever();
 
+// ─── Metadata returned alongside the stream ───────────────────────────────────
+
+export interface RagChatMeta {
+  rewrittenQuery:     string;
+  answerType:         string;   // MATCH | NO_MATCH
+  retrievalConf:      string;   // high | medium | low
+  maxScore:           number;
+  chunksReturned:     number;
+  chunkIds:           string[]; // for retrieval_logs
+  inputChars:         number;   // system + conversation chars (approx)
+}
+
+export interface RagChatResult {
+  stream: AsyncIterable<string>;
+  meta:   RagChatMeta;
+}
+
 // ─── Language detection ───────────────────────────────────────────────────────
-// Scan backwards so a Japanese follow-up after an English opener is handled
-// correctly, and vice-versa.
 function detectLanguage(messages: ChatMessage[]): "ja" | "en" {
   const jpRegex = /[\u3040-\u30ff\u3400-\u9fbf]/;
   for (let i = messages.length - 1; i >= 0; i--) {
@@ -45,7 +60,6 @@ function buildSystemPrompt(
           "Clearly indicate when something cannot be confirmed from platform documentation.",
         ].join("\n");
 
-  // Memory block is inserted only when the conversation is long enough to need it
   const memorySection =
     memoryBlock.trim().length > 0
       ? `\n${memoryBlock}\n`
@@ -150,10 +164,8 @@ RESPONSE RULES
 // ─── ragChatStream ────────────────────────────────────────────────────────────
 export async function ragChatStream(
   messages: ChatMessage[]
-): Promise<AsyncIterable<string>> {
+): Promise<RagChatResult> {
 
-  // Belt-and-suspenders: ensure only user/assistant messages reach the LLM
-  // (system messages are injected by this service, never passed through from clients)
   const safeMessages = messages.filter(
     (m): m is ChatMessage =>
       (m.role === "user" || m.role === "assistant") &&
@@ -164,8 +176,6 @@ export async function ragChatStream(
   const language = detectLanguage(safeMessages);
 
   // ── 0. Input Sanitization ──────────────────────────────────────────────────
-  // Redact credentials/secrets from user messages before they reach the LLM,
-  // are embedded in the rewritten query, or stored in conversation history.
   const sanitizedMessages = safeMessages.map(m => {
     if (m.role !== "user") return m;
     const { text, redacted, count } = redactSensitiveData(m.content);
@@ -176,14 +186,10 @@ export async function ragChatStream(
   });
 
   // ── 1. Query Rewriting ───────────────────────────────────────────────────────
-  // Expand follow-up questions ("What comes next?") into self-contained queries
-  // so vector search receives meaningful text instead of pronoun fragments.
   const rewrittenQuery = await rewriteQuery(sanitizedMessages);
-
   console.log("[RAG] Rewritten query:", rewrittenQuery);
 
   // ── 2. Retrieval ─────────────────────────────────────────────────────────────
-  // Retrieve up to 8 chunks — enough context surface without flooding the prompt.
   const retrievalResult = await retriever.retrieve(rewrittenQuery, 8);
 
   if (retrievalResult.answerType === "NO_MATCH") {
@@ -198,36 +204,52 @@ export async function ragChatStream(
   const context = buildContext(retrievalResult.chunks);
 
   // ── 3. Conversation Memory ───────────────────────────────────────────────────
-  // Level 1: the last 10–15 turns are passed verbatim via safeMessages below.
-  // Level 2: for long conversations, older turns are compressed into a summary
-  //          block that is injected into the system prompt.
   const memoryBlock = await buildMemoryBlock(sanitizedMessages);
 
   // ── 4. Build system prompt ───────────────────────────────────────────────────
+  const systemPromptContent = buildSystemPrompt(
+    context,
+    language,
+    retrievalResult.confidence,
+    retrievalResult.maxScore,
+    memoryBlock
+  );
+
   const systemMessage: ChatMessage = {
     role:    "system",
-    content: buildSystemPrompt(
-      context,
-      language,
-      retrievalResult.confidence,
-      retrievalResult.maxScore,
-      memoryBlock
-    ),
+    content: systemPromptContent,
   };
 
-  // ── 5. Stream ─────────────────────────────────────────────────────────────────
-  // Level 1 memory: pass the full safeMessages array (route already caps at 20 turns).
+  // ── 5. Approximate input size for monitoring ──────────────────────────────────
+  const inputChars =
+    systemPromptContent.length +
+    sanitizedMessages.reduce((s, m) => s + m.content.length, 0);
+
+  // ── 6. Stream ─────────────────────────────────────────────────────────────────
   const provider = getProvider();
-  return provider.chatStream([systemMessage, ...sanitizedMessages]);
+  const stream   = provider.chatStream([systemMessage, ...sanitizedMessages]);
+
+  // ── 7. Build metadata ─────────────────────────────────────────────────────────
+  const meta: RagChatMeta = {
+    rewrittenQuery,
+    answerType:     retrievalResult.answerType,
+    retrievalConf:  retrievalResult.confidence,
+    maxScore:       retrievalResult.maxScore,
+    chunksReturned: retrievalResult.chunks.length,
+    chunkIds:       retrievalResult.chunks.map(c => c.id),
+    inputChars,
+  };
+
+  return { stream, meta };
 }
 
 // ─── ragChat (non-streaming, kept for compatibility) ──────────────────────────
 export async function ragChat(
   question: string
 ): Promise<{ response: string }> {
-  const iterable = await ragChatStream([{ role: "user", content: question }]);
+  const { stream } = await ragChatStream([{ role: "user", content: question }]);
   let full = "";
-  for await (const token of iterable) {
+  for await (const token of stream) {
     full += token;
   }
   return { response: full };

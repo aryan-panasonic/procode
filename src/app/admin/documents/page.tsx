@@ -1,0 +1,251 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
+import styles from "./documents.module.css";
+
+interface DocRow {
+  id:                string;
+  title:             string | null;
+  source_path:       string;
+  original_filename: string | null;
+  language:          string | null;
+  status:            string | null;
+  file_size_bytes:   number | null;
+  chunk_count:       number;
+  uploaded_at:       string | null;
+}
+
+function fmtBytes(n: number | null): string {
+  if (!n) return "—";
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function fmtDate(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleString();
+}
+
+// ─── Status badge ──────────────────────────────────────────────────────────────
+function StatusBadge({ status }: { status: string | null }) {
+  const s = status ?? "indexed";
+  const map: Record<string, { label: string; color: string; bg: string }> = {
+    indexed:  { label: "Indexed",   color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
+    indexing: { label: "Indexing…", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
+    error:    { label: "Error",     color: "#ef4444", bg: "rgba(239,68,68,0.12)" },
+  };
+  const style = map[s] ?? map["indexed"];
+  return (
+    <span style={{
+      fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 4,
+      color: style.color, background: style.bg,
+    }}>
+      {style.label}
+    </span>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+export default function DocumentsPage() {
+  const [docs,       setDocs]       = useState<DocRow[]>([]);
+  const [loading,    setLoading]    = useState(true);
+  const [error,      setError]      = useState<string | null>(null);
+  const [uploading,  setUploading]  = useState(false);
+  const [uploadMsg,  setUploadMsg]  = useState<{ ok: boolean; text: string } | null>(null);
+  const [reindexing, setReindexing] = useState(false);
+  const [reindexMsg, setReindexMsg] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  // ── Load document list ─────────────────────────────────────────────────────
+  async function loadDocs() {
+    setLoading(true);
+    setError(null);
+    try {
+      const r = await fetch("/api/admin/documents");
+      const d = await r.json();
+      if (d.error) throw new Error(d.error);
+      setDocs(d.documents);
+    } catch (e: any) {
+      setError(e.message ?? "Failed to load documents");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { loadDocs(); }, []);
+
+  // ── Upload ─────────────────────────────────────────────────────────────────
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadMsg(null);
+
+    const form = new FormData();
+    form.append("file", file);
+
+    try {
+      const r = await fetch("/api/admin/documents/upload", { method: "POST", body: form });
+      const d = await r.json();
+      if (!r.ok || d.error) throw new Error(d.error ?? `HTTP ${r.status}`);
+
+      setUploadMsg({
+        ok:   true,
+        text: `✓ "${d.title}" uploaded — ${d.chunkCount} chunks indexed.`,
+      });
+      loadDocs();
+    } catch (e: any) {
+      setUploadMsg({ ok: false, text: `✗ ${e.message}` });
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  // ── Delete ─────────────────────────────────────────────────────────────────
+  async function handleDelete(id: string, title: string) {
+    if (!confirm(`Delete "${title}"?\nThis will permanently remove the document and all its chunks.`)) return;
+
+    try {
+      const r = await fetch(`/api/admin/documents?id=${id}`, { method: "DELETE" });
+      const d = await r.json();
+      if (!r.ok || d.error) throw new Error(d.error ?? `HTTP ${r.status}`);
+      setDocs(prev => prev.filter(doc => doc.id !== id));
+    } catch (e: any) {
+      alert(`Delete failed: ${e.message}`);
+    }
+  }
+
+  // ── Reindex ────────────────────────────────────────────────────────────────
+  async function handleReindex() {
+    if (!confirm("Rebuild the full index from src/content/**/docs/**/*.md?\nThis may take 30–120 seconds.")) return;
+
+    setReindexing(true);
+    setReindexMsg(null);
+
+    try {
+      const r = await fetch("/api/admin/reindex", { method: "POST" });
+      const d = await r.json();
+      if (!r.ok || d.error) throw new Error(d.error ?? `HTTP ${r.status}`);
+      setReindexMsg("✓ Index rebuilt successfully.");
+      loadDocs();
+    } catch (e: any) {
+      setReindexMsg(`✗ ${e.message}`);
+    } finally {
+      setReindexing(false);
+    }
+  }
+
+  // ─── Render ────────────────────────────────────────────────────────────────
+  return (
+    <div>
+      {/* ── Header ── */}
+      <div className={styles.pageHeader}>
+        <div>
+          <h1 className={styles.pageTitle}>Documents</h1>
+          <p className={styles.pageSubtitle}>Manage the knowledge base used for retrieval</p>
+        </div>
+        <div className={styles.headerActions}>
+          <button
+            className={`${styles.btn} ${styles.btnSecondary}`}
+            onClick={handleReindex}
+            disabled={reindexing}
+          >
+            {reindexing ? "Rebuilding…" : "Rebuild Index"}
+          </button>
+
+          {/* Hidden file input */}
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".md,.txt,.pdf,.docx"
+            style={{ display: "none" }}
+            onChange={handleUpload}
+          />
+          <button
+            className={`${styles.btn} ${styles.btnPrimary}`}
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? "Uploading…" : "+ Upload Document"}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Upload / reindex feedback ── */}
+      {uploadMsg && (
+        <div className={`${styles.alert} ${uploadMsg.ok ? styles.alertOk : styles.alertErr}`}>
+          {uploadMsg.text}
+          <button className={styles.alertClose} onClick={() => setUploadMsg(null)}>×</button>
+        </div>
+      )}
+      {reindexMsg && (
+        <div className={`${styles.alert} ${reindexMsg.startsWith("✓") ? styles.alertOk : styles.alertErr}`}>
+          {reindexMsg}
+          <button className={styles.alertClose} onClick={() => setReindexMsg(null)}>×</button>
+        </div>
+      )}
+
+      {/* ── Upload hint ── */}
+      <div className={styles.uploadHint}>
+        Supported formats: <strong>.md</strong>, <strong>.txt</strong>,{" "}
+        <strong>.pdf</strong> (requires <code>npm install pdf-parse</code>),{" "}
+        <strong>.docx</strong> (requires <code>npm install mammoth</code>)
+      </div>
+
+      {/* ── Table ── */}
+      {loading && <div className={styles.loading}>Loading…</div>}
+      {error   && <div className={styles.error}>⚠ {error}</div>}
+
+      {!loading && !error && (
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Title</th>
+                <th>Chunks</th>
+                <th>Size</th>
+                <th>Status</th>
+                <th>Uploaded</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {docs.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className={styles.emptyRow}>
+                    No documents indexed yet. Upload a file or run Rebuild Index.
+                  </td>
+                </tr>
+              ) : (
+                docs.map(doc => (
+                  <tr key={doc.id}>
+                    <td className={styles.filename}>
+                      {doc.original_filename ?? doc.source_path.split("/").pop()}
+                    </td>
+                    <td className={styles.title}>{doc.title ?? "—"}</td>
+                    <td className={styles.num}>{doc.chunk_count}</td>
+                    <td className={styles.num}>{fmtBytes(doc.file_size_bytes)}</td>
+                    <td><StatusBadge status={doc.status} /></td>
+                    <td className={styles.date}>{fmtDate(doc.uploaded_at)}</td>
+                    <td>
+                      <button
+                        className={styles.deleteBtn}
+                        onClick={() => handleDelete(doc.id, doc.title ?? doc.source_path)}
+                        title="Delete document"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}

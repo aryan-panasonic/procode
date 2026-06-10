@@ -17,6 +17,10 @@ import {
   LEAKAGE_FALLBACK,
 } from "@/lib/security/redaction";
 
+// ─── Feedback ─────────────────────────────────────────────────────────────────
+// Maps message index → "up" | "down" so each response can only be rated once.
+type FeedbackMap = Record<number, "up" | "down">;
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MAX_INPUT_CHARS = 500;
@@ -78,6 +82,7 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
   const [loading,       setLoading]       = useState(false);
   const [showHistory,   setShowHistory]   = useState(false);
   const [allSessions,   setAllSessions]   = useState<ChatSession[]>([]);
+  const [feedbackMap,   setFeedbackMap]   = useState<FeedbackMap>({});
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -123,6 +128,7 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
     setMessages([WELCOME]);
     setInput("");
     setShowHistory(false);
+    setFeedbackMap({});
   }
 
   // ─── Switch to a past session ──────────────────────────────────────────────
@@ -130,6 +136,32 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
     setSession(s);
     setMessages([WELCOME, ...s.messages]);
     setShowHistory(false);
+    setFeedbackMap({});
+  }
+
+  // ─── Submit feedback for a specific assistant message ─────────────────────
+  async function sendFeedback(
+    msgIndex:  number,
+    rating:    "up" | "down",
+    question:  string,
+    answer:    string
+  ) {
+    if (feedbackMap[msgIndex]) return; // already rated
+    setFeedbackMap(prev => ({ ...prev, [msgIndex]: rating }));
+    try {
+      await fetch("/api/feedback", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({
+          sessionId: session.sessionId,
+          rating,
+          question:  question.slice(0, 2000),
+          answer:    answer.slice(0, 4000),
+        }),
+      });
+    } catch {
+      // Feedback is best-effort — don't surface errors
+    }
   }
 
   // ─── Delete a session from history ────────────────────────────────────────
@@ -164,7 +196,7 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
       const res = await fetch("/api/chat", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ messages: historyToSend }),
+        body:    JSON.stringify({ messages: historyToSend, sessionId: session.sessionId }),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -309,18 +341,60 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
 
       {/* ── Messages ── */}
       <div className={styles.messages}>
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`${styles.msgRow} ${msg.role === "user" ? styles.msgUser : ""}`}
-          >
-            {msg.role === "assistant" && <div className={styles.msgAvatar}>AI</div>}
+        {messages.map((msg, i) => {
+          // Find the preceding user message to pass as "question" to feedback
+          const prevUserMsg = i > 0
+            ? [...messages].slice(0, i).reverse().find(m => m.role === "user")?.content ?? ""
+            : "";
+
+          // Show feedback only on non-welcome assistant messages that are fully loaded
+          const showFeedback =
+            msg.role === "assistant" &&
+            i > 0 &&
+            msg.content.length > 0 &&
+            !loading;
+
+          return (
             <div
-              className={`${styles.bubble} ${msg.role === "user" ? styles.bubbleUser : styles.bubbleAi}`}
-              dangerouslySetInnerHTML={{ __html: renderMd(msg.content) }}
-            />
-          </div>
-        ))}
+              key={i}
+              className={`${styles.msgRow} ${msg.role === "user" ? styles.msgUser : ""}`}
+            >
+              {msg.role === "assistant" && <div className={styles.msgAvatar}>AI</div>}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  className={`${styles.bubble} ${msg.role === "user" ? styles.bubbleUser : styles.bubbleAi}`}
+                  dangerouslySetInnerHTML={{ __html: renderMd(msg.content) }}
+                />
+                {showFeedback && (
+                  <div className={styles.feedbackRow}>
+                    <span className={styles.feedbackLabel}>Was this helpful?</span>
+                    <button
+                      className={`${styles.feedbackBtn} ${feedbackMap[i] === "up" ? styles.feedbackActive : ""}`}
+                      onClick={() => sendFeedback(i, "up", prevUserMsg, msg.content)}
+                      disabled={!!feedbackMap[i]}
+                      title="Helpful"
+                      aria-label="Mark as helpful"
+                    >
+                      👍
+                    </button>
+                    <button
+                      className={`${styles.feedbackBtn} ${feedbackMap[i] === "down" ? styles.feedbackActive : ""}`}
+                      onClick={() => sendFeedback(i, "down", prevUserMsg, msg.content)}
+                      disabled={!!feedbackMap[i]}
+                      title="Not helpful"
+                      aria-label="Mark as not helpful"
+                    >
+                      👎
+                    </button>
+                    {feedbackMap[i] && (
+                      <span className={styles.feedbackThanks}>Thanks!</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
 
         {loading && (
           <div className={styles.msgRow}>

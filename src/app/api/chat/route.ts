@@ -1,22 +1,19 @@
-import { ragChatStream } from "@/lib/rag/services/ragChat";
-import { AIError }
-from "@/lib/ai/errors/AIError";
+import { ragChatStream }      from "@/lib/rag/services/ragChat";
+import { AIError }            from "@/lib/ai/errors/AIError";
+import { logChatRequest,
+         logRetrievalChunks } from "@/lib/monitoring/logger";
 
-// ─── Request limits ──────────────────────────────────────────────────────────
-const MAX_MESSAGES       = 20;       // how many turns to retain
-const MAX_MESSAGE_CHARS  = 2_000;    // per-message character cap
-const MAX_TOTAL_CHARS    = 20_000;   // total conversation budget
+// ─── Request limits ───────────────────────────────────────────────────────────
+const MAX_MESSAGES       = 20;
+const MAX_MESSAGE_CHARS  = 2_000;
+const MAX_TOTAL_CHARS    = 20_000;
 const ALLOWED_ROLES      = new Set(["user", "assistant"]);
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function isValidRole(role: unknown): role is "user" | "assistant" {
   return typeof role === "string" && ALLOWED_ROLES.has(role);
 }
 
-/**
- * Strip null bytes and non-printable control characters while preserving
- * normal whitespace (tab, newline, carriage return). Truncate to budget.
- */
 function sanitizeContent(raw: unknown): string {
   if (typeof raw !== "string") return "";
   return raw
@@ -26,6 +23,8 @@ function sanitizeContent(raw: unknown): string {
 
 // ─── Route handler ────────────────────────────────────────────────────────────
 export async function POST(req: Request) {
+  const startTime = performance.now();
+
   try {
     let body: unknown;
     try {
@@ -42,8 +41,11 @@ export async function POST(req: Request) {
       return new Response("Bad request: messages must be an array", { status: 400 });
     }
 
-    // ── 1. Validate & sanitize each message ──────────────────────────────────
-    const raw: unknown[] = (body as { messages: unknown[] }).messages;
+    // ── 1. Validate & sanitize ────────────────────────────────────────────────
+    const raw: unknown[] = (body as { messages: unknown[]; sessionId?: string }).messages;
+    const sessionId: string | undefined = typeof (body as any).sessionId === "string"
+      ? (body as any).sessionId
+      : undefined;
 
     const validated = raw
       .filter(
@@ -63,7 +65,7 @@ export async function POST(req: Request) {
       return new Response("No valid messages provided", { status: 400 });
     }
 
-    // ── 2. Enforce recency window + total character budget ────────────────────
+    // ── 2. Enforce recency window + budget ────────────────────────────────────
     const recent = validated.slice(-MAX_MESSAGES);
     let charsSeen = 0;
     const budgeted = recent.filter((m) => {
@@ -71,89 +73,100 @@ export async function POST(req: Request) {
       return charsSeen <= MAX_TOTAL_CHARS;
     });
 
-    // ── 3. Stream response ────────────────────────────────────────────────────
-    let stream: AsyncIterable<string>;
-      try {
+    // Capture the last user query for monitoring
+    const lastUserQuery = [...budgeted]
+      .reverse()
+      .find(m => m.role === "user")?.content ?? "";
 
-        stream =
-          await ragChatStream(
-            budgeted
-          );
+    // ── 3. Build stream + collect metadata ────────────────────────────────────
+    let ragResult: Awaited<ReturnType<typeof ragChatStream>>;
+    try {
+      ragResult = await ragChatStream(budgeted);
+    } catch (err) {
+      console.error("[chat/route] Chat creation error:", err);
 
-      } catch (err) {
+      const latencyMs = performance.now() - startTime;
 
-        console.error(
-          "[chat/route] Chat creation error:",
-          err
-        );
+      // Log the error
+      logChatRequest({
+        sessionId,
+        query:          lastUserQuery,
+        responseStatus: "error",
+        latencyMs,
+      }).catch(() => {});
 
-        if (
-          err instanceof AIError &&
-          err.code ===
-            "CONTENT_FILTER"
-        ) {
-
-          return Response.json(
-            {
-              error:
-                "This request was blocked by safety policies."
-            },
-            {
-              status: 200
-            }
-          );
-        }
+      if (err instanceof AIError && err.code === "CONTENT_FILTER") {
+        logChatRequest({
+          sessionId,
+          query:          lastUserQuery,
+          responseStatus: "blocked",
+          latencyMs,
+        }).catch(() => {});
 
         return Response.json(
-          {
-            error:
-              "AI service temporarily unavailable."
-          },
-          {
-            status: 500
-          }
+          { error: "This request was blocked by safety policies." },
+          { status: 200 }
         );
       }
 
-      const encoder =
-        new TextEncoder();
+      return Response.json(
+        { error: "AI service temporarily unavailable." },
+        { status: 500 }
+      );
+    }
 
-      const readable =
-        new ReadableStream({
+    const { stream, meta } = ragResult;
+    const encoder = new TextEncoder();
 
-          async start(controller) {
+    // ── 4. Wrap stream: count output chars + log at completion ────────────────
+    const readable = new ReadableStream({
+      async start(controller) {
+        let outputChars = 0;
 
-            try {
+        try {
+          for await (const chunk of stream) {
+            outputChars += chunk.length;
+            controller.enqueue(encoder.encode(chunk));
+          }
+        } catch (err) {
+          console.error("[chat/route] Stream error:", err);
+          controller.enqueue(
+            encoder.encode("\n\nAn error occurred while generating the response.")
+          );
+        } finally {
+          controller.close();
 
-              for await (
-                const chunk of stream
-              ) {
+          // ── Fire-and-forget monitoring ────────────────────────────────────
+          const latencyMs = performance.now() - startTime;
 
-                controller.enqueue(
-                  encoder.encode(chunk)
-                );
-              }
-
-            } catch (err) {
-
-              console.error(
-                "[chat/route] Stream error:",
-                err
-              );
-
-              controller.enqueue(
-                encoder.encode(
-                  "\n\nAn error occurred while generating the response."
-                )
-              );
-
-            } finally {
-
-              controller.close();
-
+          logChatRequest({
+            sessionId,
+            query:          lastUserQuery,
+            rewrittenQuery: meta.rewrittenQuery,
+            answerType:     meta.answerType,
+            retrievalConf:  meta.retrievalConf,
+            maxScore:       meta.maxScore,
+            chunksReturned: meta.chunksReturned,
+            inputChars:     meta.inputChars,
+            outputChars,
+            latencyMs,
+            responseStatus: "ok",
+          }).then(chatLogId => {
+            // Log individual retrieved chunks for quality analysis
+            if (chatLogId && meta.chunkIds.length > 0) {
+              logRetrievalChunks(
+                meta.chunkIds.map((id, i) => ({
+                  chatLogId,
+                  query: meta.rewrittenQuery,
+                  chunkId: id,
+                  rank:    i + 1,
+                }))
+              ).catch(() => {});
             }
-          },
-        });
+          }).catch(() => {});
+        }
+      },
+    });
 
     return new Response(readable, {
       headers: {
@@ -163,6 +176,7 @@ export async function POST(req: Request) {
         "X-Content-Type-Options": "nosniff",
       },
     });
+
   } catch (err) {
     console.error("[chat/route] Unhandled error:", err);
     return new Response("Internal server error", { status: 500 });

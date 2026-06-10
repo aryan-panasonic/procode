@@ -1,0 +1,155 @@
+/* ─── Analytics page ─── */
+:root {
+  --c-text:    #f3f4f6;
+  --c-muted:   #6b7280;
+  --c-surface: #1f2937;
+  --c-border:  rgba(255,255,255,0.08);
+  --c-accent:  #3b82f6;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.pageTitle {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--c-text);
+}
+
+.pageSubtitle {
+  font-size: 13px;
+  color: var(--c-muted);
+  margin: 0;
+}
+
+.controls {
+  display: flex;
+  gap: 6px;
+}
+
+.dayBtn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--c-surface);
+  color: var(--c-muted);
+  border: 1px solid var(--c-border);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.dayBtn:hover      { color: var(--c-text); border-color: var(--c-accent); }
+.dayBtnActive      { background: var(--c-accent); color: #fff; border-color: var(--c-accent); }
+
+/* ─── KPI grid ─── */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.statCard {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.statLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--c-muted);
+  margin-bottom: 6px;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--c-text);
+}
+
+.statSub {
+  font-size: 11px;
+  color: var(--c-muted);
+  margin-top: 4px;
+}
+
+/* ─── Sections ─── */
+.section {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--c-text);
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 768px) { .twoCol { grid-template-columns: 1fr; } }
+
+/* ─── Bar chart ─── */
+.barChart { display: flex; flex-direction: column; gap: 8px; }
+
+.barRow {
+  display: grid;
+  grid-template-columns: 180px 1fr 40px;
+  align-items: center;
+  gap: 10px;
+}
+
+.barLabel {
+  font-size: 12px;
+  color: var(--c-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barTrack {
+  height: 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.barFill { height: 100%; border-radius: 4px; transition: width 0.4s; }
+
+.barCount {
+  font-size: 12px;
+  color: var(--c-muted);
+  text-align: right;
+}
+
+/* ─── Latency ─── */
+.latencyChart {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+/* ─── States ─── */
+.loading { color: var(--c-muted); font-size: 14px; padding: 40px 0; }
+.empty   { color: var(--c-muted); font-size: 13px; font-style: italic; }
+.error   { color: #ef4444; font-size: 13px; padding: 16px; background: rgba(239,68,68,0.08);
+           border-radius: 8px; margin-bottom: 16px; }
