@@ -10,14 +10,19 @@ if (!connectionString) {
     "Set POSTGRES_URL (cloud) or LOCAL_POSTGRES_URL (local)"
   );
 }
-
 export const pool = new Pool({
-  connectionString,
-  max: 10,
-  idleTimeoutMillis: 30_000,
-  connectionTimeoutMillis: 5_000,
+  connectionString: process.env.POSTGRES_URL,
+
   ssl:
     process.env.POSTGRES_SSL === "true"
-      ? { rejectUnauthorized: false }
+      ? {
+          rejectUnauthorized: false,
+        }
       : undefined,
+
+  max: 20,
+
+  idleTimeoutMillis: 30000,
+
+  connectionTimeoutMillis: 10000,
 });

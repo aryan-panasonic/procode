@@ -2,6 +2,9 @@ import { ragChatStream }      from "@/lib/rag/services/ragChat";
 import { AIError }            from "@/lib/ai/errors/AIError";
 import { logChatRequest,
          logRetrievalChunks } from "@/lib/monitoring/logger";
+import "@/lib/env";
+import { validateDatabase } from "@/lib/db-health";
+
 
 // ─── Request limits ───────────────────────────────────────────────────────────
 const MAX_MESSAGES       = 20;
@@ -26,6 +29,7 @@ export async function POST(req: Request) {
   const startTime = performance.now();
 
   try {
+    await validateDatabase();
     let body: unknown;
     try {
       body = await req.json();

@@ -6,7 +6,10 @@ const intlMiddleware = createMiddleware({
   defaultLocale: "ja",
 });
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET ?? "";
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
+if (!ADMIN_SECRET) {
+  throw new Error("ADMIN_SECRET environment variable is not set");
+}
 
 export default function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
