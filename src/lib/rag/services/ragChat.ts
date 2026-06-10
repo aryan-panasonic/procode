@@ -1,7 +1,10 @@
-import { PgVectorRetriever } from "../retrieval/PgVectorRetriever";
-import { buildContext }       from "../prompt/buildContext";
-import { getProvider }        from "@/lib/ai/providers/ProviderFactory";
-import { ChatMessage }        from "@/lib/ai/types/ChatMessage";
+import { PgVectorRetriever }    from "../retrieval/PgVectorRetriever";
+import { buildContext }          from "../prompt/buildContext";
+import { getProvider }           from "@/lib/ai/providers/ProviderFactory";
+import { ChatMessage }           from "@/lib/ai/types/ChatMessage";
+import { rewriteQuery }          from "../queryRewriter";
+import { buildMemoryBlock }      from "../memory/summarizer";
+import { redactSensitiveData }   from "@/lib/security/redaction";
 
 const retriever = new PgVectorRetriever();
 
@@ -19,7 +22,14 @@ function detectLanguage(messages: ChatMessage[]): "ja" | "en" {
 }
 
 // ─── System prompt ────────────────────────────────────────────────────────────
-function buildSystemPrompt(context: string, language: "ja" | "en"): string {
+function buildSystemPrompt(
+  context:             string,
+  language:            "ja" | "en",
+  retrievalConfidence: string,
+  maxScore:            number,
+  memoryBlock:         string
+): string {
+
   const langInstruction =
     language === "ja"
       ? "Respond entirely in Japanese (日本語で回答してください)."
@@ -35,12 +45,26 @@ function buildSystemPrompt(context: string, language: "ja" | "en"): string {
           "Clearly indicate when something cannot be confirmed from platform documentation.",
         ].join("\n");
 
+  // Memory block is inserted only when the conversation is long enough to need it
+  const memorySection =
+    memoryBlock.trim().length > 0
+      ? `\n${memoryBlock}\n`
+      : "";
+
   return `You are the official technical support assistant for the INTELLIGENT SHELF ANALYZER — \
 a retail computer-vision platform for shelf analysis, planogram compliance, product recognition, \
 OCR-based price extraction, and retail workflow automation.
 
-${langInstruction}
+Documentation Confidence:
+${retrievalConfidence}
 
+If confidence is LOW and documentation is insufficient:
+- state that documentation was not found
+- do not guess
+- do not fabricate features
+
+${langInstruction}
+${memorySection}
 ${contextBlock}
 
 ════════════════════════════════════════════════
@@ -127,6 +151,7 @@ RESPONSE RULES
 export async function ragChatStream(
   messages: ChatMessage[]
 ): Promise<AsyncIterable<string>> {
+
   // Belt-and-suspenders: ensure only user/assistant messages reach the LLM
   // (system messages are injected by this service, never passed through from clients)
   const safeMessages = messages.filter(
@@ -136,24 +161,64 @@ export async function ragChatStream(
       m.content.length > 0
   );
 
-  const lastUser = [...safeMessages]
-    .reverse()
-    .find((m) => m.role === "user");
-
-  const query: string = lastUser?.content ?? "";
   const language = detectLanguage(safeMessages);
 
-  // Retrieve up to 8 chunks — enough context surface without flooding the prompt
-  const chunks  = await retriever.retrieve(query, 8);
-  const context = buildContext(chunks);
+  // ── 0. Input Sanitization ──────────────────────────────────────────────────
+  // Redact credentials/secrets from user messages before they reach the LLM,
+  // are embedded in the rewritten query, or stored in conversation history.
+  const sanitizedMessages = safeMessages.map(m => {
+    if (m.role !== "user") return m;
+    const { text, redacted, count } = redactSensitiveData(m.content);
+    if (redacted) {
+      console.warn(`[RAG] Redacted ${count} sensitive token(s) from user message`);
+    }
+    return { ...m, content: text };
+  });
 
+  // ── 1. Query Rewriting ───────────────────────────────────────────────────────
+  // Expand follow-up questions ("What comes next?") into self-contained queries
+  // so vector search receives meaningful text instead of pronoun fragments.
+  const rewrittenQuery = await rewriteQuery(sanitizedMessages);
+
+  console.log("[RAG] Rewritten query:", rewrittenQuery);
+
+  // ── 2. Retrieval ─────────────────────────────────────────────────────────────
+  // Retrieve up to 8 chunks — enough context surface without flooding the prompt.
+  const retrievalResult = await retriever.retrieve(rewrittenQuery, 8);
+
+  if (retrievalResult.answerType === "NO_MATCH") {
+    console.log("[RAG] No matching documentation found");
+  } else {
+    console.log(
+      `[RAG] Retrieved ${retrievalResult.chunks.length} chunks — ` +
+      `confidence: ${retrievalResult.confidence}, maxScore: ${retrievalResult.maxScore.toFixed(3)}`
+    );
+  }
+
+  const context = buildContext(retrievalResult.chunks);
+
+  // ── 3. Conversation Memory ───────────────────────────────────────────────────
+  // Level 1: the last 10–15 turns are passed verbatim via safeMessages below.
+  // Level 2: for long conversations, older turns are compressed into a summary
+  //          block that is injected into the system prompt.
+  const memoryBlock = await buildMemoryBlock(sanitizedMessages);
+
+  // ── 4. Build system prompt ───────────────────────────────────────────────────
   const systemMessage: ChatMessage = {
     role:    "system",
-    content: buildSystemPrompt(context, language),
+    content: buildSystemPrompt(
+      context,
+      language,
+      retrievalResult.confidence,
+      retrievalResult.maxScore,
+      memoryBlock
+    ),
   };
 
+  // ── 5. Stream ─────────────────────────────────────────────────────────────────
+  // Level 1 memory: pass the full safeMessages array (route already caps at 20 turns).
   const provider = getProvider();
-  return provider.chatStream([systemMessage, ...safeMessages]);
+  return provider.chatStream([systemMessage, ...sanitizedMessages]);
 }
 
 // ─── ragChat (non-streaming, kept for compatibility) ──────────────────────────

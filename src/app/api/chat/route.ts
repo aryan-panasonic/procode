@@ -1,4 +1,6 @@
 import { ragChatStream } from "@/lib/rag/services/ragChat";
+import { AIError }
+from "@/lib/ai/errors/AIError";
 
 // ─── Request limits ──────────────────────────────────────────────────────────
 const MAX_MESSAGES       = 20;       // how many turns to retain
@@ -70,22 +72,88 @@ export async function POST(req: Request) {
     });
 
     // ── 3. Stream response ────────────────────────────────────────────────────
-    const stream  = await ragChatStream(budgeted);
-    const encoder = new TextEncoder();
+    let stream: AsyncIterable<string>;
+      try {
 
-    const readable = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of stream) {
-            controller.enqueue(encoder.encode(chunk));
-          }
-        } catch (err) {
-          console.error("[chat/route] Stream error:", err);
-        } finally {
-          controller.close();
+        stream =
+          await ragChatStream(
+            budgeted
+          );
+
+      } catch (err) {
+
+        console.error(
+          "[chat/route] Chat creation error:",
+          err
+        );
+
+        if (
+          err instanceof AIError &&
+          err.code ===
+            "CONTENT_FILTER"
+        ) {
+
+          return Response.json(
+            {
+              error:
+                "This request was blocked by safety policies."
+            },
+            {
+              status: 200
+            }
+          );
         }
-      },
-    });
+
+        return Response.json(
+          {
+            error:
+              "AI service temporarily unavailable."
+          },
+          {
+            status: 500
+          }
+        );
+      }
+
+      const encoder =
+        new TextEncoder();
+
+      const readable =
+        new ReadableStream({
+
+          async start(controller) {
+
+            try {
+
+              for await (
+                const chunk of stream
+              ) {
+
+                controller.enqueue(
+                  encoder.encode(chunk)
+                );
+              }
+
+            } catch (err) {
+
+              console.error(
+                "[chat/route] Stream error:",
+                err
+              );
+
+              controller.enqueue(
+                encoder.encode(
+                  "\n\nAn error occurred while generating the response."
+                )
+              );
+
+            } finally {
+
+              controller.close();
+
+            }
+          },
+        });
 
     return new Response(readable, {
       headers: {
