@@ -16,13 +16,7 @@ implements EmbeddingProvider {
         process.env.AZURE_OPENAI_API_KEY,
 
       baseURL:
-        `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_EMBED_DEPLOYMENT}`,
-
-      defaultQuery: {
-        "api-version":
-          process.env.AZURE_OPENAI_API_VERSION ||
-          "2025-01-01-preview"
-      },
+        process.env.AZURE_OPENAI_ENDPOINT,
 
       defaultHeaders: {
         "api-key":
