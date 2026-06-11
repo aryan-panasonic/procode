@@ -5,7 +5,7 @@
 //
 // Flow: receive → extract text → chunk → embed → store in PgVectorStore
 
-import { getPool } from "@/lib/db/postgres";
+import { pool } from "@/lib/db/postgres";
 import { PgVectorStore }         from "@/lib/rag/storage/PgVectorStore";
 import { getEmbeddingProvider }  from "@/lib/rag/embeddings/EmbeddingFactory";
 import { chunkText }             from "@/lib/rag/chunking/chunkText";
