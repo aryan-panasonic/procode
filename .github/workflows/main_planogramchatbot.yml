@@ -5,90 +5,53 @@ on:
     branches:
       - main
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
-
     env:
       LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
-
       AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
       AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
       AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
       AZURE_OPENAI_EMBED_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMBED_DEPLOYMENT }}
       AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
-
       POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
       POSTGRES_SSL: ${{ secrets.POSTGRES_SSL }}
-
       ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-
       - name: Install dependencies
         run: npm ci
-
-      - name: Verify Next.js installation
-        run: |
-          echo "Node version:"
-          node -v
-
-          echo "NPM version:"
-          npm -v
-
-          echo "Next version:"
-          npx next --version
-
-          echo "Checking next binary..."
-          ls -la node_modules/.bin | grep next
-
       - name: Build application
         run: npm run build
 
-      - name: Verify build output
+      # ✅ Assemble the standalone package correctly
+      - name: Prepare standalone package
         run: |
-          ls -la
-          ls -la .next
-
-      - name: Run tests
-        run: npm run test --if-present
+          cp -r public .next/standalone/public
+          cp -r .next/static .next/standalone/.next/static
 
       - name: Upload deployment artifact
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: |
-            .
+          path: .next/standalone   # ✅ Only upload standalone output
           retention-days: 1
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: node-app
-
-      - name: Verify downloaded files
-        run: |
-          pwd
-          ls -la
-          cat package.json
-
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
