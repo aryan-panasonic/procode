@@ -178,6 +178,7 @@ export async function POST(req: Request) {
         "Cache-Control":          "no-store",
         "Connection":             "keep-alive",
         "X-Content-Type-Options": "nosniff",
+        "X-Escalate":             meta.shouldEscalate ? "1" : "0",
       },
     });
 

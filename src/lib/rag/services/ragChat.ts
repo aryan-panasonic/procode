@@ -5,6 +5,7 @@ import { ChatMessage }           from "@/lib/ai/types/ChatMessage";
 import { rewriteQuery }          from "../queryRewriter";
 import { buildMemoryBlock }      from "../memory/summarizer";
 import { redactSensitiveData }   from "@/lib/security/redaction";
+import { shouldEscalate }        from "@/lib/tickets/draftTicket";
 
 const retriever = new PgVectorRetriever();
 
@@ -18,6 +19,7 @@ export interface RagChatMeta {
   chunksReturned:     number;
   chunkIds:           string[]; // for retrieval_logs
   inputChars:         number;   // system + conversation chars (approx)
+  shouldEscalate:     boolean;
 }
 
 export interface RagChatResult {
@@ -238,6 +240,11 @@ export async function ragChatStream(
     chunksReturned: retrievalResult.chunks.length,
     chunkIds:       retrievalResult.chunks.map(c => c.id),
     inputChars,
+    shouldEscalate: shouldEscalate(
+      sanitizedMessages,
+      retrievalResult.confidence,
+      retrievalResult.answerType
+    ),
   };
 
   return { stream, meta };

@@ -17,9 +17,18 @@ import {
   LEAKAGE_FALLBACK,
 } from "@/lib/security/redaction";
 
-// ─── Feedback ─────────────────────────────────────────────────────────────────
-// Maps message index → "up" | "down" so each response can only be rated once.
 type FeedbackMap = Record<number, "up" | "down">;
+
+interface TicketFormState {
+  name:  string;
+  email: string;
+  phone: string;
+}
+
+interface TicketConfirmation {
+  id:    string;
+  title: string;
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -83,6 +92,10 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
   const [showHistory,   setShowHistory]   = useState(false);
   const [allSessions,   setAllSessions]   = useState<ChatSession[]>([]);
   const [feedbackMap,   setFeedbackMap]   = useState<FeedbackMap>({});
+  const [showEscalate,  setShowEscalate]  = useState(false);
+  const [ticketForm,    setTicketForm]    = useState<TicketFormState>({ name: "", email: "", phone: "" });
+  const [ticketLoading, setTicketLoading] = useState(false);
+  const [ticketDone,    setTicketDone]    = useState<TicketConfirmation | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -129,6 +142,8 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
     setInput("");
     setShowHistory(false);
     setFeedbackMap({});
+    setShowEscalate(false);
+    setTicketDone(null);
   }
 
   // ─── Switch to a past session ──────────────────────────────────────────────
@@ -137,6 +152,8 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
     setMessages([WELCOME, ...s.messages]);
     setShowHistory(false);
     setFeedbackMap({});
+    setShowEscalate(false);
+    setTicketDone(null);
   }
 
   // ─── Submit feedback for a specific assistant message ─────────────────────
@@ -161,6 +178,49 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
       });
     } catch {
       // Feedback is best-effort — don't surface errors
+    }
+  }
+
+  // ─── Submit support ticket ─────────────────────────────────────────────────
+  async function submitTicket() {
+    setTicketLoading(true);
+    try {
+      const chatMessages = messages
+        .filter(m => m.role === "user" || m.role === "assistant")
+        .slice(1)
+        .map(m => ({ role: m.role, content: m.content }));
+
+      const draftRes  = await fetch("/api/tickets/draft", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ messages: chatMessages, sessionId: session.sessionId }),
+      });
+      const draftData = await draftRes.json();
+      if (draftData.error) throw new Error(draftData.error);
+
+      const createRes  = await fetch("/api/tickets", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({
+          title:                draftData.draft.title,
+          summary:              draftData.draft.summary,
+          category:             draftData.draft.category,
+          priority:             draftData.draft.priority,
+          customer_name:        ticketForm.name  || undefined,
+          customer_email:       ticketForm.email || undefined,
+          customer_phone:       ticketForm.phone || undefined,
+          session_id:           session.sessionId,
+          conversation_summary: draftData.conversationSummary,
+        }),
+      });
+      const createData = await createRes.json();
+      if (createData.error) throw new Error(createData.error);
+      setTicketDone({ id: createData.ticket.id, title: createData.ticket.title });
+      setShowEscalate(false);
+    } catch (e: any) {
+      alert("Failed to create ticket: " + e.message);
+    } finally {
+      setTicketLoading(false);
     }
   }
 
@@ -201,6 +261,7 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
+      const escalate    = res.headers.get("X-Escalate") === "1";
       const contentType = res.headers.get("content-type");
 
       if (contentType?.includes("application/json")) {
@@ -234,6 +295,7 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
       const finalOutput = detectPromptLeakage(safeOutput) ? LEAKAGE_FALLBACK : safeOutput;
 
       setMessages([...nextMessages, { role: "assistant", content: finalOutput }]);
+      if (escalate) setShowEscalate(true);
 
     } catch (error) {
       console.error("[ChatWindow]", error);
@@ -245,6 +307,12 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
 
   const charsLeft = MAX_INPUT_CHARS - input.length;
   const nearLimit = charsLeft <= 50;
+  const inputStyle: React.CSSProperties = {
+    width: "100%", boxSizing: "border-box", padding: "7px 10px",
+    borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)",
+    background: "#1f2937", color: "#f3f4f6", fontSize: 12,
+    outline: "none",
+  };
 
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
@@ -418,6 +486,67 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
 
         <div ref={bottomRef} />
       </div>
+
+      {/* ── Escalation Panel ── */}
+      {showEscalate && !ticketDone && (
+        <div style={{
+          margin: "0 12px 10px", padding: "14px 16px", borderRadius: 8,
+          background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.25)",
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: "#93c5fd" }}>
+            🎫 Create a support ticket?
+          </div>
+          <input
+            style={inputStyle}
+            placeholder="Your name (optional)"
+            value={ticketForm.name}
+            onChange={e => setTicketForm(p => ({ ...p, name: e.target.value }))}
+          />
+          <input
+            style={{ ...inputStyle, marginTop: 6 }}
+            placeholder="Email (optional)"
+            type="email"
+            value={ticketForm.email}
+            onChange={e => setTicketForm(p => ({ ...p, email: e.target.value }))}
+          />
+          <input
+            style={{ ...inputStyle, marginTop: 6 }}
+            placeholder="Phone (optional)"
+            value={ticketForm.phone}
+            onChange={e => setTicketForm(p => ({ ...p, phone: e.target.value }))}
+          />
+          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+            <button
+              onClick={submitTicket}
+              disabled={ticketLoading}
+              style={{ flex: 1, padding: "8px 0", borderRadius: 6, border: "none",
+                background: "#1d4ed8", color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+            >
+              {ticketLoading ? "Creating…" : "Submit Ticket"}
+            </button>
+            <button
+              onClick={() => setShowEscalate(false)}
+              style={{ padding: "8px 12px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)",
+                background: "transparent", color: "#9ca3af", fontSize: 12, cursor: "pointer" }}
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Ticket Confirmation ── */}
+      {ticketDone && (
+        <div style={{
+          margin: "0 12px 10px", padding: "12px 16px", borderRadius: 8,
+          background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)",
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "#86efac" }}>
+            ✅ Ticket created
+          </div>
+          <div style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>{ticketDone.title}</div>
+        </div>
+      )}
 
       {/* ── Input row ── */}
       <div className={styles.inputRow}>

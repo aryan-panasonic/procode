@@ -35,6 +35,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             Analytics
           </a>
 
+          <a href="/admin/tickets" style={navLinkStyle}>
+            Tickets
+          </a>
+
           <a href="/admin/documents" style={navLinkStyle}>
             Documents
           </a>
