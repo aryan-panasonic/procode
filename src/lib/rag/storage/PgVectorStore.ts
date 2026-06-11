@@ -1,4 +1,4 @@
-import { pool } from "@/lib/db/postgres";
+import { getPool } from "@/lib/db/postgres";
 
 export interface RetrievedChunk {
   id: string;

@@ -7,7 +7,7 @@
 // Usage in route.ts:
 //   logChatRequest({ ... }).catch(() => {});   // already caught internally
 
-import { pool } from "@/lib/db/postgres";
+import { getPool } from "@/lib/db/postgres";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

@@ -1,5 +1,5 @@
 import { logFeedback } from "@/lib/monitoring/logger";
-import { pool }         from "@/lib/db/postgres";
+import { getPool } from "@/lib/db/postgres";
 
 export async function POST(req: Request) {
   try {

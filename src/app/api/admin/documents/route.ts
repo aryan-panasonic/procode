@@ -1,4 +1,4 @@
-import { pool } from "@/lib/db/postgres";
+import { getPool } from "@/lib/db/postgres";
 
 // ─── GET /api/admin/documents — list all documents ────────────────────────────
 export async function GET() {

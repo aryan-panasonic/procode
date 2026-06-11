@@ -3,15 +3,11 @@ import "dotenv/config";
 
 const connectionString =
   process.env.POSTGRES_URL ||
-  process.env.LOCAL_POSTGRES_URL;
+  process.env.LOCAL_POSTGRES_URL ||
+  "postgresql://placeholder:placeholder@localhost:5432/placeholder";
 
-if (!connectionString) {
-  throw new Error(
-    "Set POSTGRES_URL (cloud) or LOCAL_POSTGRES_URL (local)"
-  );
-}
 export const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
+  connectionString,
 
   ssl:
     process.env.POSTGRES_SSL === "true"
@@ -21,8 +17,6 @@ export const pool = new Pool({
       : undefined,
 
   max: 20,
-
   idleTimeoutMillis: 30000,
-
   connectionTimeoutMillis: 10000,
 });
