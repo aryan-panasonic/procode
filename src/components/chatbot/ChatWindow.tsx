@@ -19,6 +19,13 @@ import {
 
 type FeedbackMap = Record<number, "up" | "down">;
 
+interface AttachedFile {
+  file: File;
+  id: string;
+  status: "pending" | "uploading" | "done" | "error";
+  error?: string;
+}
+
 interface TicketFormState {
   name:  string;
   email: string;
@@ -96,8 +103,10 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
   const [ticketForm,    setTicketForm]    = useState<TicketFormState>({ name: "", email: "", phone: "" });
   const [ticketLoading, setTicketLoading] = useState(false);
   const [ticketDone,    setTicketDone]    = useState<TicketConfirmation | null>(null);
+  const [attachments,   setAttachments]   = useState<AttachedFile[]>([]);
 
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const bottomRef  = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Restore last session on mount ─────────────────────────────────────────
   useEffect(() => {
@@ -144,6 +153,7 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
     setFeedbackMap({});
     setShowEscalate(false);
     setTicketDone(null);
+    setAttachments([]);
   }
 
   // ─── Switch to a past session ──────────────────────────────────────────────
@@ -154,6 +164,7 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
     setFeedbackMap({});
     setShowEscalate(false);
     setTicketDone(null);
+    setAttachments([]);
   }
 
   // ─── Submit feedback for a specific assistant message ─────────────────────
@@ -232,6 +243,57 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
     if (session.sessionId === id) startNewChat();
   }
 
+  // ─── Handle file selection ─────────────────────────────────────────────────
+  function handleFiles(files: FileList | File[]) {
+    const arr = Array.from(files);
+    const newItems: AttachedFile[] = arr.map(f => ({
+      file: f,
+      id:   Math.random().toString(36).slice(2),
+      status: "pending",
+    }));
+    setAttachments(prev => [...prev, ...newItems].slice(-5));
+  }
+
+  function removeAttachment(id: string) {
+    setAttachments(prev => prev.filter(a => a.id !== id));
+  }
+
+  async function uploadAttachments(sessionId: string): Promise<void> {
+    const pending = attachments.filter(a => a.status === "pending");
+    if (pending.length === 0) return;
+
+    setAttachments(prev =>
+      prev.map(a => a.status === "pending" ? { ...a, status: "uploading" } : a)
+    );
+
+    const formData = new FormData();
+    formData.append("sessionId", sessionId);
+    pending.forEach(a => formData.append("files", a.file));
+
+    try {
+      const res = await fetch("/api/chat/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      const resultMap = new Map<string, any>(
+        (data.results ?? []).map((r: any) => [r.filename, r])
+      );
+
+      setAttachments(prev =>
+        prev.map(a => {
+          if (a.status !== "uploading") return a;
+          const r = resultMap.get(a.file.name);
+          if (!r) return { ...a, status: "error" as const, error: "Not processed" };
+          return r.error
+            ? { ...a, status: "error" as const, error: r.error }
+            : { ...a, status: "done" as const };
+        })
+      );
+    } catch {
+      setAttachments(prev =>
+        prev.map(a => a.status === "uploading" ? { ...a, status: "error" as const, error: "Upload failed" } : a)
+      );
+    }
+  }
+
   // ─── Send a message ────────────────────────────────────────────────────────
   async function send(text: string) {
     const trimmed = text.trim();
@@ -245,6 +307,7 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
     setLoading(true);
 
     try {
+      await uploadAttachments(session.sessionId);
       const historyToSend = nextMessages
         .filter(m => m.role === "user" || m.role === "assistant")
         .slice(-MAX_HISTORY)
@@ -408,7 +471,11 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
       )}
 
       {/* ── Messages ── */}
-      <div className={styles.messages}>
+      <div
+        className={styles.messages}
+        onDragOver={e => e.preventDefault()}
+        onDrop={e => { e.preventDefault(); if (e.dataTransfer.files) handleFiles(e.dataTransfer.files); }}
+      >
         {messages.map((msg, i) => {
           // Find the preceding user message to pass as "question" to feedback
           const prevUserMsg = i > 0
@@ -548,8 +615,46 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
+      {/* ── Attachments ── */}
+      {attachments.length > 0 && (
+        <div className={styles.attachmentList}>
+          {attachments.map(a => (
+            <div key={a.id} className={`${styles.attachChip} ${a.status === "error" ? styles.attachChipError : a.status === "done" ? styles.attachChipDone : ""}`}>
+              <span className={styles.attachIcon}>
+                {a.status === "uploading" ? "⏳" : a.status === "done" ? "✓" : a.status === "error" ? "✗" : "📎"}
+              </span>
+              <span className={styles.attachName} title={a.error ?? a.file.name}>
+                {a.file.name}
+              </span>
+              {a.status !== "uploading" && (
+                <button className={styles.attachRemove} onClick={() => removeAttachment(a.id)} aria-label="Remove file">×</button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ── Input row ── */}
       <div className={styles.inputRow}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept=".txt,.md,.pdf,.docx,.png,.jpg,.jpeg"
+          style={{ display: "none" }}
+          onChange={e => { if (e.target.files) handleFiles(e.target.files); e.target.value = ""; }}
+        />
+        <button
+          className={styles.attachBtn}
+          onClick={() => fileInputRef.current?.click()}
+          disabled={loading}
+          title="Attach files"
+          aria-label="Attach files"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+          </svg>
+        </button>
         <input
           className={styles.input}
           value={input}

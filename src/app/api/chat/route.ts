@@ -2,6 +2,7 @@ import { ragChatStream }      from "@/lib/rag/services/ragChat";
 import { AIError }            from "@/lib/ai/errors/AIError";
 import { logChatRequest,
          logRetrievalChunks } from "@/lib/monitoring/logger";
+import { getSessionFiles, buildFileContextBlock, getSessionImages } from "@/lib/uploads/sessionFileStore";
 import "@/lib/env";
 import { validateDatabase } from "@/lib/db-health";
 
@@ -83,9 +84,15 @@ export async function POST(req: Request) {
       .find(m => m.role === "user")?.content ?? "";
 
     // ── 3. Build stream + collect metadata ────────────────────────────────────
+    const fileContextBlock = sessionId
+      ? buildFileContextBlock(getSessionFiles(sessionId))
+      : "";
+
+    const sessionImages = sessionId ? getSessionImages(sessionId) : [];
+
     let ragResult: Awaited<ReturnType<typeof ragChatStream>>;
     try {
-      ragResult = await ragChatStream(budgeted);
+      ragResult = await ragChatStream(budgeted, fileContextBlock || undefined, sessionImages);
     } catch (err) {
       console.error("[chat/route] Chat creation error:", err);
 

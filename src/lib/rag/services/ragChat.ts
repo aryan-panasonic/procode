@@ -6,6 +6,7 @@ import { rewriteQuery }          from "../queryRewriter";
 import { buildMemoryBlock }      from "../memory/summarizer";
 import { redactSensitiveData }   from "@/lib/security/redaction";
 import { shouldEscalate }        from "@/lib/tickets/draftTicket";
+import type { SessionFile }      from "@/lib/uploads/sessionFileStore";
 
 const retriever = new PgVectorRetriever();
 
@@ -165,7 +166,9 @@ RESPONSE RULES
 
 // ─── ragChatStream ────────────────────────────────────────────────────────────
 export async function ragChatStream(
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  fileContextBlock?: string,
+  sessionImages?: SessionFile[]
 ): Promise<RagChatResult> {
 
   const safeMessages = messages.filter(
@@ -209,8 +212,12 @@ export async function ragChatStream(
   const memoryBlock = await buildMemoryBlock(sanitizedMessages);
 
   // ── 4. Build system prompt ───────────────────────────────────────────────────
+  const fileSection = fileContextBlock && fileContextBlock.trim().length > 0
+    ? `\n\n${fileContextBlock}`
+    : "";
+
   const systemPromptContent = buildSystemPrompt(
-    context,
+    context + fileSection,
     language,
     retrievalResult.confidence,
     retrievalResult.maxScore,
@@ -227,9 +234,35 @@ export async function ragChatStream(
     systemPromptContent.length +
     sanitizedMessages.reduce((s, m) => s + m.content.length, 0);
 
-  // ── 6. Stream ─────────────────────────────────────────────────────────────────
+  // ── 6. Build messages, injecting images into the last user message ───────────
   const provider = getProvider();
-  const stream   = provider.chatStream([systemMessage, ...sanitizedMessages]);
+
+  const images = sessionImages?.filter(f => f.imageBase64) ?? [];
+
+  const messagesForProvider: any[] = images.length > 0
+    ? sanitizedMessages.map((m, i) => {
+        const isLastUser =
+          m.role === "user" &&
+          i === [...sanitizedMessages].map((x, j) => x.role === "user" ? j : -1).filter(j => j >= 0).at(-1);
+
+        if (!isLastUser) return m;
+
+        return {
+          role: "user",
+          content: [
+            { type: "text", text: m.content },
+            ...images.map(img => ({
+              type: "image_url",
+              image_url: {
+                url: `data:${img.imageMimeType ?? "image/jpeg"};base64,${img.imageBase64}`,
+              },
+            })),
+          ],
+        };
+      })
+    : sanitizedMessages;
+
+  const stream = provider.chatStream([systemMessage, ...messagesForProvider]);
 
   // ── 7. Build metadata ─────────────────────────────────────────────────────────
   const meta: RagChatMeta = {
