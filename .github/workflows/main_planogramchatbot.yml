@@ -5,6 +5,8 @@ on:
     branches:
       - main
   workflow_dispatch:
+
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,17 +33,37 @@ jobs:
       - name: Build application
         run: npm run build
 
-      # ✅ Assemble the standalone package correctly
-      - name: Prepare standalone package
+      - name: Prepare and zip standalone package
         run: |
+          # Copy public assets and static files into standalone
           cp -r public .next/standalone/public
           cp -r .next/static .next/standalone/.next/static
+
+          # Add a minimal package.json so Azure Oryx knows the start command
+          cat > .next/standalone/package.json << 'EOF'
+          {
+            "name": "retail-ai-platform",
+            "version": "0.1.0",
+            "scripts": { "start": "node server.js" }
+          }
+          EOF
+
+          # Zip from inside standalone so server.js is at the root of the zip
+          cd .next/standalone
+          zip -r ../../deployment.zip .
+
+      - name: Verify zip contents
+        run: |
+          echo "--- Zip root ---"
+          unzip -l deployment.zip | head -30
+          echo "--- Checking .next is present ---"
+          unzip -l deployment.zip | grep ".next/BUILD_ID"
 
       - name: Upload deployment artifact
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .next/standalone   # ✅ Only upload standalone output
+          path: deployment.zip   # ✅ single zip, no hidden-dir issues
           retention-days: 1
 
   deploy:
@@ -57,5 +79,5 @@ jobs:
         with:
           app-name: planogramchatbot
           slot-name: Production
-          package: .
+          package: deployment.zip   # ✅ deploy the zip directly
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_18CC8567389144B39056FAF1AB0C8A7F }}
