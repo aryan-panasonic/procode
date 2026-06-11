@@ -1,32 +1,50 @@
-import { retrieve }
-from "../src/lib/rag/vectorstore/retrieve";
+import { retrieve } from "../src/lib/rag/vectorstore/retrieve";
 
 async function main() {
+  const retrievalResult = await retrieve(
+    "What image formats are supported?"
+  );
 
-  const results =
-    await retrieve(
-      "What image formats are supported?"
-    );
+  console.log("\n=== RETRIEVAL SUMMARY ===");
 
-  results.forEach(
-    (result: any, index: number) => {
+  console.log(
+    "Confidence:",
+    retrievalResult.confidence
+  );
 
+  console.log(
+    "Average Score:",
+    retrievalResult.averageScore
+  );
+
+  console.log(
+    "Max Score:",
+    retrievalResult.maxScore
+  );
+
+  console.log(
+    "Answer Type:",
+    retrievalResult.answerType
+  );
+
+  retrievalResult.chunks.forEach(
+    (chunk, index) => {
       console.log(
         `\n=== RESULT ${index + 1} ===`
       );
 
       console.log(
         "Score:",
-        result.score
+        chunk.score
       );
 
       console.log(
         "Title:",
-        result.title
+        chunk.title
       );
 
       console.log(
-        result.content.slice(
+        chunk.content.slice(
           0,
           500
         )
@@ -35,4 +53,4 @@ async function main() {
   );
 }
 
-main();
+main().catch(console.error);
