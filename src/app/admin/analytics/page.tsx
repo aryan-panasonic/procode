@@ -14,6 +14,7 @@ interface Stats {
   totalOutputTokens:  number;
   topQueries:         { query: string; count: number }[];
   latencyByHour:      { hour: string; avg_ms: number; count: number }[];
+  avgLatencyPeriods:  { "1d": number; "7d": number; "14d": number; "30d": number };
   confidenceDist:     { conf: string; count: number }[];
 }
 
@@ -58,51 +59,6 @@ function BarChart({
           <div className={styles.barCount}>{r[valueKey]}</div>
         </div>
       ))}
-    </div>
-  );
-}
-
-// ─── Latency sparkline ────────────────────────────────────────────────────────
-function LatencyChart({ rows }: { rows: { hour: string; avg_ms: number; count: number }[] }) {
-  if (rows.length === 0) return <div className={styles.empty}>No data yet</div>;
-
-  const maxMs = Math.max(...rows.map(r => r.avg_ms), 1);
-  const H = 80;
-
-  return (
-    <div className={styles.latencyChart}>
-      <svg
-        width="100%"
-        viewBox={`0 0 ${rows.length * 24} ${H + 20}`}
-        preserveAspectRatio="none"
-        style={{ display: "block" }}
-      >
-        {rows.map((r, i) => {
-          const barH = Math.max(4, (r.avg_ms / maxMs) * H);
-          return (
-            <g key={i}>
-              <rect
-                x={i * 24 + 2}
-                y={H - barH}
-                width={20}
-                height={barH}
-                fill="#3b82f6"
-                opacity={0.8}
-                rx={2}
-              />
-              <text
-                x={i * 24 + 12}
-                y={H + 14}
-                textAnchor="middle"
-                fontSize={8}
-                fill="#6b7280"
-              >
-                {r.hour}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
     </div>
   );
 }
@@ -183,10 +139,15 @@ export default function AnalyticsPage() {
             <StatCard label="Output Tokens ~"  value={stats.totalOutputTokens.toLocaleString()} sub="approximate" />
           </div>
 
-          {/* ── Latency by hour ── */}
+          {/* ── Average Latency Periods ── */}
           <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>Latency (last 24 h)</h2>
-            <LatencyChart rows={stats.latencyByHour} />
+            <h2 className={styles.sectionTitle}>Average Latency</h2>
+            <div className={styles.statsGrid} style={{ marginBottom: 0 }}>
+              <StatCard label="24 Hours"  value={`${stats.avgLatencyPeriods["1d"]} ms`} />
+              <StatCard label="7 Days"    value={`${stats.avgLatencyPeriods["7d"]} ms`} />
+              <StatCard label="14 Days"   value={`${stats.avgLatencyPeriods["14d"]} ms`} />
+              <StatCard label="30 Days"   value={`${stats.avgLatencyPeriods["30d"]} ms`} />
+            </div>
           </div>
 
           {/* ── Two-col charts ── */}

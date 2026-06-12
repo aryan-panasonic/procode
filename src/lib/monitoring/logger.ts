@@ -216,13 +216,14 @@ export interface AnalyticsStats {
   totalOutputTokens:  number;
   topQueries:         { query: string; count: number }[];
   latencyByHour:      { hour: string; avg_ms: number; count: number }[];
+  avgLatencyPeriods:  { "1d": number; "7d": number; "14d": number; "30d": number };
   confidenceDist:     { conf: string; count: number }[];
 }
 
 export async function getAnalytics(days = 7): Promise<AnalyticsStats> {
   const since = `now() - interval '${days} days'`;
 
-  const [totals, today, latencyHour, confDist, topQ, feedback] =
+  const [totals, today, latencyHour, confDist, topQ, feedback, periods] =
     await Promise.all([
       // Overall totals
       pool.query<{
@@ -289,6 +290,17 @@ export async function getAnalytics(days = 7): Promise<AnalyticsStats> {
          WHERE created_at >= ${since}
          GROUP BY rating`
       ),
+
+      // Avg latency for standard periods
+      pool.query<{ period: string; avg_ms: string }>(
+        `SELECT '1d' AS period, ROUND(AVG(latency_ms)) AS avg_ms FROM chat_logs WHERE created_at >= now() - interval '1 day'
+         UNION ALL
+         SELECT '7d', ROUND(AVG(latency_ms)) FROM chat_logs WHERE created_at >= now() - interval '7 days'
+         UNION ALL
+         SELECT '14d', ROUND(AVG(latency_ms)) FROM chat_logs WHERE created_at >= now() - interval '14 days'
+         UNION ALL
+         SELECT '30d', ROUND(AVG(latency_ms)) FROM chat_logs WHERE created_at >= now() - interval '30 days'`
+      ),
     ]);
 
   const t = totals.rows[0];
@@ -311,6 +323,12 @@ export async function getAnalytics(days = 7): Promise<AnalyticsStats> {
       avg_ms: Number(r.avg_ms),
       count:  Number(r.count),
     })),
+    avgLatencyPeriods: {
+      "1d":  Number(periods.rows.find(r => r.period === "1d")?.avg_ms ?? 0),
+      "7d":  Number(periods.rows.find(r => r.period === "7d")?.avg_ms ?? 0),
+      "14d": Number(periods.rows.find(r => r.period === "14d")?.avg_ms ?? 0),
+      "30d": Number(periods.rows.find(r => r.period === "30d")?.avg_ms ?? 0),
+    },
     confidenceDist: confDist.rows.map(r => ({
       conf:  r.conf,
       count: Number(r.count),
