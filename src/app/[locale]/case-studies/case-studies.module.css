@@ -1,0 +1,93 @@
+.page { padding-top: 68px; min-height: 100vh; background: var(--ink-950); }
+.hero { background: var(--ink-900); border-bottom: 1px solid var(--border); }
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 2.5rem 0 2rem;
+}
+.filterBtn {
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  color: var(--slate-400);
+  background: var(--ink-900);
+  cursor: pointer;
+  transition: var(--ease);
+}
+.filterBtn:hover { border-color: var(--cyan); color: var(--cyan); }
+.filterActive { border-color: var(--cyan) !important; color: var(--cyan) !important; background: var(--cyan-pale) !important; font-weight: 600; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+.card {
+  background: var(--ink-900);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: var(--ease);
+  color: inherit;
+}
+.card:hover {
+  border-color: var(--cyan);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+.cardTop { display: flex; justify-content: space-between; align-items: center; }
+.tag {
+  font-size: 0.72rem;
+  padding: 3px 10px;
+  background: var(--cyan-pale);
+  color: var(--cyan);
+  border-radius: 100px;
+  font-weight: 600;
+  border: 1px solid var(--cyan);
+  opacity: 0.8;
+}
+.metric {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 4px 0;
+}
+.metricVal {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--cyan);
+  line-height: 1;
+}
+.metricLabel { font-size: 0.8rem; color: var(--slate-400); font-weight: 500; }
+.company { font-size: 0.8rem; color: var(--slate-500); font-weight: 600; }
+.summary { font-size: 0.85rem; color: var(--slate-400); line-height: 1.6; flex: 1; }
+.modules { display: flex; gap: 6px; flex-wrap: wrap; }
+.moduleTag {
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  background: var(--ink-800);
+  color: var(--slate-500);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.readMore {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  color: var(--cyan);
+  font-weight: 600;
+  margin-top: 4px;
+}
+.cta {
+  margin-top: 5rem;
+  padding: 3rem 2rem;
+  background: var(--ink-900);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}

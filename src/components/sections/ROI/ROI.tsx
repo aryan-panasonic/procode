@@ -1,10 +1,10 @@
 import styles from "./ROI.module.css";
 
 const metrics = [
-  { v:"80%",    l:"Reduction in Audit Time",   sub:"Automated image processing",  c:"var(--cyan)" },
-  { v:"5x",     l:"Faster Reporting",   sub:"Compared to manual methods",           c:"var(--cyan)"  },
-  { v:"Improved", l:"Shelf Compliance",   sub:"Continuous monitoring",    c:"var(--cyan)"  },
-  { v:"Higher", l:"Execution Accuracy",   sub:"Data-driven execution",   c:"var(--cyan)"      },
+  {v: "80%", l: "Reduction in Audit Time", sub: "Automated image processing"},
+  {v: "5x", l: "Faster Reporting", sub: "Compared to manual methods"},
+  {v: "Improved", l: "Shelf Compliance", sub: "Continuous monitoring"},
+  {v: "Higher", l: "Execution Accuracy", sub: "Data-driven execution"},
 ];
 
 export default function ROI() {
@@ -16,21 +16,17 @@ export default function ROI() {
           <span className="sectionLabel">Business Impact</span>
           <h2 className="sectionTitle">Measurable <span className="gradientText">ROI</span>, Fast</h2>
         </div>
-
         <div className={styles.metricsRow}>
           {metrics.map(m => (
             <div key={m.l} className={styles.mCard}>
-              <div className={styles.mVal} style={{color:m.c}}>{m.v}</div>
+              <div className={styles.mVal}>{m.v}</div>
               <div className={styles.mLbl}>{m.l}</div>
               <div className={styles.mSub}>{m.sub}</div>
             </div>
           ))}
         </div>
-
         <div className={styles.caseCard}>
-          <div className={styles.caseTop}>
-            <span className="tag tagGold">Case Study Placeholder</span>
-          </div>
+          <div className={styles.caseTop}><span className="tag tagGold">Case Study Placeholder</span></div>
           <div className={styles.caseBody}>
             <div>
               <div className={styles.caseMeta}>
@@ -50,7 +46,7 @@ export default function ROI() {
               <div className={styles.statVal}>[Stat]</div>
               <div className={styles.statLbl}>[Impact Label]</div>
               <div className={styles.statDivider} />
-              <div className={styles.statVal} style={{color:"var(--green)"}}>[Stat]</div>
+              <div className={styles.statVal} style={{color: "var(--green)"}}>[Stat]</div>
               <div className={styles.statLbl}>[Impact Label]</div>
             </div>
           </div>

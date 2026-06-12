@@ -1,116 +1,206 @@
+"use client";
+import { useState } from "react";
 import Link from "next/link";
+import styles from "./pricing.module.css";
 
 const plans = [
   {
-    name: "Starter",
-    desc: "For mid-size retailers and brands getting started with AI shelf intelligence.",
-    price: "Contact Sales",
-    popular: false,
-    features: ["Up to 50 stores","AI product recognition (standard)","Planogram compliance monitoring","Monthly automated reports","Email support","API access (limited)"],
+    id:"starter", name:"Starter", nameJa:"スターター",
+    desc:"AIシェルフ管理を始める中規模チェーン向け",
+    priceNote:"要お見積もり",
+    highlight:false,
+    badge:null,
   },
   {
-    name: "Professional",
-    desc: "For growing operations that need real-time shelf data across hundreds of locations.",
-    price: "Contact Sales",
-    popular: true,
-    features: ["Up to 500 stores","High-accuracy AI recognition","Real-time planogram monitoring","OCR & price intelligence","Daily reports & alerts","Priority support (EN/JP)","Full API + SDK access","Standard ERP integration","Dedicated customer success"],
+    id:"pro", name:"Professional", nameJa:"プロフェッショナル",
+    desc:"数百店舗規模のリアルタイム棚管理に",
+    priceNote:"要お見積もり",
+    highlight:true,
+    badge:"最も選ばれています",
   },
   {
-    name: "Enterprise",
-    desc: "Fully custom deployment for large retailers, FMCG brands, and multi-national operations.",
-    price: "Custom",
-    popular: false,
-    features: ["Unlimited stores","All platform modules","Auto planogram generation AI","Custom AI model training","24/7 SLA support","On-premise / hybrid deployment","Custom ERP & system integration","Dedicated implementation team","Security audit support","Custom contracts & NDA"],
+    id:"enterprise", name:"Enterprise", nameJa:"エンタープライズ",
+    desc:"大規模展開・カスタム要件に完全対応",
+    priceNote:"カスタム見積",
+    highlight:false,
+    badge:null,
+  },
+];
+
+type V = boolean | string | null;
+const matrix: {category: string; rows: {label: string; vals: V[]}[]}[] = [
+  {
+    category:"ストア規模",
+    rows:[
+      {label:"対応店舗数",vals:["〜50店舗","〜500店舗","無制限"]},
+      {label:"月間画像処理数",vals:["10,000","100,000","無制限"]},
+      {label:"ユーザーアカウント",vals:["10","100","無制限"]},
+    ],
+  },
+  {
+    category:"棚割AIモジュール",
+    rows:[
+      {label:"AI棚割認識 (標準)",vals:[true,true,true]},
+      {label:"AI棚割認識 (高精度)",vals:[false,true,true]},
+      {label:"プラノグラムコンプライアンス",vals:[true,true,true]},
+      {label:"リアルタイム監視",vals:[false,true,true]},
+      {label:"OCR価格インテリジェンス",vals:[false,true,true]},
+      {label:"プラノグラム自動生成AI",vals:[false,false,true]},
+      {label:"カスタムAIモデル学習",vals:[false,false,true]},
+    ],
+  },
+  {
+    category:"レポート・分析",
+    rows:[
+      {label:"自動レポート生成",vals:["月次","日次","リアルタイム"]},
+      {label:"ダッシュボード",vals:[true,true,true]},
+      {label:"エグゼクティブレポート",vals:[false,true,true]},
+      {label:"カスタムKPI設定",vals:[false,true,true]},
+      {label:"データエクスポート",vals:["CSV","CSV/Excel","CSV/Excel/API"]},
+    ],
+  },
+  {
+    category:"API・連携",
+    rows:[
+      {label:"REST API",vals:["制限あり","フルアクセス","フルアクセス"]},
+      {label:"Webhook",vals:[false,true,true]},
+      {label:"SDK (Python/Node.js/Java)",vals:[false,true,true]},
+      {label:"SAP / Oracle コネクタ",vals:[false,"標準コネクタ","カスタム連携"]},
+      {label:"サンドボックス環境",vals:[true,true,true]},
+    ],
+  },
+  {
+    category:"インフラ・セキュリティ",
+    rows:[
+      {label:"展開方式",vals:["クラウド","クラウド","クラウド / オンプレ / ハイブリッド"]},
+      {label:"日本国内データ保管",vals:[true,true,true]},
+      {label:"SOC2 Type II",vals:[true,true,true]},
+      {label:"ISO 27001",vals:[false,true,true]},
+      {label:"セキュリティ監査支援",vals:[false,false,true]},
+      {label:"SLA",vals:["99.5%","99.9%","99.9%+カスタム"]},
+    ],
+  },
+  {
+    category:"サポート",
+    rows:[
+      {label:"メールサポート",vals:[true,true,true]},
+      {label:"優先サポート (日本語)",vals:[false,true,true]},
+      {label:"24時間サポート",vals:[false,false,true]},
+      {label:"専任カスタマーサクセス",vals:[false,"オプション",true]},
+      {label:"導入支援チーム",vals:[false,false,true]},
+      {label:"トレーニング",vals:["オンライン","オンライン+オンサイト","カスタム"]},
+    ],
   },
 ];
 
 const faqs = [
-  { q:"Is there a free trial?", a:"Yes — all plans include a 30-day free trial, no credit card required." },
-  { q:"Are there annual discounts?", a:"Annual contracts receive a discount versus month-to-month billing. Ask our sales team for details." },
-  { q:"Can you integrate with our existing ERP?", a:"Yes. We have native connectors for SAP, Oracle, and major retail management systems. Custom integrations are also supported." },
-  { q:"Is data stored locally?", a:"Enterprise clients can run on-premise or in a private cloud. All cloud deployments use SOC2-certified infrastructure." },
-  { q:"What languages is support available in?", a:"Full support in English and Japanese across all plans. Enterprise plans include dedicated JP-language account management." },
+  {q:"無料トライアルはありますか？",a:"全プランで30日間の無料トライアルをご利用いただけます。クレジットカード不要です。"},
+  {q:"年間契約と月次契約の違いは？",a:"年間契約の場合、月次契約と比較して割引が適用されます。詳細は営業担当にお問い合わせください。"},
+  {q:"既存のERPシステムと連携できますか？",a:"SAP・Oracle・主要な小売管理システム向けのネイティブコネクタをご用意しています。カスタム連携も対応可能です。"},
+  {q:"オンプレミス導入は可能ですか？",a:"Enterpriseプランではオンプレミス・プライベートクラウド・ハイブリッド構成に対応しています。"},
+  {q:"プランのアップグレードはいつでもできますか？",a:"はい、いつでもアップグレードが可能です。変更は翌月から反映されます。"},
 ];
 
+function Cell({v}: {v:V}) {
+  if (v === true) return <span className={styles.yes}>✓</span>;
+  if (v === false) return <span className={styles.no}>—</span>;
+  return <span className={styles.str}>{v}</span>;
+}
+
 export default function PricingPage() {
+  const [openFaq, setOpenFaq] = useState<number|null>(null);
+
   return (
-    <div style={{paddingTop:"68px", minHeight:"100vh", background:"var(--ink-950)"}}>
-      {/* Hero */}
-      <div style={{padding:"5rem 0 3rem", textAlign:"center"}}>
-        <div className="container">
-          <span className="sectionLabel">Pricing</span>
-          <h1 className="sectionTitle" style={{marginTop:".75rem"}}>Simple, <span className="gradientText">Transparent Plans</span></h1>
-          <p className="sectionSubtitle" style={{margin:"1rem auto 0", textAlign:"center"}}>
-            All plans include a 30-day free trial. Pricing scales with the number of stores and modules activated.
+    <div className={styles.page}>
+      <div className={styles.hero}>
+        <div className="container" style={{textAlign:"center"}}>
+          <span className="sectionLabel">料金プラン / Pricing</span>
+          <h1 className="sectionTitle" style={{marginTop:".75rem"}}>
+            貴社の規模に合わせた<span className="gradientText">柔軟なプラン</span>
+          </h1>
+          <p className="sectionSubtitle" style={{margin:"1rem auto 0"}}>
+            50店舗の中規模チェーンから数千店舗の大規模展開まで、貴社に最適なプランをご用意しています。
           </p>
         </div>
       </div>
 
-      {/* Plans */}
       <div className="container" style={{paddingBottom:"5rem"}}>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"1.25rem",marginBottom:"4rem"}}>
+        <div className={styles.planCards}>
           {plans.map(p => (
-            <div key={p.name} style={{
-              position:"relative", background: p.popular ? "rgba(0,200,232,0.06)" : "rgba(255,255,255,0.032)",
-              border:`1px solid ${p.popular ? "rgba(0,200,232,0.28)" : "rgba(255,255,255,0.07)"}`,
-              borderRadius:"var(--radius-xl)", padding:"2rem",
-              display:"flex", flexDirection:"column", gap:"1rem"
-            }}>
-              {p.popular && (
-                <div style={{
-                  position:"absolute", top:"-14px", left:"50%", transform:"translateX(-50%)",
-                  background:"var(--cyan)", color:"var(--ink-950)", fontSize:".72rem",
-                  fontWeight:700, padding:"4px 16px", borderRadius:"100px", whiteSpace:"nowrap"
-                }}>Most Popular</div>
-              )}
-              <div style={{position:"absolute",top:0,left:0,right:0,height:"2px",borderRadius:"2px 2px 0 0",background:p.popular?"var(--cyan)":"rgba(255,255,255,0.1)"}} />
-              <h3 style={{fontFamily:"var(--font-display)",fontSize:"1.3rem",fontWeight:700,color:"var(--text-primary)"}}>{p.name}</h3>
-              <p style={{fontSize:".82rem",color:"var(--slate-400)",lineHeight:1.7}}>{p.desc}</p>
-              <div style={{fontFamily:"var(--font-mono)",fontSize:"1.5rem",fontWeight:500,color:p.popular?"var(--cyan)":"var(--text-primary)"}}>{p.price}</div>
-              <ul style={{display:"flex",flexDirection:"column",gap:"8px",flex:1}}>
-                {p.features.map(f => (
-                  <li key={f} style={{display:"flex",alignItems:"flex-start",gap:"8px",fontSize:".82rem",color:"var(--slate-300)"}}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2.5" style={{marginTop:"2px",flexShrink:0}}><path d="M20 6L9 17l-5-5"/></svg>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/contact" style={{
-                display:"flex", alignItems:"center", justifyContent:"center",
-                padding:"12px", borderRadius:"var(--radius)", fontWeight:600, fontSize:".88rem",
-                background:p.popular?"var(--cyan)":"transparent",
-                color:p.popular?"var(--ink-950)":"var(--text-primary)",
-                border:`1px solid ${p.popular?"var(--cyan)":"rgba(255,255,255,0.2)"}`,
-                transition:"var(--ease)"
-              }}>
-                {p.popular ? "Get Started" : "Contact Sales"}
+            <div key={p.id} className={`${styles.planCard}${p.highlight?" "+styles.planHighlight:""}`}>
+              {p.badge && <div className={styles.planBadge}>{p.badge}</div>}
+              <div className={styles.planName}>{p.nameJa}</div>
+              <div className={styles.planNameEn}>{p.name}</div>
+              <p className={styles.planDesc}>{p.desc}</p>
+              <div className={styles.planPrice}>{p.priceNote}</div>
+              <Link href="/contact" className={p.highlight?"btnPrimary":"btnOutline"} style={{width:"100%",justifyContent:"center",marginTop:"auto"}}>
+                お問い合わせ
               </Link>
             </div>
           ))}
         </div>
 
-        {/* FAQ */}
-        <h2 className="sectionTitle" style={{textAlign:"center",marginBottom:"2.5rem"}}>Frequently Asked <span className="gradientText">Questions</span></h2>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"1.25rem",marginBottom:"3rem"}}>
-          {faqs.map(faq => (
-            <div key={faq.q} style={{background:"rgba(255,255,255,0.032)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:"var(--radius-lg)",padding:"1.5rem"}}>
-              <h3 style={{fontFamily:"var(--font-display)",fontSize:"1rem",fontWeight:600,color:"var(--text-primary)",marginBottom:".65rem"}}>{faq.q}</h3>
-              <p style={{fontSize:".82rem",color:"var(--slate-400)",lineHeight:1.8}}>{faq.a}</p>
-            </div>
-          ))}
+        <div className={styles.matrixWrap}>
+          <h2 className={styles.matrixTitle}>機能比較表</h2>
+          <div className={styles.matrixScroll}>
+            <table className={styles.matrix}>
+              <thead>
+                <tr>
+                  <th className={styles.thFeature}>機能</th>
+                  {plans.map(p=>(
+                    <th key={p.id} className={`${styles.thPlan}${p.highlight?" "+styles.thHighlight:""}`}>
+                      {p.nameJa}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {matrix.map(cat => (
+                  <>
+                    <tr key={cat.category} className={styles.catRow}>
+                      <td colSpan={4} className={styles.catLabel}>{cat.category}</td>
+                    </tr>
+                    {cat.rows.map(row => (
+                      <tr key={row.label} className={styles.dataRow}>
+                        <td className={styles.featureLabel}>{row.label}</td>
+                        {row.vals.map((v,i)=>(
+                          <td key={i} className={`${styles.cell}${plans[i].highlight?" "+styles.cellHighlight:""}`}>
+                            <Cell v={v}/>
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        {/* Enterprise CTA */}
-        <div style={{
-          display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"1.5rem",
-          background:"rgba(0,200,232,0.06)", border:"1px solid rgba(0,200,232,0.18)",
-          borderRadius:"var(--radius-xl)", padding:"2.5rem"
-        }}>
-          <div>
-            <h3 style={{fontFamily:"var(--font-display)",fontSize:"1.2rem",fontWeight:700,color:"var(--text-primary)",marginBottom:".5rem"}}>Large enterprise or complex requirements?</h3>
-            <p style={{fontSize:".85rem",color:"var(--slate-400)"}}>Our solutions engineers will scope a custom deployment and pricing for your needs.</p>
+        <div className={styles.faqSection}>
+          <h2 className={styles.faqTitle}>よくある質問</h2>
+          <div className={styles.faqs}>
+            {faqs.map((f,i)=>(
+              <div key={i} className={styles.faqItem} onClick={()=>setOpenFaq(openFaq===i?null:i)}>
+                <div className={styles.faqQ}>
+                  <span>{f.q}</span>
+                  <span className={styles.faqChevron}>{openFaq===i?"▲":"▼"}</span>
+                </div>
+                {openFaq===i && <p className={styles.faqA}>{f.a}</p>}
+              </div>
+            ))}
           </div>
-          <Link href="/contact" className="btnPrimary">Talk to Enterprise Sales</Link>
+        </div>
+
+        <div className={styles.ctaStrip}>
+          <div>
+            <h2 className={styles.ctaTitle}>まずは気軽にご相談ください</h2>
+            <p className={styles.ctaSub}>貴社の規模・要件に合わせた最適なプランを提案します。30日間無料トライアルも実施中。</p>
+          </div>
+          <div style={{display:"flex",gap:"10px",flexWrap:"wrap"}}>
+            <Link href="/contact" className="btnPrimary">デモを依頼する</Link>
+            <Link href="/brochure" className="btnOutline">資料ダウンロード</Link>
+          </div>
         </div>
       </div>
     </div>

@@ -1,17 +1,27 @@
 "use client";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+
+import {usePathname, useRouter} from "next/navigation";
 import styles from "./LanguageSwitcher.module.css";
 
 export default function LanguageSwitcher() {
   const pathname = usePathname();
-  const ja = pathname.replace(/^\/(ja|en)/, "/ja");
-  const en = pathname.replace(/^\/(ja|en)/, "/en");
+  const router = useRouter();
+  const currentLocale = pathname.match(/^\/(en|ja)/)?.[1] ?? "ja";
+  const isJaActive = currentLocale === "ja";
+
+  function toggle() {
+    const next = isJaActive ? "en" : "ja";
+    const remainder = pathname.replace(/^\/(en|ja)/, "") || "/";
+    router.push(`/${next}${remainder}`);
+  }
+
   return (
-    <div className={styles.switcher}>
-      <Link href={ja} className={styles.link}>JA</Link>
-      <span className={styles.sep}>/</span>
-      <Link href={en} className={styles.link}>EN</Link>
-    </div>
+    <button type="button" onClick={toggle} className={styles.toggle} aria-label="Toggle language">
+      <span className={`${styles.opt} ${!isJaActive ? styles.active : ""}`}>EN</span>
+      <span className={styles.track} aria-hidden="true">
+        <span className={`${styles.thumb} ${isJaActive ? styles.thumbRight : ""}`} />
+      </span>
+      <span className={`${styles.opt} ${isJaActive ? styles.active : ""}`}>JA</span>
+    </button>
   );
 }

@@ -1,0 +1,2 @@
+.wrap { height: 600px; overflow: hidden; position: relative; }
+.wrap > * { position: static !important; width: 100% !important; height: 100% !important; max-width: none !important; border-radius: 0 !important; box-shadow: none !important; }

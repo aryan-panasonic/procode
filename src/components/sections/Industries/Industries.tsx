@@ -1,29 +1,25 @@
 import Link from "next/link";
 import styles from "./Industries.module.css";
+import {getTranslations} from "next-intl/server";
 
-const industries = [
-  { icon:"🛒", title:"Supermarkets",       sub:"Grocery & Fresh",       href:"/industries" },
-  { icon:"🏪", title:"Convenience Stores", sub:"CVS & Mini-mart",       href:"/industries" },
-  { icon:"💊", title:"Drug Stores",         sub:"Pharmacy & Health",     href:"/industries" },
-  { icon:"📱", title:"Electronics Retail",  sub:"Consumer Electronics",  href:"/industries" },
-  { icon:"🏬", title:"Department Stores",   sub:"General Merchandise",   href:"/industries" },
-  { icon:"🔨", title:"FMCG Manufacturers",    sub:"Brand Execution",        href:"/industries" },
-];
+const icons = ["🛒", "🏪", "💊", "📱", "🏬", "🔨"];
 
-export default function Industries() {
+export default async function Industries() {
+  const t = await getTranslations("industries");
+  const items = t.raw("items") as {title: string; sub: string}[];
   return (
     <section className={`section ${styles.section}`}>
       <div className="container">
         <div className={styles.head}>
           <div className="accentBar" />
-          <span className="sectionLabel">Industries</span>
-          <h2 className="sectionTitle">Every <span className="gradientText">Retail Format</span> Covered</h2>
-          <p className="sectionSubtitle" style={{textAlign:"center"}}>INTELLIGENT SHELF ANALYZER is purpose-tuned for the dynamics of each retail vertical.</p>
+          <span className="sectionLabel">{t("label")}</span>
+          <h2 className="sectionTitle">{t("title")}</h2>
+          <p className="sectionSubtitle" style={{textAlign: "center"}}>{t("sub")}</p>
         </div>
         <div className={styles.grid}>
-          {industries.map(ind => (
-            <Link key={ind.title} href={ind.href} className={styles.card}>
-              <div className={styles.cardIcon}>{ind.icon}</div>
+          {items.map((ind, i) => (
+            <Link key={i} href="/industries" className={styles.card}>
+              <div className={styles.cardIcon}>{icons[i]}</div>
               <div className={styles.info}>
                 <div className={styles.cardTitle}>{ind.title}</div>
                 <div className={styles.cardSub}>{ind.sub}</div>

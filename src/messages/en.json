@@ -1,13 +1,905 @@
 {
   "nav": {
-    "home": "Home",
-    "solutions": "Solutions",
     "platform": "Platform",
-    "industries": "Industries",
-    "documentation": "Documentation",
-    "resources": "Resources",
+    "solutions": "Solutions",
     "pricing": "Pricing",
+    "caseStudies": "Case Studies",
+    "resources": "Resources",
+    "support": "Support",
+    "contact": "Contact",
+    "cta": "Request Demo"
+  },
+  "hero": {
+    "eyebrow": "Panasonic Connect · Enterprise Solutions",
+    "h1a": "AI Shelf Intelligence",
+    "h1b": "Platform",
+    "sub": "Automate shelf audits with mobile capture. Instant detection of planogram violations and centralized execution management across all stores.",
+    "feat1": "99%+ accuracy AI shelf analysis",
+    "feat2": "Real-time planogram compliance",
+    "feat3": "OCR price tag reading & anomaly detection",
+    "feat4": "Enterprise API & ERP integration",
+    "cta1": "Request a Demo",
+    "cta2": "Download Brochure",
+    "trust1": "SOC2 Type II Certified",
+    "trust2": "99.9% Uptime SLA",
+    "trust3": "On-premise Available",
+    "vizLabel": "Shelf Compliance Analysis · LIVE",
+    "vizOk": "OK",
+    "vizViolation": "Violation",
+    "vizMissing": "Missing",
+    "vizDeviation": "Deviation",
+    "statCompliance": "Compliance Rate",
+    "statViolation": "Violations",
+    "statMissing": "Missing"
+  },
+  "trust": {
+    "label": "Built For",
+    "items": [
+      "Retail",
+      "FMCG",
+      "Consumer Electronics",
+      "Convenience Stores",
+      "Drug Stores",
+      "Supermarkets"
+    ]
+  },
+  "problem": {
+    "label": "The Challenge",
+    "title": "Shelf Execution is Broken",
+    "sub": "Retailers lose 3-8% of revenue annually to poor shelf execution. Manual audits, inconsistent data, and reactive fixes are no longer enough.",
+    "items": [
+      {
+        "title": "Manual Audits",
+        "desc": "Store visits consume significant time and labor, taking staff away from customer-facing activities."
+      },
+      {
+        "title": "Inconsistent Reporting",
+        "desc": "Different teams and regions collect different data, leading to fragmented and unreliable compliance metrics."
+      },
+      {
+        "title": "Limited Visibility",
+        "desc": "Headquarters lacks real-time insights into shelf conditions, causing delayed responses to out-of-stocks."
+      }
+    ]
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "sub": "An automated, end-to-end process for retail execution.",
+    "steps": [
+      {
+        "title": "Store Photo",
+        "desc": "Staff capture images via mobile app or fixed cameras."
+      },
+      {
+        "title": "AI Analysis",
+        "desc": "System processes images using computer vision."
+      },
+      {
+        "title": "Compliance Detection",
+        "desc": "Identifies out-of-stocks and planogram violations."
+      },
+      {
+        "title": "Analytics Dashboard",
+        "desc": "Aggregates data for HQ visibility."
+      },
+      {
+        "title": "Corrective Action",
+        "desc": "Automated alerts trigger staff restock tasks."
+      }
+    ]
+  },
+  "modules": {
+    "label": "Platform Modules",
+    "title": "Everything you need for shelf intelligence",
+    "sub": "Six integrated modules that work standalone or together.",
+    "items": [
+      {
+        "title": "AI Shelf Recognition",
+        "desc": "Identify any SKU from a shelf image with 99%+ accuracy. Handles thousands of products across categories in real time."
+      },
+      {
+        "title": "Mobile Capture App",
+        "desc": "Empower store staff with an intuitive mobile app to capture shelf images quickly, with built-in quality checks."
+      },
+      {
+        "title": "Compliance Monitoring",
+        "desc": "Compare actual shelf state against master planograms pixel-by-pixel. Auto-generate deviation reports and corrective work orders."
+      },
+      {
+        "title": "Reporting & Analytics",
+        "desc": "Multi-dimensional shelf performance analytics across stores, regions, and national levels. Automated executive-grade reports."
+      },
+      {
+        "title": "API Integration",
+        "desc": "RESTful APIs, Webhooks, and native connectors for major ERP systems. SDKs in Python, Node.js, and Java."
+      }
+    ]
+  },
+  "industries": {
+    "label": "Industries",
+    "title": "Purpose-built for every retail format",
+    "sub": "From convenience stores to FMCG giants — ISA adapts to your category.",
+    "items": [
+      {
+        "title": "Supermarkets",
+        "sub": "Grocery & Fresh"
+      },
+      {
+        "title": "Convenience Stores",
+        "sub": "CVS & Mini-mart"
+      },
+      {
+        "title": "Drug Stores",
+        "sub": "Pharmacy & Health"
+      },
+      {
+        "title": "Electronics Retail",
+        "sub": "Consumer Electronics"
+      },
+      {
+        "title": "Department Stores",
+        "sub": "General Merchandise"
+      },
+      {
+        "title": "FMCG Manufacturers",
+        "sub": "Brand Execution"
+      }
+    ]
+  },
+  "security": {
+    "label": "Security & Compliance",
+    "title": "Enterprise-grade security",
+    "sub": "SOC2 Type II certified. ISO 27001 certified. On-premise available.",
+    "items": [
+      {
+        "title": "Role-based Access Control",
+        "desc": "Granular permissions for head office, regional managers, and store staff."
+      },
+      {
+        "title": "Encrypted Data Transmission",
+        "desc": "All data is encrypted in transit and at rest using industry standards."
+      },
+      {
+        "title": "Audit Logs",
+        "desc": "Comprehensive logging of all system actions for compliance and tracking."
+      },
+      {
+        "title": "Secure Cloud Infrastructure",
+        "desc": "Hosted on certified, high-availability enterprise cloud environments."
+      },
+      {
+        "title": "SSO Support",
+        "desc": "Seamless integration with your existing identity providers (SAML/OIDC)."
+      }
+    ]
+  },
+  "faq": {
+    "label": "FAQ",
+    "title": "Frequently asked questions",
+    "items": [
+      {
+        "q": "How accurate is the shelf recognition AI?",
+        "a": "Our AI achieves 99%+ SKU recognition accuracy across 50,000+ products, tested across varied lighting and angles."
+      },
+      {
+        "q": "Does it work with our existing ERP?",
+        "a": "Yes. We have native connectors for SAP, Oracle, and major retail management systems. Custom integrations are also supported."
+      },
+      {
+        "q": "Is there a free trial?",
+        "a": "All plans include a 30-day free trial, no credit card required."
+      },
+      {
+        "q": "What deployment options are available?",
+        "a": "Cloud, on-premise, and hybrid configurations are available. Enterprise plans support private cloud and custom data residency."
+      }
+    ]
+  },
+  "cta": {
+    "label": "Get Started",
+    "title": "Shelf Intelligence,",
+    "titleAccent": "Starting Today",
+    "sub": "See a live demo tailored to your retail format. Our engineers walk you through real data in 30 minutes — no slides, no fluff.",
+    "btn1": "Request a Demo",
+    "btn2": "Download Brochure",
+    "check1": "No contract required · 30-day free trial",
+    "check2": "Response within 1 business day",
+    "check3": "Full English & Japanese support"
+  },
+  "caseStudiesPreview": {
+    "label": "Case Studies",
+    "title": "Real",
+    "titleAccent": "Results",
+    "link": "View All Case Studies →"
+  },
+  "footer": {
+    "tagline": "AI-powered shelf recognition, planogram compliance, and OCR price analysis in one platform. Enterprise-grade solution for retail & FMCG.",
+    "colProduct": "Product",
+    "colDeploy": "Deployment",
+    "colSupport": "Support",
+    "colCompany": "Company",
+    "links": {
+      "platform": "Platform Overview",
+      "capabilities": "Capabilities",
+      "apiDocs": "API Documentation",
+      "pricing": "Pricing",
+      "caseStudies": "Case Studies",
+      "solutions": "Solutions",
+      "resources": "Resources",
+      "brochure": "PDF Download",
+      "support": "Support Center",
+      "faq": "FAQ",
+      "contact": "Contact Us",
+      "docs": "Documentation",
+      "company": "About Us"
+    },
+    "copyright": "© 2025 Panasonic Connect Corporation. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "companyInfo": "Panasonic Connect Corporation · Tokyo, Japan"
+  },
+  "contact": {
+    "label": "Contact",
+    "title": "Demo & Inquiry",
+    "titleAccent": "Contact Us",
+    "sub": "Request a demo, ask questions, or get a quote. We'll reply within 1 business day.",
+    "formTitle": "Request a Demo",
+    "lastName": "Last Name",
+    "firstName": "First Name",
+    "email": "Email Address",
+    "company": "Company Name",
+    "industry": "Industry",
+    "stores": "Number of Stores",
+    "message": "Message",
+    "messagePlaceholder": "Tell us about your current shelf management challenges or features you'd like to see in a demo.",
+    "submit": "Send",
+    "submitting": "Sending...",
+    "successTitle": "Message sent",
+    "successMsg": "We'll get back to you within 1 business day. For urgent inquiries, email sales@isa.panasonic.com.",
+    "errorMsg": "Send failed. Please try again.",
+    "formNote": "By submitting you agree to our privacy policy.",
+    "infoTitle": "How a Demo Works",
+    "step1t": "Discovery Call (30 min)",
+    "step1d": "We learn about your store count, format, and current challenges.",
+    "step2t": "Custom Demo",
+    "step2d": "We demo using your shelf data or representative samples.",
+    "step3t": "Technical Q&A",
+    "step3d": "Deep dive on API, integrations, and security requirements.",
+    "step4t": "Proposal & Estimate",
+    "step4d": "Tailored proposal and pricing for your scale and needs.",
+    "contactTitle": "Contact Methods",
+    "replyTime": "Reply within 1 business day",
+    "industryOpts": [
+      "Supermarket",
+      "Convenience Store",
+      "Drug Store",
+      "FMCG Brand / Manufacturer",
+      "Electronics Retail",
+      "Department Store",
+      "Distribution / Wholesale",
+      "Other"
+    ],
+    "storeOpts": [
+      "1–10 stores",
+      "11–50 stores",
+      "51–200 stores",
+      "201–500 stores",
+      "500+ stores"
+    ],
+    "contactItems": [
+      {
+        "icon": "✉️",
+        "label": "Sales",
+        "val": "sales@isa.panasonic.com"
+      },
+      {
+        "icon": "��️",
+        "label": "Support",
+        "val": "support@isa.panasonic.com"
+      },
+      {
+        "icon": "🌐",
+        "label": "HQ",
+        "val": "Chuo-ku, Tokyo"
+      }
+    ],
+    "title1": "Demo &",
+    "title2": "Inquiry"
+  },
+  "support": {
+    "label": "Support Center",
+    "title": "How can we",
+    "titleAccent": "help you?",
+    "sub": "Start with the AI chatbot. Complex questions are handled by our support team.",
+    "path1Title": "AI Chatbot",
+    "path1Sub": "24/7 · Instant answers",
+    "path1Desc": "Instant answers about platform, API integration, and pricing.",
+    "path1Action": "↓ Use the chat below",
+    "path2Title": "Support Ticket",
+    "path2Sub": "Responded within 1 business day",
+    "path2Desc": "Technical issues and complex inquiries handled by our engineers.",
+    "path2Action": "Open a Ticket",
+    "path3Title": "Documentation",
+    "path3Sub": "API specs & integration guides",
+    "path3Desc": "API reference, SDK docs, and integration guides.",
+    "path3Action": "View Docs",
+    "path4Title": "Email Support",
+    "path4Sub": "sales@isa.panasonic.com",
+    "path4Desc": "Sales and deployment inquiries via email.",
+    "path4Action": "Send Email",
+    "chatTitle": "AI Support Chat",
+    "chatBadge": "24/7 Support",
+    "infoTitle": "Support Info",
+    "hoursKey": "Hours",
+    "hoursVal": "Mon-Fri 9:00-18:00 JST",
+    "langKey": "Languages",
+    "langVal": "Japanese / English",
+    "enterpriseKey": "Enterprise",
+    "enterpriseVal": "24/7 Support Available",
+    "slaKey": "Response Target",
+    "slaVal": "Within 1 business day",
+    "emailKey": "Email",
+    "emailVal": "support@isa.panasonic.com",
+    "faqTitle": "Frequently Asked Questions",
+    "faqMore": "View all documentation →",
+    "faq1q": "What is planogram compliance?",
+    "faq1a": "Planogram compliance measures whether actual shelf conditions match the master planogram designed by HQ. ISA's AI automatically compares shelf images against registered planograms.",
+    "faq2q": "How do I connect the API?",
+    "faq2a": "ISA provides REST API and Webhooks with OpenAPI spec and SDKs for Python/Node.js/Java. See sample code in the documentation.",
+    "faq3q": "Is on-premise deployment available?",
+    "faq3a": "Enterprise plans support on-premise, private cloud, and hybrid configurations with Japan domestic data storage.",
+    "faq4q": "What are Japanese support hours?",
+    "faq4a": "Mon-Fri 9:00-18:00 JST for Japanese and English support. Enterprise plans include 24/7 support.",
+    "faq5q": "How do I integrate with our existing ERP?",
+    "faq5a": "We have native connectors for SAP, Oracle, and major retail management systems. Custom integrations are supported.",
+    "paths": [
+      {
+        "icon": "🤖",
+        "title": "AI Chatbot",
+        "sub": "24/7 · Instant answers",
+        "desc": "Instant answers about platform, API integration, and pricing.",
+        "action": "↓ Use the chat below",
+        "href": null
+      },
+      {
+        "icon": "📋",
+        "title": "Support Ticket",
+        "sub": "Responded within 1 business day",
+        "desc": "Technical issues and complex inquiries handled by our engineers.",
+        "action": "Open a Ticket",
+        "href": "/contact"
+      },
+      {
+        "icon": "📚",
+        "title": "Documentation",
+        "sub": "API specs & integration guides",
+        "desc": "API reference, SDK docs, and integration guides.",
+        "action": "View Docs",
+        "href": "/documentation"
+      },
+      {
+        "icon": "✉️",
+        "title": "Email Support",
+        "sub": "sales@isa.panasonic.com",
+        "desc": "Sales and deployment inquiries via email.",
+        "action": "Send Email",
+        "href": "mailto:sales@isa.panasonic.com"
+      }
+    ],
+    "faqs": [
+      {
+        "q": "What is planogram compliance?",
+        "a": "It measures whether the actual shelf matches the master planogram created by HQ. ISA's AI compares shelf images against registered planograms automatically."
+      },
+      {
+        "q": "How do I connect the API?",
+        "a": "ISA provides REST API and Webhooks with OpenAPI spec and SDKs for Python/Node.js/Java."
+      },
+      {
+        "q": "Is on-premise deployment available?",
+        "a": "Enterprise plans support on-premise, private cloud, and hybrid configurations."
+      },
+      {
+        "q": "What support hours do you offer?",
+        "a": "We provide Japanese and English support on weekdays 9:00–18:00 JST. Enterprise can include 24/7 support."
+      },
+      {
+        "q": "How do I connect our ERP?",
+        "a": "We provide native connectors for SAP, Oracle, and major retail management systems."
+      }
+    ]
+  },
+  "brochure": {
+    "label": "Product Brochure",
+    "title": "ISA Product",
+    "titleAccent": "Brochure Download",
+    "sub": "Download our comprehensive overview of ISA features, specifications, and case studies.",
+    "contentsTitle": "What's Inside",
+    "feat1t": "AI Shelf Recognition",
+    "feat1d": "99%+ accuracy across 50,000+ SKUs.",
+    "feat2t": "Planogram Compliance",
+    "feat2d": "Pixel-level planogram comparison with violation auto-detection.",
+    "feat3t": "OCR Price Intelligence",
+    "feat3d": "Automated price tag reading and anomaly alerts.",
+    "feat4t": "Analytics Dashboard",
+    "feat4d": "Drill-down analytics from store to national level.",
+    "feat5t": "API & ERP Integration",
+    "feat5d": "REST API + SAP/Oracle native connectors.",
+    "feat6t": "Enterprise Security",
+    "feat6d": "SOC2 Type II · ISO 27001 certified.",
+    "pages": "Pages",
+    "pagesVal": "24",
+    "format": "Format",
+    "formatVal": "PDF",
+    "lang": "Language",
+    "langVal": "Japanese & English",
+    "audience": "Audience",
+    "audienceVal": "Executives, IT, Store Operations",
+    "formTitle": "Get the Brochure",
+    "formSub": "Fill in the form to download for free.",
+    "name": "Full Name",
+    "email": "Email Address",
+    "company": "Company Name",
+    "submit": "Download Brochure",
+    "submitting": "Processing...",
+    "successTitle": "Thank you",
+    "successMsg": "We'll send the brochure to your email within 1 business day.",
+    "successBtn": "Download (PDF)",
+    "note": "By submitting you agree to our privacy policy."
+  },
+  "platform": {
+    "label": "Platform",
+    "title": "Six modules,",
+    "titleAccent": "one integrated AI platform",
+    "sub": "Use individually or combined. The more you integrate, the deeper intelligence you get.",
+    "metricAccuracy": "Accuracy",
+    "metricSpeed": "Speed",
+    "metricSKU": "SKUs",
+    "metricSLA": "Uptime SLA",
+    "tab1": "Recognition",
+    "tab2": "Compliance",
+    "tab3": "OCR Price",
+    "tab4": "Analytics",
+    "tab5": "API",
+    "tab6": "Auto-Generate",
+    "specTitle": "Technical Specifications",
+    "ctaTitle": "Consultation & Demo Request",
+    "ctaSub": "We prepare demos tailored to your format and scale. Contact us today.",
+    "ctaBtn1": "Request Demo",
+    "ctaBtn2": "Download Brochure",
+    "docsBtn": "Documentation",
+    "title1": "6 Modules Constituting",
+    "title2": "Integrated AI Platform",
+    "metrics": [
+      {
+        "v": "99%+",
+        "l": "Accuracy"
+      },
+      {
+        "v": "300ms",
+        "l": "Processing Speed"
+      },
+      {
+        "v": "50K+",
+        "l": "Supported SKUs"
+      },
+      {
+        "v": "99.9%",
+        "l": "Uptime SLA"
+      }
+    ],
+    "tabs": [
+      {
+        "id": "recognition",
+        "icon": "🤖",
+        "label": "Shelf Recognition",
+        "title": "AI Shelf Recognition Engine",
+        "desc": "99%+ product identification accuracy using deep learning. Supports 50,000+ SKUs. Stable recognition regardless of lighting conditions or camera angles.",
+        "points": [
+          "99%+ SKU identification accuracy",
+          "50,000+ product catalog support",
+          "Variable lighting & multi-angle support",
+          "Sub 300ms processing per image",
+          "Auto catalog learning feature"
+        ],
+        "demo": "recognition"
+      },
+      {
+        "id": "compliance",
+        "icon": "📐",
+        "label": "Compliance",
+        "title": "Planogram Compliance Engine",
+        "desc": "Pixel-level comparison of actual shelves against master planograms. Automatically detects facings, misplaced items, and OOS, generating corrective work orders.",
+        "points": [
+          "Pixel-level planogram comparison",
+          "Automatic facing count measurement",
+          "Misplaced item detection",
+          "Automated OOS identification",
+          "Automated corrective work order generation"
+        ],
+        "demo": "compliance"
+      },
+      {
+        "id": "ocr",
+        "icon": "💲",
+        "label": "OCR Price",
+        "title": "OCR & Price Intelligence",
+        "desc": "Automatic price tag reading using high-precision OCR. Automates price anomaly detection, competitor price comparison, and promo compliance checks.",
+        "points": [
+          "High-precision price tag OCR",
+          "Automated price anomaly detection",
+          "Competitor price monitoring",
+          "Price trend analysis",
+          "Promotion compliance verification"
+        ],
+        "demo": "ocr"
+      },
+      {
+        "id": "analytics",
+        "icon": "📊",
+        "label": "Analytics",
+        "title": "Analytics & Reporting",
+        "desc": "Multi-dimensional shelf performance analysis from store to national level. Automated executive dashboard delivery and scheduled reports.",
+        "points": [
+          "Store to national level drill-down",
+          "Automated executive dashboards",
+          "Scheduled report delivery",
+          "Custom KPI configuration",
+          "CSV/Excel/PDF export"
+        ],
+        "demo": "analytics"
+      },
+      {
+        "id": "api",
+        "icon": "⚙️",
+        "label": "API Integration",
+        "title": "API & Integration Platform",
+        "desc": "Fully OpenAPI compliant REST API, Webhooks, and ERP connectors. Same-day integration possible with Python/Node.js/Java SDKs.",
+        "points": [
+          "REST API + OpenAPI spec",
+          "Real-time Webhooks",
+          "Python/Node.js/Java SDKs",
+          "SAP & Oracle connectors",
+          "Sandbox environment"
+        ],
+        "demo": "api"
+      },
+      {
+        "id": "auto",
+        "icon": "✨",
+        "label": "Auto Generation",
+        "title": "Auto Planogram Generation AI",
+        "desc": "AI automatically designs optimal shelf layouts based on sales velocity, category strategy, and space constraints. Reduces weeks of work to minutes.",
+        "points": [
+          "Sales velocity-based layout generation",
+          "Category rules enforcement",
+          "Space constraint optimization",
+          "Version control & history",
+          "Export to standard formats"
+        ],
+        "demo": "auto"
+      }
+    ],
+    "specsTitle": "Technical Specifications",
+    "specsSub": "",
+    "specHead": [
+      "Specification",
+      "Value"
+    ],
+    "specs": [
+      {
+        "label": "Recognition Accuracy",
+        "value": "99%+"
+      },
+      {
+        "label": "Processing Speed",
+        "value": "300ms/image"
+      },
+      {
+        "label": "Supported SKUs",
+        "value": "50,000+"
+      },
+      {
+        "label": "Supported Formats",
+        "value": "JPEG / PNG / HEIC"
+      },
+      {
+        "label": "API Format",
+        "value": "REST / Webhook"
+      },
+      {
+        "label": "SDKs",
+        "value": "Python · Node.js · Java"
+      },
+      {
+        "label": "ERP Integration",
+        "value": "SAP · Oracle · Custom"
+      },
+      {
+        "label": "Deployment",
+        "value": "Cloud / On-premise / Hybrid"
+      },
+      {
+        "label": "Uptime SLA",
+        "value": "99.9%"
+      },
+      {
+        "label": "Security",
+        "value": "SOC2 Type II · ISO 27001"
+      },
+      {
+        "label": "Data Residency",
+        "value": "Japan/Global data centers"
+      },
+      {
+        "label": "Support Languages",
+        "value": "Japanese · English"
+      }
+    ],
+    "btn1": "Request Demo",
+    "btn2": "Documentation",
+    "demo": {
+      "recLbl": "Product Recognition · Real-time",
+      "recProds": [
+        "Green Tea 500ml",
+        "Cola 500ml",
+        "Water 500ml",
+        "Orange Juice",
+        "Sports Drink",
+        "Green Tea 2L"
+      ],
+      "recConfCheck": "Review",
+      "compLbl": "Compliance · Score",
+      "compRate": "Compliance",
+      "compIssue1": "Violation · Beverage A-3 · Facing Shortage",
+      "compIssue2": "OOS · Snack B-7 · 3 SKUs Missing",
+      "ocrLbl": "Price Tag OCR · Results",
+      "ocrProds": [
+        {
+          "p": "Green Tea 500ml",
+          "t": "¥148",
+          "r": "¥148",
+          "ok": true
+        },
+        {
+          "p": "Cola 500ml",
+          "t": "¥165",
+          "r": "¥158",
+          "ok": false
+        },
+        {
+          "p": "Water 500ml",
+          "t": "¥98",
+          "r": "¥98",
+          "ok": true
+        }
+      ],
+      "ocrTag": "Tag:",
+      "ocrMatch": "✓ Match",
+      "ocrMismatch": "⚠ Mismatch (Reg: ",
+      "anaLbl": "National Dashboard",
+      "anaStats": [
+        {
+          "v": "94.2%",
+          "l": "Avg Compliance"
+        },
+        {
+          "v": "1,247",
+          "l": "Audits Today"
+        },
+        {
+          "v": "38",
+          "l": "Needs Action"
+        }
+      ],
+      "apiLbl": "API · Sample Response",
+      "autoLbl": "Planogram Auto-generation",
+      "autoSteps": [
+        "Load Sales Velocity Data",
+        "Apply Category Rules",
+        "Calculate Space Optimization",
+        "Planogram Generation Complete"
+      ],
+      "autoRes": "Generation Complete: 2m 14s (Previous: 3-5 days)"
+    }
+  },
+  "pricing": {
+    "label": "Pricing",
+    "title": "Flexible plans",
+    "titleAccent": "for every scale",
+    "sub": "From 50-store mid-size chains to thousands of locations — we have the right plan for you.",
+    "starter": "Starter",
+    "starterDesc": "For mid-size retailers getting started with AI shelf intelligence.",
+    "pro": "Professional",
+    "proDesc": "For growing operations needing real-time shelf data across hundreds of locations.",
+    "enterprise": "Enterprise",
+    "enterpriseDesc": "Fully custom deployment for large retailers and multi-location FMCG brands.",
+    "priceNote": "Contact Sales",
+    "priceCustom": "Custom Quote",
+    "badge": "Most Popular",
+    "contactBtn": "Contact Us",
+    "matrixTitle": "Feature Comparison",
+    "faqTitle": "Frequently Asked Questions",
+    "ctaTitle": "Let's find your plan",
+    "ctaSub": "We recommend the best plan for your scale. 30-day free trial available.",
+    "ctaBtn1": "Request Demo",
+    "ctaBtn2": "Download Brochure"
+  },
+  "caseStudies": {
+    "label": "Case Studies",
+    "title": "Customer",
+    "titleAccent": "Success Stories",
+    "sub": "See how ISA has solved real challenges across retail, FMCG, and distribution with measurable results.",
+    "filterAll": "All",
+    "filterRetail": "Retail",
+    "filterCvs": "Convenience",
+    "filterDrug": "Drug Store",
+    "filterFmcg": "FMCG & Distribution",
+    "readMore": "Read More",
+    "ctaTitle": "Similar challenges?",
+    "ctaSub": "We'll tailor a proposal to your format and scale. Contact us today.",
+    "ctaBtn": "Contact Us · Request Demo",
+    "challengeTitle": "The Challenge",
+    "solutionTitle": "Our Approach",
+    "resultsTitle": "Results",
+    "systemTitle": "System Architecture",
+    "modulesLabel": "Modules Used:",
+    "back": "← All Case Studies",
+    "otherLabel": "Other Case Studies"
+  },
+  "legal": {
+    "privacyTitle": "Privacy Policy",
+    "termsTitle": "Terms of Service",
+    "lastUpdated": "Last updated",
+    "effectiveDate": "Effective Date"
+  },
+  "notFound": {
+    "code": "404",
+    "title": "Page not found",
+    "sub": "The page you're looking for may have moved or been removed. Check the URL or return to the homepage.",
+    "home": "Back to Home",
+    "support": "Contact Support"
+  },
+  "company": {
+    "label": "Company",
+    "title": "AI Shelf Intelligence by",
+    "titleAccent": "Panasonic Connect",
+    "sub": "As a Panasonic Connect solution, we accelerate digital transformation in retail and FMCG.",
+    "metricAccuracy": "AI Accuracy",
+    "metricSKU": "SKUs Supported",
+    "metricSpeed": "Speed/Image",
+    "metricSLA": "Uptime SLA",
+    "missionTitle": "Our Mission",
+    "mission1": "Bring AI-powered shelf visibility and automation — once only available to the largest enterprises — to every retailer and FMCG brand regardless of size.",
+    "mission2": "ISA is built on Panasonic Connect's deep expertise in edge computing, computer vision, and enterprise solutions — combining operational practicality with enterprise-grade reliability.",
+    "historyTitle": "History",
+    "certTitle": "Security & Compliance",
+    "certSub": "Security is not an option — it is the foundation. We maintain the highest-level certifications.",
+    "ctaTitle": "Ready to talk?",
+    "ctaSub": "We'll reply within 1 business day. Contact us anytime.",
+    "ctaBtn1": "Request Demo",
+    "ctaBtn2": "Download Brochure",
+    "stats": [
+      {
+        "v": "99%+",
+        "l": "AI Accuracy"
+      },
+      {
+        "v": "50,000+",
+        "l": "SKUs Supported"
+      },
+      {
+        "v": "300ms",
+        "l": "Speed/Image"
+      },
+      {
+        "v": "99.9%",
+        "l": "Uptime SLA"
+      }
+    ],
+    "certs": [
+      {
+        "name": "SOC2 Type II",
+        "desc": "International cloud security certification."
+      },
+      {
+        "name": "ISO 27001",
+        "desc": "Information security management standard."
+      },
+      {
+        "name": "Privacy Act Compliance",
+        "desc": "Japan data residency supported."
+      },
+      {
+        "name": "GDPR",
+        "desc": "Global privacy support."
+      }
+    ],
+    "timeline": [
+      {
+        "y": "2021",
+        "t": "ISA project starts",
+        "d": "Launched as an internal retail AI research project at Panasonic Connect."
+      },
+      {
+        "y": "2022",
+        "t": "Prototype validation",
+        "d": "PoC with three major supermarket chains in Japan; 97% recognition accuracy."
+      },
+      {
+        "y": "2023",
+        "t": "Commercial launch",
+        "d": "Starter and Professional plans launched with initial rollout to 50 stores."
+      },
+      {
+        "y": "2024",
+        "t": "Enterprise plan",
+        "d": "On-premise and hybrid options added; SAP/Oracle connectors released."
+      },
+      {
+        "y": "2025",
+        "t": "Auto-generation AI",
+        "d": "Planogram generation module released to accelerate national rollouts."
+      }
+    ],
+    "missionCards": [
+      {
+        "icon": "🏭",
+        "t": "DX expertise",
+        "d": "Proven enterprise DX delivery across manufacturing and retail."
+      },
+      {
+        "icon": "🔬",
+        "t": "Computer vision R&D",
+        "d": "Continuous investment in AI and computer vision research."
+      },
+      {
+        "icon": "🤝",
+        "t": "Partner ecosystem",
+        "d": "Integrations with major ERP vendors and retail technology partners."
+      }
+    ]
+  },
+  "ticketModal": {
+    "title": "Open a Support Ticket",
+    "name": "Your name",
+    "email": "Email address",
+    "phone": "Phone (optional)",
+    "message": "Describe your issue…",
+    "submit": "Submit Ticket",
+    "submitting": "Submitting…",
+    "cancel": "Cancel",
+    "placeholder": "Please describe your issue.",
+    "success": "Ticket submitted!",
+    "successSub": "Our team will be in touch soon.",
+    "close": "Close",
+    "failed": "Failed to submit ticket."
+  },
+  "megaMenu": {
+    "features": "Features",
+    "overview": "Overview",
+    "techSec": "Technology & Security",
+    "techSpecs": "Technical Specs",
+    "apiDocs": "API Documentation",
+    "byFormat": "By Format",
+    "supermarkets": "Supermarkets",
+    "cvs": "Convenience Stores",
+    "drugStores": "Drug Stores",
+    "fmcg": "FMCG Brands",
+    "electronics": "Electronics Retail",
+    "allCases": "All Case Studies",
+    "docs": "Documentation",
+    "productPdf": "Product PDF",
     "company": "Company",
-    "contact": "Contact"
+    "about": "About Us",
+    "help": "Help",
+    "supportCenter": "Support Center",
+    "contactUs": "Contact Us",
+    "faq": "FAQ",
+    "shelfRec": "Shelf AI Recognition",
+    "planogram": "Planogram Compliance",
+    "ocrPrice": "OCR Price Intelligence",
+    "analytics": "Analytics Dashboard",
+    "apiIntegration": "API & Integrations"
   }
 }

@@ -90,7 +90,7 @@ function formatRelativeTime(timestamp: number): string {
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function ChatWindow({ onClose }: { onClose: () => void }) {
+export default function ChatWindow({ onClose, inline }: { onClose: () => void; inline?: boolean }) {
 
   const [session,       setSession]       = useState<ChatSession>(() => createSession());
   const [messages,      setMessages]      = useState<StoredMessage[]>([WELCOME]);
@@ -379,7 +379,7 @@ export default function ChatWindow({ onClose }: { onClose: () => void }) {
 
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className={styles.chatWindow}>
+    <div className={`${styles.chatWindow}${inline ? " "+styles.inlineMode : ""}`}>
 
       {/* ── Header ── */}
       <div className={styles.header}>

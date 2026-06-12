@@ -1,73 +1,32 @@
+"use client";
 import Link from "next/link";
+import {useTranslations} from "next-intl";
 import styles from "./company.module.css";
 
-const sections = [
-  {
-    id:"about", title:"About INTELLIGENT SHELF ANALYZER",
-    content:"INTELLIGENT SHELF ANALYZER was founded in 2021 by retail technologists and computer vision researchers who saw a massive gap between what AI could do and what retailers were actually using. We believe every retailer — regardless of size — should have access to the shelf intelligence that only the biggest brands could previously afford.\n\nHeadquartered in Tokyo, with engineering teams in Singapore and London, INTELLIGENT SHELF ANALYZER serves over 25,000 retail locations across 12 countries.",
-  },
-  {
-    id:"security", title:"Security & Compliance",
-    content:"Security isn't a feature — it's the foundation of everything we build. INTELLIGENT SHELF ANALYZER is SOC2 Type II certified, ISO 27001 certified, and GDPR compliant. All data processed through our platform is encrypted at rest and in transit.\n\nEnterprise clients can choose on-premise deployment, private cloud, or our multi-tenant cloud. We support custom data residency requirements and have dedicated compliance support for highly regulated industries.",
-  }
-];
-
-const stats = [
-  { v:"2021", l:"Founded" },
-  { v:"25,000+", l:"Stores worldwide" },
-  { v:"12", l:"Countries" },
-  { v:"180+", l:"Team members" },
-];
-
 export default function CompanyPage() {
+  const t = useTranslations("company");
+  
+  // Cast arrays from translations
+  const stats = t.raw("stats") as {v: string, l: string}[];
+  const certs = t.raw("certs") as {name: string, desc: string}[];
+  const timeline = t.raw("timeline") as {y: string, t: string, d: string}[];
+  const missionCards = t.raw("missionCards") as {icon: string, t: string, d: string}[];
+  
+  // Attach icons to certs manually since they aren't purely translation text
+  const certsWithIcons = certs.map((c, i) => ({
+    ...c,
+    icon: ["🛡️", "🔒", "🇯🇵", "🇪🇺"][i]
+  }));
+
   return (
     <div className={styles.page}>
-      <div className={styles.hero}>
-        <div className="container">
-          <span className="sectionLabel">Company</span>
-          <h1 className="sectionTitle" style={{marginTop:".75rem"}}>
-            The Team Behind <span className="gradientText">INTELLIGENT SHELF ANALYZER</span>
-          </h1>
-          <p className="sectionSubtitle" style={{margin:"1rem auto 0",textAlign:"center"}}>
-            We&apos;re a team of retail technologists, computer vision researchers, and enterprise software builders on a mission to make every shelf smarter.
-          </p>
-        </div>
-      </div>
-
+      <div className={styles.hero}><div className="container"><span className="sectionLabel">{t("label")}</span><h1 className="sectionTitle" style={{marginTop:".75rem"}}><span className="gradientText">{t("title1")}</span><br />{t("title2")}</h1><p className="sectionSubtitle" style={{margin:"1rem auto 0",textAlign:"center",maxWidth:"620px"}}>{t("sub")}</p></div></div>
       <div className="container" style={{paddingBottom:"5rem"}}>
-        {/* Stats */}
-        <div className={styles.statsRow}>
-          {stats.map(s => (
-            <div key={s.l} className={styles.statCard}>
-              <div className={styles.statVal}>{s.v}</div>
-              <div className={styles.statLbl}>{s.l}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Sections */}
-        <div className={styles.sectionsList}>
-          {sections.map(sec => (
-            <div key={sec.id} id={sec.id} className={styles.secBlock}>
-              <h2 className={styles.secTitle}>{sec.title}</h2>
-              <div className={styles.secContent}>
-                {sec.content.split("\n\n").map((para, i) => (
-                  <p key={i} className={styles.secPara}>{para}</p>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* CTA */}
-        <div className={styles.ctaBlock}>
-          <h3 className={styles.ctaTitle}>Ready to see INTELLIGENT SHELF ANALYZER in action?</h3>
-          <p className={styles.ctaDesc}>Join 25,000+ stores using INTELLIGENT SHELF ANALYZER to automate shelf intelligence.</p>
-          <div className={styles.ctaActions}>
-            <Link href="/contact" className="btnPrimary">Request a Demo</Link>
-            <Link href="/contact" className="btnOutline">Contact Sales</Link>
-          </div>
-        </div>
+        <div className={styles.statsRow}>{stats.map(s => <div key={s.l} className={styles.statCard}><div className={styles.statVal}>{s.v}</div><div className={styles.statLabel}>{s.l}</div></div>)}</div>
+        <div className={styles.missionSection}><div className={styles.missionText}><h2 className={styles.secTitle}>{t("missionTitle")}</h2><p className={styles.body}>{t("mission1")}</p><p className={styles.body}>{t("mission2")}</p><div className={styles.missionBadges}><span className="tag tagCyan">Panasonic Connect</span><span className="tag">Tokyo HQ</span><span className="tag">Bilingual Support</span></div></div><div className={styles.missionCards}>{missionCards.map(c2 => <div key={c2.t} className={styles.missionCard}><span className={styles.missionIcon}>{c2.icon}</span><div className={styles.missionCardTitle}>{c2.t}</div><div className={styles.missionCardDesc}>{c2.d}</div></div>)}</div></div>
+        <div className={styles.timelineSection}><h2 className={styles.secTitle}>{t("historyTitle")}</h2><div className={styles.timeline}>{timeline.map((e,i)=><div key={i} className={styles.timelineItem}><div className={styles.timelineYear}>{e.y}</div><div className={styles.timelineDot}/><div className={styles.timelineContent}><div className={styles.timelineTitle}>{e.t}</div><div className={styles.timelineDesc}>{e.d}</div></div></div>)}</div></div>
+        <div className={styles.certSection}><h2 className={styles.secTitle}>{t("certTitle")}</h2><p className={styles.body} style={{marginBottom:"2rem"}}>{t("certSub")}</p><div className={styles.certGrid}>{certsWithIcons.map(c3 => <div key={c3.name} className={styles.certCard}><div className={styles.certIcon}>{c3.icon}</div><div className={styles.certName}>{c3.name}</div><div className={styles.certDesc}>{c3.desc}</div></div>)}</div></div>
+        <div className={styles.ctaStrip}><div><h2 className={styles.ctaTitle}>{t("ctaTitle")}</h2><p className={styles.ctaSub}>{t("ctaSub")}</p></div><div style={{display:"flex",gap:"10px",flexWrap:"wrap"}}><Link href="/contact" className="btnPrimary">{t("ctaBtn1")}</Link><Link href="/brochure" className="btnOutline">{t("ctaBtn2")}</Link></div></div>
       </div>
     </div>
   );

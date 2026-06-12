@@ -3,32 +3,32 @@ import styles from "./solutions.module.css";
 
 const solutions = [
   {
-    slug:"retailers", icon:"🛒", title:"Retailers",
-    headline:"Full shelf visibility, enforced at scale",
-    desc:"Real-time compliance monitoring across every aisle, every store. AI detects out-of-stocks, misplacements, and pricing errors — before they cost you sales.",
-    stats:[{v:"30%",l:"Lost sales recovered"},{v:"94%",l:"Compliance rate achieved"},{v:"0.3s",l:"Per-shelf processing"}],
-    features:["Live shelf compliance monitoring","Out-of-stock detection & alerting","Price tag verification via OCR","Planogram deviation auto-reporting","Field staff mobile workflow","Store performance benchmarking"],
+    slug:"retailers", icon:"🛒", title:"小売業",
+    headline:"全店舗の棚をリアルタイムで完全可視化",
+    desc:"すべての通路、すべての店舗でリアルタイムのコンプライアンス監視。欠品・位置ズレ・価格エラーを売上損失になる前にAIが検出します。",
+    stats:[{v:"30%",l:"機会損失削減"},{v:"94%",l:"達成コンプライアンス率"},{v:"0.3s",l:"棚別処理速度"}],
+    features:["リアルタイム棚割コンプライアンス監視","欠品検知・アラート","OCR価格タグ確認","プラノグラム逸脱自動レポート","フィールドスタッフモバイルワークフロー","店舗パフォーマンスベンチマーク"],
   },
   {
-    slug:"fmcg-brands", icon:"🏷️", title:"FMCG Brands",
-    headline:"Own your shelf space, know your competitors",
-    desc:"AI-measured share of shelf across all retail partners. Track brand presence, facing compliance, and competitive positioning with precision data you've never had before.",
-    stats:[{v:"18%",l:"Shelf share gain"},{v:"3×",l:"Faster insight delivery"},{v:"100%",l:"Partner coverage"}],
-    features:["Real-time share of shelf measurement","Facing compliance tracking","Competitor shelf space analysis","Brand presence heatmaps","Partner performance scoring","Promotional compliance verification"],
+    slug:"fmcg-brands", icon:"🏷️", title:"FMCGブランド",
+    headline:"棚シェアを把握し、競合を圧倒する",
+    desc:"全小売パートナーでのAI計測棚シェア。これまで得られなかった精度で、ブランドプレゼンス・フェイシングコンプライアンス・競合ポジションを追跡。",
+    stats:[{v:"18%",l:"棚シェア向上"},{v:"3×",l:"インサイト提供速度"},{v:"100%",l:"パートナーカバレッジ"}],
+    features:["リアルタイム棚シェア計測","フェイシングコンプライアンス追跡","競合棚スペース分析","ブランドプレゼンスヒートマップ","パートナーパフォーマンス評価","プロモーションコンプライアンス確認"],
   },
   {
-    slug:"merchandising-teams", icon:"📋", title:"Merchandising Teams",
-    headline:"Audit in minutes, not hours",
-    desc:"Snap a photo with your phone — AI does the rest. Automated shelf analysis and report generation replaces 75% of manual audit work, letting your team focus on fixing, not measuring.",
-    stats:[{v:"75%",l:"Audit time eliminated"},{v:"10×",l:"Stores audited per day"},{v:"95%",l:"Report accuracy"}],
-    features:["Mobile image capture workflow","Automatic planogram diff analysis","One-click compliance report export","Corrective action task assignment","Route optimization suggestions","Historical audit trail & analytics"],
+    slug:"merchandising-teams", icon:"📋", title:"MDチーム",
+    headline:"棚割監査を数時間から数分へ",
+    desc:"スマートフォンで撮影するだけ。AIが自動分析・レポート生成。手動監査工数の75%を削減し、担当者は測定でなく改善に集中できます。",
+    stats:[{v:"75%",l:"監査工数削減"},{v:"10×",l:"1日あたり監査店舗数"},{v:"95%",l:"レポート精度"}],
+    features:["モバイル撮影ワークフロー","プラノグラム自動差異分析","ワンクリックコンプライアンスレポート出力","是正タスク自動割り当て","ルート最適化提案","監査履歴・分析トレイル"],
   },
   {
-    slug:"distributors", icon:"🚚", title:"Distributors",
-    headline:"Territory-wide availability intelligence",
-    desc:"Monitor product availability across your entire distribution footprint from a single dashboard. Detect stockout risks early and optimize replenishment to cut out-of-stocks by 22%.",
-    stats:[{v:"22%",l:"Out-of-stock reduction"},{v:"15%",l:"Replenishment efficiency gain"},{v:"48h",l:"Earlier stockout warning"}],
-    features:["Territory-wide availability dashboard","Stockout risk prediction","Replenishment schedule optimization","Market intelligence by region","SKU performance analytics","Retailer compliance scoring"],
+    slug:"distributors", icon:"🚚", title:"流通・卸業",
+    headline:"エリア全体の在庫状況をダッシュボードで把握",
+    desc:"単一ダッシュボードで配送エリア全体の商品在庫を監視。欠品リスクを早期検知し、補充最適化で欠品率を22%削減。",
+    stats:[{v:"22%",l:"欠品削減率"},{v:"15%",l:"補充効率向上"},{v:"48h",l:"欠品警告の早期化"}],
+    features:["エリアワイド在庫ダッシュボード","欠品リスク予測","補充スケジュール最適化","地域別市場インテリジェンス","SKUパフォーマンス分析","小売業者コンプライアンス評価"],
   },
 ];
 
@@ -37,12 +37,12 @@ export default function SolutionsPage() {
     <div className={styles.page}>
       <div className={styles.hero}>
         <div className="container">
-          <span className="sectionLabel">Solutions</span>
+          <span className="sectionLabel">ソリューション / Solutions</span>
           <h1 className="sectionTitle" style={{marginTop:".75rem"}}>
-            Built for <span className="gradientText">Every Role in Retail</span>
+            業態に最適化された<span className="gradientText">専用ソリューション</span>
           </h1>
           <p className="sectionSubtitle" style={{margin:"1rem auto 0",textAlign:"center"}}>
-            Purpose-built workflows for retailers, FMCG brands, merchandising teams, and distributors.
+            小売業・FMCGブランド・MD担当・流通業、各ロールの課題に特化したワークフロー設計。
           </p>
         </div>
       </div>
@@ -68,12 +68,12 @@ export default function SolutionsPage() {
                   ))}
                 </div>
                 <Link href={`/contact`} className="btnPrimary" style={{marginTop:"1rem",display:"inline-flex"}}>
-                  Request Demo →
+                  デモを依頼する →
                 </Link>
               </div>
               {/* Feature list */}
               <div className={styles.featuresCard}>
-                <div className={styles.featuresTitle}>Key Capabilities</div>
+                <div className={styles.featuresTitle}>主要機能</div>
                 <ul className={styles.featuresList}>
                   {s.features.map(f => (
                     <li key={f} className={styles.featuresItem}>

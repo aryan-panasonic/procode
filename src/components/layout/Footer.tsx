@@ -1,61 +1,59 @@
 import Link from "next/link";
 import styles from "./Footer.module.css";
+import {getTranslations} from "next-intl/server";
 
-const cols = [
-  {
-    title: "Platform",
-    links: [
-      { label: "Overview", href: "/platform" },
-      { label: "Shelf Recognition", href: "/platform#recognition" },
-      { label: "Compliance", href: "/platform#compliance" },
-      { label: "Analytics", href: "/platform#analytics" },
-      { label: "Security", href: "/platform#security" },
-    ],
-  },
-  {
-    title: "Solutions",
-    links: [
-      { label: "Retail Chains", href: "/solutions#retail-chains" },
-      { label: "FMCG Brands", href: "/solutions#fmcg-brands" },
-      { label: "Convenience Stores", href: "/solutions#convenience-stores" },
-      { label: "Drug Stores", href: "/solutions#drug-stores" },
-    ],
-  },
-  {
-    title: "Resources",
-    links: [
-      { label: "Documentation", href: "/documentation" },
-      { label: "API Reference", href: "/documentation#api" },
-      { label: "Product Brochure", href: "/resources#brochure" },
-      { label: "FAQ", href: "/resources#faq" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { label: "About Us", href: "/company/about" },
-      { label: "Contact Sales", href: "/contact" },
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Terms of Service", href: "/terms" },
-    ],
-  },
-];
+export default async function Footer() {
+  const t = await getTranslations("footer");
+  const cols = [
+    {
+      title: t("colProduct"),
+      links: [
+        {label: t("links.platform"), href: "/platform"},
+        {label: t("links.capabilities"), href: "/platform#capabilities"},
+        {label: t("links.apiDocs"), href: "/documentation#api"},
+        {label: t("links.pricing"), href: "/pricing"},
+      ],
+    },
+    {
+      title: t("colDeploy"),
+      links: [
+        {label: t("links.caseStudies"), href: "/case-studies"},
+        {label: t("links.solutions"), href: "/solutions"},
+        {label: t("links.resources"), href: "/resources"},
+        {label: t("links.brochure"), href: "/brochure"},
+      ],
+    },
+    {
+      title: t("colSupport"),
+      links: [
+        {label: t("links.support"), href: "/support"},
+        {label: t("links.faq"), href: "/documentation#faq"},
+        {label: t("links.contact"), href: "/contact"},
+        {label: t("links.docs"), href: "/documentation"},
+      ],
+    },
+    {
+      title: t("colCompany"),
+      links: [
+        {label: t("links.company"), href: "/company"},
+      ],
+    },
+  ];
 
-export default function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={styles.topLine} />
       <div className="container">
         <div className={styles.inner}>
-          {/* Brand */}
           <div className={styles.brand}>
             <div className={styles.logoRow}>
-              <div className={styles.logoMark}>S</div>
-              <span className={styles.logoName}>INTELLIGENT SHELF ANALYZER</span>
+              <div className={styles.logoMark}>ISA</div>
+              <div>
+                <div className={styles.logoName}>INTELLIGENT SHELF ANALYZER</div>
+                <div className={styles.logoPanasonic}>Panasonic Connect</div>
+              </div>
             </div>
-            <p className={styles.tagline}>
-              AI-powered shelf intelligence for modern retail. Real-time compliance, recognition, and analytics — at scale.
-            </p>
+            <p className={styles.tagline}>{t("tagline")}</p>
             <div className={styles.badges}>
               <span className="tag tagCyan">SOC2 Type II</span>
               <span className="tag tagGold">ISO 27001</span>
@@ -63,7 +61,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Link columns */}
           <div className={styles.links}>
             {cols.map(col => (
               <div key={col.title} className={styles.col}>
@@ -81,16 +78,14 @@ export default function Footer() {
         </div>
 
         <div className={styles.bottom}>
-          <div className={styles.bottomLinks}>
-            <span>© 2025 INTELLIGENT SHELF ANALYZER Inc. All rights reserved.</span>
-            <Link href="/privacy" className={styles.bottomLink}>Privacy</Link>
-            <Link href="/terms" className={styles.bottomLink}>Terms</Link>
-            <Link href="/company/security" className={styles.bottomLink}>Security</Link>
+          <div className={styles.bottomLeft}>
+            <span>{t("copyright")}</span>
+            <div className={styles.bottomLinks}>
+              <Link href="/legal/privacy" className={styles.bottomLink}>{t("privacy")}</Link>
+              <Link href="/legal/terms" className={styles.bottomLink}>{t("terms")}</Link>
+            </div>
           </div>
-          <div className={styles.langs}>
-            <span className={styles.langBtn}>🇯🇵 日本語</span>
-            <span className={styles.langBtn}>🇬🇧 English</span>
-          </div>
+          <div className={styles.companyInfo}>{t("companyInfo")}</div>
         </div>
       </div>
     </footer>

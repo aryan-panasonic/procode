@@ -85,3 +85,6 @@
   .links { grid-template-columns: 1fr; }
   .bottom { flex-direction: column; align-items: flex-start; }
 }
+.logoPanasonic { font-size: 0.68rem; color: var(--slate-500); letter-spacing: 0.06em; margin-top: 1px; }
+.bottomLeft { display: flex; flex-direction: column; gap: 6px; }
+.companyInfo { font-size: 0.68rem; color: var(--slate-600); }
