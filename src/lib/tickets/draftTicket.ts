@@ -42,6 +42,9 @@ const ESCALATION_EXEMPLARS_JA = [
   "ずっと試しているが直らない",
 ];
 
+const ESCALATE_THRESHOLD = 70;
+const SUGGEST_THRESHOLD = 45;
+
 // ─── Similarity helpers ───────────────────────────────────────────────────────
 
 function tokenize(text: string): Set<string> {
@@ -64,34 +67,106 @@ function maxSimilarity(input: Set<string>, exemplars: string[]): number {
   return Math.max(0, ...exemplars.map(e => diceCoefficient(input, tokenize(e))));
 }
 
+function recentUserMessages(
+  messages: ChatMessage[],
+  count = 5
+): string {
+  return messages
+    .filter(m => m.role === "user")
+    .slice(-count)
+    .map(m => m.content)
+    .join(" ");
+}
+
 const SIMILARITY_THRESHOLD = 0.35;
 
-export function shouldEscalate(
+export interface EscalationDecision {
+  shouldEscalate: boolean;
+  score: number;
+  reasons: string[];
+}
+
+export function getEscalationDecision(
   messages: ChatMessage[],
-  _retrievalConf: string,
-  answerType: string
-): boolean {
-  const lastUser  = [...messages].reverse().find(m => m.role === "user")?.content ?? "";
+  retrievalConf: string,
+  answerType: string,
+  maxScore: number
+): EscalationDecision {
+
+  let score = 0;
+  const reasons: string[] = [];
+
+  const lastUser =
+    [...messages].reverse().find(m => m.role === "user")?.content ?? "";
+
+  const allRecentUserText =
+    recentUserMessages(messages);
+
   const inputToks = tokenize(lastUser);
+  const recentToks = tokenize(allRecentUserText);
 
-  if (maxSimilarity(inputToks, ESCALATION_EXEMPLARS_EN) >= SIMILARITY_THRESHOLD) return true;
-  if (maxSimilarity(inputToks, ESCALATION_EXEMPLARS_JA) >= SIMILARITY_THRESHOLD) return true;
+  const humanIntentScore = Math.max(
+    maxSimilarity(inputToks, ESCALATION_EXEMPLARS_EN),
+    maxSimilarity(inputToks, ESCALATION_EXEMPLARS_JA)
+  );
 
-  if (answerType === "NO_MATCH") return true;
-
-  // Persistent frustration: 4+ turns and the last message still sounds stuck
-  const userTurns = messages.filter(m => m.role === "user").length;
-  if (userTurns >= 4) {
-    const STUCK_EXEMPLARS = [
-      "still not working tried everything",
-      "same problem keeps happening",
-      "nothing I do fixes this",
-      "I give up please just help me",
-    ];
-    if (maxSimilarity(inputToks, STUCK_EXEMPLARS) >= SIMILARITY_THRESHOLD) return true;
+  if (humanIntentScore >= SIMILARITY_THRESHOLD) {
+    score += 80;
+    reasons.push("human_requested");
   }
 
-  return false;
+  if (retrievalConf === "low") {
+    score += 30;
+    reasons.push("low_confidence");
+  }
+
+  if (maxScore < 0.25) {
+    score += 25;
+    reasons.push("poor_retrieval_score");
+  }
+
+  if (answerType === "NO_MATCH") {
+    score += 20;
+    reasons.push("no_documentation_match");
+  }
+
+  const frustrationExamples = [
+    "still not working",
+    "same problem",
+    "does not work",
+    "nothing works",
+    "broken",
+    "issue persists",
+    "frustrating",
+    "tried everything",
+    "not helping",
+    "wrong answer",
+    "misunderstood",
+  ];
+
+  if (
+    maxSimilarity(recentToks, frustrationExamples) >= 0.25
+  ) {
+    score += 25;
+    reasons.push("frustration_detected");
+  }
+
+  const userTurns =
+    messages.filter(m => m.role === "user").length;
+
+  if (
+    userTurns >= 5 &&
+    retrievalConf === "low"
+  ) {
+    score += 20;
+    reasons.push("multiple_failed_attempts");
+  }
+
+  return {
+    shouldEscalate: score >= ESCALATE_THRESHOLD,
+    score,
+    reasons,
+  };
 }
 
 export async function generateDraftTicket(

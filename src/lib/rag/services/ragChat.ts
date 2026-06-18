@@ -5,10 +5,12 @@ import { ChatMessage }           from "@/lib/ai/types/ChatMessage";
 import { rewriteQuery }          from "../queryRewriter";
 import { buildMemoryBlock }      from "../memory/summarizer";
 import { redactSensitiveData }   from "@/lib/security/redaction";
-import { shouldEscalate }        from "@/lib/tickets/draftTicket";
+import { getEscalationDecision }        from "@/lib/tickets/draftTicket";
 import type { SessionFile }      from "@/lib/uploads/sessionFileStore";
 
 const retriever = new PgVectorRetriever();
+
+
 
 // ─── Metadata returned alongside the stream ───────────────────────────────────
 
@@ -21,7 +23,10 @@ export interface RagChatMeta {
   chunkIds:           string[]; // for retrieval_logs
   inputChars:         number;   // system + conversation chars (approx)
   shouldEscalate:     boolean;
+  escalationScore: number;
+  escalationReasons: string[];
 }
+
 
 export interface RagChatResult {
   stream: AsyncIterable<string>;
@@ -264,6 +269,14 @@ export async function ragChatStream(
 
   const stream = provider.chatStream([systemMessage, ...messagesForProvider]);
 
+  const escalation =
+  getEscalationDecision(
+    sanitizedMessages,
+    retrievalResult.confidence,
+    retrievalResult.answerType,
+    retrievalResult.maxScore
+  );
+
   // ── 7. Build metadata ─────────────────────────────────────────────────────────
   const meta: RagChatMeta = {
     rewrittenQuery,
@@ -273,11 +286,9 @@ export async function ragChatStream(
     chunksReturned: retrievalResult.chunks.length,
     chunkIds:       retrievalResult.chunks.map(c => c.id),
     inputChars,
-    shouldEscalate: shouldEscalate(
-      sanitizedMessages,
-      retrievalResult.confidence,
-      retrievalResult.answerType
-    ),
+    shouldEscalate: escalation.shouldEscalate,
+    escalationScore: escalation.score,
+    escalationReasons: escalation.reasons,
   };
 
   return { stream, meta };

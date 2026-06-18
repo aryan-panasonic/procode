@@ -185,7 +185,17 @@ export async function POST(req: Request) {
         "Cache-Control":          "no-store",
         "Connection":             "keep-alive",
         "X-Content-Type-Options": "nosniff",
-        "X-Escalate":             meta.shouldEscalate ? "1" : "0",
+
+        "X-Escalate":
+          meta.shouldEscalate ? "1" : "0",
+
+        "X-Escalation-Score":
+          String(meta.escalationScore ?? 0),
+
+        "X-Escalation-Reasons":
+          encodeURIComponent(
+            (meta.escalationReasons ?? []).join(",")
+          ),
       },
     });
 

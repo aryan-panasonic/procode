@@ -100,6 +100,14 @@ export default function ChatWindow({ onClose, inline }: { onClose: () => void; i
   const [allSessions,   setAllSessions]   = useState<ChatSession[]>([]);
   const [feedbackMap,   setFeedbackMap]   = useState<FeedbackMap>({});
   const [showEscalate,  setShowEscalate]  = useState(false);
+  const [supportSuggestion, setSupportSuggestion] =
+  useState(false);
+
+const [escalationInfo, setEscalationInfo] =
+  useState<{
+    score: number;
+    reasons: string[];
+  } | null>(null);
   const [ticketForm,    setTicketForm]    = useState<TicketFormState>({ name: "", email: "", phone: "" });
   const [ticketLoading, setTicketLoading] = useState(false);
   const [ticketDone,    setTicketDone]    = useState<TicketConfirmation | null>(null);
@@ -323,8 +331,22 @@ export default function ChatWindow({ onClose, inline }: { onClose: () => void; i
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      
+      const escalationScore =
+        Number(
+          res.headers.get(
+            "X-Escalation-Score"
+          ) ?? "0"
+        );
 
-      const escalate    = res.headers.get("X-Escalate") === "1";
+      const escalationReasons =
+        decodeURIComponent(
+          res.headers.get(
+            "X-Escalation-Reasons"
+          ) ?? ""
+        )
+        .split(",")
+        .filter(Boolean);
       const contentType = res.headers.get("content-type");
 
       if (contentType?.includes("application/json")) {
@@ -358,7 +380,17 @@ export default function ChatWindow({ onClose, inline }: { onClose: () => void; i
       const finalOutput = detectPromptLeakage(safeOutput) ? LEAKAGE_FALLBACK : safeOutput;
 
       setMessages([...nextMessages, { role: "assistant", content: finalOutput }]);
-      if (escalate) setShowEscalate(true);
+      setEscalationInfo({
+        score: escalationScore,
+        reasons: escalationReasons,
+      });
+
+      if (escalationScore >= 80) {
+        setShowEscalate(true);
+      }
+      else if (escalationScore >= 50) {
+        setSupportSuggestion(true);
+      }
 
     } catch (error) {
       console.error("[ChatWindow]", error);
