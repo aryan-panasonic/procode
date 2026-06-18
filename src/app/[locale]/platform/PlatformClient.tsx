@@ -210,6 +210,7 @@ export default function PlatformClient() {
             <DemoViz active={active} demoT={demoT} />
           </div>
         </div>
+        </section>
 
         <section id="specs" className={styles.specSection}>
           <h2 className="sectionTitle" style={{fontSize:"1.4rem",marginBottom:"1.5rem"}}>
