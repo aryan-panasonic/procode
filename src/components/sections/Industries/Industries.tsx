@@ -18,7 +18,7 @@ export default async function Industries() {
         </div>
         <div className={styles.grid}>
           {items.map((ind, i) => (
-            <Link key={i} href="/industries" className={styles.card}>
+            <Link key={i} href={`/solutions#${["retail-chains","convenience-stores","drug-stores","fmcg-brands","electronics","retail-chains"][i]}`} className={styles.card}>
               <div className={styles.cardIcon}>{icons[i]}</div>
               <div className={styles.info}>
                 <div className={styles.cardTitle}>{ind.title}</div>

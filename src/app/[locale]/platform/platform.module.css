@@ -142,3 +142,23 @@
 .ctaTitle { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: .4rem; }
 .ctaSub { font-size: 0.85rem; color: var(--slate-400); }
 .ctaActions { display: flex; gap: 10px; flex-wrap: wrap; }
+.challengeSection { margin: 2rem 0 3rem; padding: 2.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius-xl); }
+.challengeTitle { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: .75rem; }
+.challengeDesc { font-size: .9rem; color: var(--slate-400); line-height: 1.8; margin-bottom: 1.5rem; }
+.challengePoints { display: flex; flex-direction: column; gap: 10px; }
+.challengePoint { display: flex; align-items: flex-start; gap: 12px; font-size: .88rem; color: var(--slate-300); line-height: 1.6; }
+.challengeNum { width: 22px; height: 22px; flex-shrink: 0; border-radius: 50%; background: rgba(0,200,232,0.15); color: var(--cyan); font-size: .7rem; font-weight: 700; font-family: var(--font-mono); display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.tabsSection { margin-bottom: 0; }
+.securitySection { margin: 3rem 0; padding: 2.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius-xl); }
+.secTitle { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: .5rem; }
+.secDesc { font-size: .88rem; color: var(--slate-400); line-height: 1.7; margin-bottom: 1.5rem; }
+.secPoints { display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; }
+.secPoint { display: flex; align-items: flex-start; gap: 12px; padding: 1rem; background: var(--ink-900); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.secIcon { font-size: 1.4rem; flex-shrink: 0; }
+.secPointTitle { font-size: .88rem; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+.secPointDesc { font-size: .8rem; color: var(--slate-400); line-height: 1.6; }
+@media (max-width: 600px) { .secPoints { grid-template-columns: 1fr; } }
+.challengeSection { scroll-margin-top: 80px; }
+.tabsSection { scroll-margin-top: 80px; }
+.securitySection { scroll-margin-top: 80px; }
+.specSection { scroll-margin-top: 80px; }

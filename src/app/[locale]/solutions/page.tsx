@@ -1,57 +1,106 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import styles from "./solutions.module.css";
 
-const solutions = [
-  {
-    slug:"retailers", icon:"🛒", title:"小売業",
-    headline:"全店舗の棚をリアルタイムで完全可視化",
-    desc:"すべての通路、すべての店舗でリアルタイムのコンプライアンス監視。欠品・位置ズレ・価格エラーを売上損失になる前にAIが検出します。",
-    stats:[{v:"30%",l:"機会損失削減"},{v:"94%",l:"達成コンプライアンス率"},{v:"0.3s",l:"棚別処理速度"}],
-    features:["リアルタイム棚割コンプライアンス監視","欠品検知・アラート","OCR価格タグ確認","プラノグラム逸脱自動レポート","フィールドスタッフモバイルワークフロー","店舗パフォーマンスベンチマーク"],
-  },
-  {
-    slug:"fmcg-brands", icon:"🏷️", title:"FMCGブランド",
-    headline:"棚シェアを把握し、競合を圧倒する",
-    desc:"全小売パートナーでのAI計測棚シェア。これまで得られなかった精度で、ブランドプレゼンス・フェイシングコンプライアンス・競合ポジションを追跡。",
-    stats:[{v:"18%",l:"棚シェア向上"},{v:"3×",l:"インサイト提供速度"},{v:"100%",l:"パートナーカバレッジ"}],
-    features:["リアルタイム棚シェア計測","フェイシングコンプライアンス追跡","競合棚スペース分析","ブランドプレゼンスヒートマップ","パートナーパフォーマンス評価","プロモーションコンプライアンス確認"],
-  },
-  {
-    slug:"merchandising-teams", icon:"📋", title:"MDチーム",
-    headline:"棚割監査を数時間から数分へ",
-    desc:"スマートフォンで撮影するだけ。AIが自動分析・レポート生成。手動監査工数の75%を削減し、担当者は測定でなく改善に集中できます。",
-    stats:[{v:"75%",l:"監査工数削減"},{v:"10×",l:"1日あたり監査店舗数"},{v:"95%",l:"レポート精度"}],
-    features:["モバイル撮影ワークフロー","プラノグラム自動差異分析","ワンクリックコンプライアンスレポート出力","是正タスク自動割り当て","ルート最適化提案","監査履歴・分析トレイル"],
-  },
-  {
-    slug:"distributors", icon:"🚚", title:"流通・卸業",
-    headline:"エリア全体の在庫状況をダッシュボードで把握",
-    desc:"単一ダッシュボードで配送エリア全体の商品在庫を監視。欠品リスクを早期検知し、補充最適化で欠品率を22%削減。",
-    stats:[{v:"22%",l:"欠品削減率"},{v:"15%",l:"補充効率向上"},{v:"48h",l:"欠品警告の早期化"}],
-    features:["エリアワイド在庫ダッシュボード","欠品リスク予測","補充スケジュール最適化","地域別市場インテリジェンス","SKUパフォーマンス分析","小売業者コンプライアンス評価"],
-  },
-];
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const isJa = locale === "ja";
+  return {
+    title: isJa
+      ? "店舗運営ソリューション – プラノグラム・欠品・価格検証｜パナソニックコネクト"
+      : "Retail Shelf Solutions – Planogram, OOS & Price Verification | Panasonic Connect",
+    description: isJa
+      ? "プラノグラムコンプライアンス、欠品検知、OCR価格検証。小売業・FMCGブランド向けAI棚割ソリューション。"
+      : "Planogram compliance, out-of-stock detection, and OCR price verification. AI shelf solutions for retail and FMCG brands.",
+  };
+}
 
-export default function SolutionsPage() {
+const usecaseIcons = ["📐", "📦", "💲"];
+
+export default async function SolutionsPage() {
+  const t = await getTranslations("solutions");
+  const audiences = t.raw("audiences") as {
+    slug: string; icon: string; title: string; headline: string; desc: string;
+    stats: {v: string; l: string}[]; features: string[];
+  }[];
+
+  const usecases = [
+    {
+      id: "planogram-compliance",
+      icon: usecaseIcons[0],
+      title: t("planogramTitle"),
+      desc: t("planogramDesc"),
+      features: t.raw("planogramFeatures") as string[],
+      stat: t("planogramStat"),
+    },
+    {
+      id: "oos-detection",
+      icon: usecaseIcons[1],
+      title: t("oosTitle"),
+      desc: t("oosDesc"),
+      features: t.raw("oosFeatures") as string[],
+      stat: t("oosStat"),
+    },
+    {
+      id: "price-verification",
+      icon: usecaseIcons[2],
+      title: t("priceTitle"),
+      desc: t("priceDesc"),
+      features: t.raw("priceFeatures") as string[],
+      stat: t("priceStat"),
+    },
+  ];
+
   return (
     <div className={styles.page}>
       <div className={styles.hero}>
         <div className="container">
-          <span className="sectionLabel">ソリューション / Solutions</span>
+          <span className="sectionLabel">{t("label")}</span>
           <h1 className="sectionTitle" style={{marginTop:".75rem"}}>
-            業態に最適化された<span className="gradientText">専用ソリューション</span>
+            {t("heroTitle")}<span className="gradientText">{t("heroTitleAccent")}</span>
           </h1>
           <p className="sectionSubtitle" style={{margin:"1rem auto 0",textAlign:"center"}}>
-            小売業・FMCGブランド・MD担当・流通業、各ロールの課題に特化したワークフロー設計。
+            {t("heroSub")}
           </p>
         </div>
       </div>
 
       <div className="container" style={{paddingBottom:"5rem"}}>
+        <div className={styles.usecasesHead}>
+          <span className="sectionLabel">{t("usecasesLabel")}</span>
+          <h2 className="sectionTitle" style={{fontSize:"1.6rem",marginTop:".5rem"}}>{t("usecasesTitle")}</h2>
+          <p className="sectionSubtitle" style={{textAlign:"center",margin:".75rem auto 0"}}>{t("usecasesSub")}</p>
+        </div>
+
+        <div className={styles.usecaseGrid}>
+          {usecases.map((uc) => (
+            <div key={uc.id} id={uc.id} className={styles.usecaseCard}>
+              <div className={styles.usecaseIcon}>{uc.icon}</div>
+              <h3 className={styles.usecaseTitle}>{uc.title}</h3>
+              <p className={styles.usecaseDesc}>{uc.desc}</p>
+              <ul className={styles.usecaseFeatures}>
+                {uc.features.map((f) => (
+                  <li key={f} className={styles.usecaseFeatureItem}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2.5">
+                      <path d="M20 6L9 17l-5-5"/>
+                    </svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <div className={styles.usecaseStat}>{uc.stat}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.audienceHead}>
+          <span className="sectionLabel">{t("audienceLabel")}</span>
+        </div>
+
         <div className={styles.solutionsList}>
-          {solutions.map((s, i) => (
-            <div key={s.slug} className={`${styles.solutionRow} ${i % 2 === 1 ? styles.solutionRowReverse : ""}`}>
-              {/* Text */}
+          {audiences.map((s, i) => (
+            <div key={s.slug} id={s.slug} className={`${styles.solutionRow} ${i % 2 === 1 ? styles.solutionRowReverse : ""}`}>
               <div className={styles.solutionText}>
                 <div className={styles.solutionTag}>
                   <span className={styles.solutionIcon}>{s.icon}</span>
@@ -67,13 +116,12 @@ export default function SolutionsPage() {
                     </div>
                   ))}
                 </div>
-                <Link href={`/contact`} className="btnPrimary" style={{marginTop:"1rem",display:"inline-flex"}}>
-                  デモを依頼する →
+                <Link href="/contact" className="btnPrimary" style={{marginTop:"1rem",display:"inline-flex"}}>
+                  {t("ctaBtn")}
                 </Link>
               </div>
-              {/* Feature list */}
               <div className={styles.featuresCard}>
-                <div className={styles.featuresTitle}>主要機能</div>
+                <div className={styles.featuresTitle}>{t("featureCard")}</div>
                 <ul className={styles.featuresList}>
                   {s.features.map(f => (
                     <li key={f} className={styles.featuresItem}>

@@ -701,7 +701,49 @@
         "Planogram Generation Complete"
       ],
       "autoRes": "Generation Complete: 2m 14s (Previous: 3-5 days)"
-    }
+    },
+    "challengeTitle": "The Shelf Execution Challenge",
+    "challengeDesc": "Retailers lose 3–8% of revenue annually to poor shelf execution. Manual audits, fragmented data, and limited HQ visibility leave stores reacting too slowly to real conditions.",
+    "challengePoints": [
+      "Manual shelf audits consume significant labor hours, taking staff away from customer-facing work.",
+      "Different teams collect different data, making compliance metrics fragmented and unreliable.",
+      "Headquarters lacks real-time visibility into shelf conditions, causing delayed responses to out-of-stocks.",
+      "Manual price tag verification is error-prone and leaves mislabeling risk unresolved."
+    ],
+    "secTitle": "Enterprise-grade security",
+    "secDesc": "SOC2 Type II and ISO 27001 certified. On-premise and hybrid deployment available. Japan domestic data residency supported.",
+    "secPoints": [
+      {
+        "icon": "🔐",
+        "t": "Role-based Access Control",
+        "d": "Granular permissions for head office, regional managers, and store staff."
+      },
+      {
+        "icon": "🔒",
+        "t": "Data Encryption",
+        "d": "AES-256 encryption applied to all data in transit and at rest."
+      },
+      {
+        "icon": "📋",
+        "t": "Audit Logs",
+        "d": "Comprehensive logging of all system actions for compliance and tracking."
+      },
+      {
+        "icon": "☁️",
+        "t": "Secure Cloud Infrastructure",
+        "d": "Hosted on certified, high-availability enterprise cloud environments."
+      },
+      {
+        "icon": "🔑",
+        "t": "SSO Support",
+        "d": "Seamless integration with your existing identity providers (SAML/OIDC)."
+      },
+      {
+        "icon": "🗾",
+        "t": "Japan Data Residency",
+        "d": "Data storage in Japan domestic data centers available on request."
+      }
+    ]
   },
   "pricing": {
     "label": "Pricing",
@@ -723,7 +765,351 @@
     "ctaTitle": "Let's find your plan",
     "ctaSub": "We recommend the best plan for your scale. 30-day free trial available.",
     "ctaBtn1": "Request Demo",
-    "ctaBtn2": "Download Brochure"
+    "ctaBtn2": "Download Brochure",
+    "plans": [
+      {
+        "id": "starter",
+        "name": "Starter",
+        "nameEn": "Starter",
+        "desc": "For mid-size retailers getting started with AI shelf intelligence.",
+        "priceNote": "Contact Sales",
+        "highlight": false,
+        "badge": null
+      },
+      {
+        "id": "pro",
+        "name": "Professional",
+        "nameEn": "Professional",
+        "desc": "For growing operations needing real-time shelf data across hundreds of locations.",
+        "priceNote": "Contact Sales",
+        "highlight": true,
+        "badge": "Most Popular"
+      },
+      {
+        "id": "enterprise",
+        "name": "Enterprise",
+        "nameEn": "Enterprise",
+        "desc": "Fully custom deployment for large retailers and multi-location FMCG brands.",
+        "priceNote": "Custom Quote",
+        "highlight": false,
+        "badge": null
+      }
+    ],
+    "matrix": [
+      {
+        "category": "Store Scale",
+        "rows": [
+          {
+            "label": "Supported stores",
+            "vals": [
+              "Up to 50",
+              "Up to 500",
+              "Unlimited"
+            ]
+          },
+          {
+            "label": "Monthly image processing",
+            "vals": [
+              "10,000",
+              "100,000",
+              "Unlimited"
+            ]
+          },
+          {
+            "label": "User accounts",
+            "vals": [
+              "10",
+              "100",
+              "Unlimited"
+            ]
+          }
+        ]
+      },
+      {
+        "category": "AI Shelf Modules",
+        "rows": [
+          {
+            "label": "AI shelf recognition (standard)",
+            "vals": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "AI shelf recognition (high accuracy)",
+            "vals": [
+              false,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "Planogram compliance",
+            "vals": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "Real-time monitoring",
+            "vals": [
+              false,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "OCR price intelligence",
+            "vals": [
+              false,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "Auto planogram generation AI",
+            "vals": [
+              false,
+              false,
+              true
+            ]
+          },
+          {
+            "label": "Custom AI model training",
+            "vals": [
+              false,
+              false,
+              true
+            ]
+          }
+        ]
+      },
+      {
+        "category": "Reporting & Analytics",
+        "rows": [
+          {
+            "label": "Automated report generation",
+            "vals": [
+              "Monthly",
+              "Daily",
+              "Real-time"
+            ]
+          },
+          {
+            "label": "Dashboard",
+            "vals": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "Executive reports",
+            "vals": [
+              false,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "Custom KPI configuration",
+            "vals": [
+              false,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "Data export",
+            "vals": [
+              "CSV",
+              "CSV/Excel",
+              "CSV/Excel/API"
+            ]
+          }
+        ]
+      },
+      {
+        "category": "API & Integration",
+        "rows": [
+          {
+            "label": "REST API",
+            "vals": [
+              "Limited",
+              "Full access",
+              "Full access"
+            ]
+          },
+          {
+            "label": "Webhooks",
+            "vals": [
+              false,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "SDK (Python/Node.js/Java)",
+            "vals": [
+              false,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "SAP / Oracle connectors",
+            "vals": [
+              false,
+              "Standard",
+              "Custom"
+            ]
+          },
+          {
+            "label": "Sandbox environment",
+            "vals": [
+              true,
+              true,
+              true
+            ]
+          }
+        ]
+      },
+      {
+        "category": "Infrastructure & Security",
+        "rows": [
+          {
+            "label": "Deployment",
+            "vals": [
+              "Cloud",
+              "Cloud",
+              "Cloud / On-premise / Hybrid"
+            ]
+          },
+          {
+            "label": "Japan data residency",
+            "vals": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "SOC2 Type II",
+            "vals": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "ISO 27001",
+            "vals": [
+              false,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "Security audit support",
+            "vals": [
+              false,
+              false,
+              true
+            ]
+          },
+          {
+            "label": "SLA",
+            "vals": [
+              "99.5%",
+              "99.9%",
+              "99.9%+ custom"
+            ]
+          }
+        ]
+      },
+      {
+        "category": "Support",
+        "rows": [
+          {
+            "label": "Email support",
+            "vals": [
+              true,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "Priority support (Japanese)",
+            "vals": [
+              false,
+              true,
+              true
+            ]
+          },
+          {
+            "label": "24/7 support",
+            "vals": [
+              false,
+              false,
+              true
+            ]
+          },
+          {
+            "label": "Dedicated customer success",
+            "vals": [
+              false,
+              "Optional",
+              true
+            ]
+          },
+          {
+            "label": "Implementation team",
+            "vals": [
+              false,
+              false,
+              true
+            ]
+          },
+          {
+            "label": "Training",
+            "vals": [
+              "Online",
+              "Online + on-site",
+              "Custom"
+            ]
+          }
+        ]
+      }
+    ],
+    "faqs": [
+      {
+        "q": "Is there a free trial?",
+        "a": "All plans include a 30-day free trial. No credit card required."
+      },
+      {
+        "q": "What is the difference between annual and monthly billing?",
+        "a": "Annual contracts include a discount compared to monthly billing. Contact our sales team for details."
+      },
+      {
+        "q": "Does it integrate with our existing ERP?",
+        "a": "We have native connectors for SAP, Oracle, and major retail management systems. Custom integrations are also supported."
+      },
+      {
+        "q": "Is on-premise deployment available?",
+        "a": "Enterprise plans support on-premise, private cloud, and hybrid configurations, including Japan domestic data residency."
+      },
+      {
+        "q": "Can I upgrade my plan at any time?",
+        "a": "Yes, you can upgrade at any time. Changes take effect from the following month."
+      },
+      {
+        "q": "Is pricing quote-based?",
+        "a": "Yes. Pricing is tailored to your store count, monthly processing volume, and configuration. Contact us for a custom quote."
+      }
+    ],
+    "matrixFeature": "Feature"
   },
   "caseStudies": {
     "label": "Case Studies",
@@ -901,5 +1287,204 @@
     "ocrPrice": "OCR Price Intelligence",
     "analytics": "Analytics Dashboard",
     "apiIntegration": "API & Integrations"
+  },
+  "pageMeta": {
+    "homeTitle": "AI Shelf Intelligence Platform – Automate Retail Shelf Audits | Panasonic Connect",
+    "homeDesc": "Automate retail shelf audits with mobile capture. Instant planogram violation detection, OOS alerts, OCR price reading, and enterprise API integration. SOC2 Type II certified.",
+    "platformTitle": "AI Shelf Platform – Features & Modules | Panasonic Connect",
+    "platformDesc": "Six integrated AI shelf modules: shelf recognition, planogram compliance, OCR price, analytics, API integration, and auto-generation. SOC2 Type II & ISO 27001 certified.",
+    "solutionsTitle": "Retail Shelf Solutions – Planogram, OOS & Price Verification | Panasonic Connect",
+    "solutionsDesc": "Planogram compliance, out-of-stock detection, and OCR price verification. AI shelf solutions for retail and FMCG brands.",
+    "pricingTitle": "Pricing Plans – AI Shelf Intelligence Platform | Panasonic Connect",
+    "pricingDesc": "Starter, Professional, and Enterprise plans. 30-day free trial, no credit card required."
+  },
+  "solutions": {
+    "label": "Solutions",
+    "heroTitle": "Purpose-built solutions for",
+    "heroTitleAccent": "every retail role",
+    "heroSub": "Workflows designed for the specific challenges of retailers, FMCG brands, merchandising teams, and distributors. From planogram compliance to OOS detection and price verification.",
+    "usecasesLabel": "Core Use Cases",
+    "usecasesTitle": "Three use cases. One platform.",
+    "usecasesSub": "Planogram compliance, out-of-stock detection, and price verification — all automated by ISA.",
+    "planogramTitle": "Planogram Compliance",
+    "planogramDesc": "Automatically compare actual shelf state against master planograms at pixel level. Detect facing shortfalls, misplaced items, and out-of-stocks, then auto-generate corrective work orders. Verify planogram execution in real time across every store.",
+    "planogramFeatures": [
+      "Pixel-level planogram comparison",
+      "Automatic facing count measurement",
+      "Misplaced item and OOS detection",
+      "Automated corrective work order generation",
+      "Compliance score visualization"
+    ],
+    "planogramStat": "Average 15% sales improvement",
+    "oosTitle": "Out-of-Stock Detection",
+    "oosDesc": "AI detects out-of-stocks from shelf images in real time. Automatically generates restock tasks and notifies responsible staff. Minimizes revenue loss from OOS and maximizes on-shelf availability.",
+    "oosFeatures": [
+      "Real-time OOS detection",
+      "Automated restock task generation",
+      "OOS alert notifications",
+      "On-shelf availability trend analysis",
+      "Restock priority scoring"
+    ],
+    "oosStat": "Up to 30% reduction in OOS",
+    "priceTitle": "Price Verification & OCR Intelligence",
+    "priceDesc": "High-accuracy OCR automatically reads price tags and cross-checks against registered prices. Instantly flags price errors and mislabeling. Supports price change compliance and competitor price monitoring.",
+    "priceFeatures": [
+      "High-accuracy price tag OCR",
+      "Automated price anomaly detection",
+      "Price change compliance verification",
+      "Competitor price monitoring",
+      "Price trend analysis"
+    ],
+    "priceStat": "95% reduction in mislabeling",
+    "audienceLabel": "By Industry",
+    "featureCard": "Key Features",
+    "ctaBtn": "Request Demo →",
+    "audiences": [
+      {
+        "slug": "retail-chains",
+        "icon": "🛒",
+        "title": "Retail Chains",
+        "headline": "Real-time visibility across every shelf, every store",
+        "desc": "Real-time compliance monitoring across every aisle and location. AI detects OOS, misplacement, and pricing errors before they become lost revenue.",
+        "stats": [
+          {
+            "v": "30%",
+            "l": "Revenue loss reduction"
+          },
+          {
+            "v": "94%",
+            "l": "Compliance rate achieved"
+          },
+          {
+            "v": "0.3s",
+            "l": "Processing speed per shelf"
+          }
+        ],
+        "features": [
+          "Real-time planogram compliance monitoring",
+          "OOS detection & alerts",
+          "OCR price tag verification",
+          "Automated planogram deviation reports",
+          "Field staff mobile workflow",
+          "Store performance benchmarking"
+        ]
+      },
+      {
+        "slug": "fmcg-brands",
+        "icon": "🏷️",
+        "title": "FMCG Brands",
+        "headline": "Measure shelf share. Outperform the competition.",
+        "desc": "AI-measured shelf share across all retail partners. Track brand presence, facing compliance, and competitive positioning with precision previously unavailable.",
+        "stats": [
+          {
+            "v": "18%",
+            "l": "Shelf share increase"
+          },
+          {
+            "v": "3×",
+            "l": "Insight delivery speed"
+          },
+          {
+            "v": "100%",
+            "l": "Partner coverage"
+          }
+        ],
+        "features": [
+          "Real-time shelf share measurement",
+          "Facing compliance tracking",
+          "Competitor shelf space analysis",
+          "Brand presence heatmaps",
+          "Partner performance scoring",
+          "Promotion compliance verification"
+        ]
+      },
+      {
+        "slug": "convenience-stores",
+        "icon": "🏪",
+        "title": "Convenience Stores",
+        "headline": "Cut shelf audits from hours to minutes",
+        "desc": "Capture with a smartphone. AI analyzes and generates reports automatically. Cut manual audit labor by 75% and let staff focus on improvement, not measurement.",
+        "stats": [
+          {
+            "v": "75%",
+            "l": "Audit labor reduction"
+          },
+          {
+            "v": "10×",
+            "l": "Stores audited per day"
+          },
+          {
+            "v": "95%",
+            "l": "Report accuracy"
+          }
+        ],
+        "features": [
+          "Mobile capture workflow",
+          "Automated planogram diff analysis",
+          "One-click compliance report export",
+          "Auto-assigned corrective tasks",
+          "Route optimization",
+          "Audit history & analytics trail"
+        ]
+      },
+      {
+        "slug": "drug-stores",
+        "icon": "💊",
+        "title": "Drug Stores",
+        "headline": "Accurate management of health & pharmacy shelves",
+        "desc": "Shelf management compliant with pharmaceutical and healthcare regulatory requirements. Dashboard visibility across the entire region to improve restocking efficiency.",
+        "stats": [
+          {
+            "v": "22%",
+            "l": "OOS reduction"
+          },
+          {
+            "v": "15%",
+            "l": "Restocking efficiency gain"
+          },
+          {
+            "v": "48h",
+            "l": "Earlier OOS warning"
+          }
+        ],
+        "features": [
+          "Area-wide inventory dashboard",
+          "Regulatory-compliant shelf management",
+          "OOS risk prediction",
+          "Restock schedule optimization",
+          "SKU performance analytics",
+          "Retailer compliance scoring"
+        ]
+      },
+      {
+        "slug": "electronics",
+        "icon": "📱",
+        "title": "Electronics Retail",
+        "headline": "Maximize display accuracy for high-value SKUs",
+        "desc": "Precisely manage complex shelf layouts for consumer electronics. Detect OOS and misplacement of high-value SKUs in real time, maintaining showroom-quality execution.",
+        "stats": [
+          {
+            "v": "99%+",
+            "l": "Recognition accuracy"
+          },
+          {
+            "v": "40%",
+            "l": "Audit labor reduction"
+          },
+          {
+            "v": "25%",
+            "l": "Shelf accuracy improvement"
+          }
+        ],
+        "features": [
+          "High-accuracy SKU recognition (model, color, capacity)",
+          "Promotional display compliance verification",
+          "Instant OOS and facing shortage detection",
+          "Competitor display monitoring",
+          "Area manager dashboard",
+          "Seasonal and campaign planogram auto-update"
+        ]
+      }
+    ]
   }
 }
