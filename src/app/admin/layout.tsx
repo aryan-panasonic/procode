@@ -43,6 +43,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             Documents
           </a>
 
+          <a href="/admin/documentation" style={navLinkStyle}>
+            Documentation
+          </a>
+
           <a href="/admin/logout" style={navLinkStyle}>
             Logout
           </a>

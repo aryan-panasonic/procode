@@ -2,6 +2,9 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./documents.module.css";
 
+type DocVersion = { id: string; version_name: string; status: string; published_at: string };
+type DocPage = { id: string; title: string; slug: string; visibility: string };
+
 interface DocRow {
   id:                string;
   title:             string | null;
@@ -55,6 +58,77 @@ export default function DocumentsPage() {
   const [reindexing, setReindexing] = useState(false);
   const [reindexMsg, setReindexMsg] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // RAG Modal State
+  const [showRagModal, setShowRagModal] = useState(false);
+  const [ragVersions, setRagVersions] = useState<DocVersion[]>([]);
+  const [ragSelectedVersion, setRagSelectedVersion] = useState<string>("");
+  const [ragIncludePublic, setRagIncludePublic] = useState(true);
+  const [ragIncludePrivate, setRagIncludePrivate] = useState(false);
+  const [ragPages, setRagPages] = useState<DocPage[]>([]);
+  const [ragSelectedPages, setRagSelectedPages] = useState<Set<string>>(new Set());
+  const [ragIndexing, setRagIndexing] = useState(false);
+
+  useEffect(() => {
+    if (showRagModal && ragVersions.length === 0) {
+      fetch("/api/admin/documentation/versions")
+        .then(r => r.json())
+        .then(d => {
+          setRagVersions(d.versions || []);
+          if (d.versions?.length) setRagSelectedVersion(d.versions[0].id);
+        });
+    }
+  }, [showRagModal]);
+
+  useEffect(() => {
+    if (ragSelectedVersion) {
+      fetch(`/api/admin/documentation/pages?versionId=${ragSelectedVersion}`)
+        .then(r => r.json())
+        .then(d => {
+          setRagPages(d.pages || []);
+          setRagSelectedPages(new Set((d.pages || []).map((p: DocPage) => p.id)));
+        });
+    }
+  }, [ragSelectedVersion]);
+
+  const toggleRagPage = (id: string) => {
+    const next = new Set(ragSelectedPages);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setRagSelectedPages(next);
+  };
+
+  const handleRagIndex = async () => {
+    const pageIdsToMap = ragPages
+      .filter(p => ragSelectedPages.has(p.id))
+      .filter(p => (p.visibility === 'public' && ragIncludePublic) || (p.visibility === 'private' && ragIncludePrivate))
+      .map(p => p.id);
+
+    if (pageIdsToMap.length === 0) {
+      alert("No pages selected to index.");
+      return;
+    }
+
+    setRagIndexing(true);
+    try {
+      const r = await fetch("/api/admin/documents/rag/index", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ versionId: ragSelectedVersion, pageIds: pageIdsToMap })
+      });
+      const d = await r.json();
+      if (r.ok) {
+        alert("Documentation indexed successfully.");
+        setShowRagModal(false);
+      } else {
+        alert(d.error);
+      }
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setRagIndexing(false);
+    }
+  };
 
   // ── Load document list ─────────────────────────────────────────────────────
   async function loadDocs() {
@@ -148,6 +222,12 @@ export default function DocumentsPage() {
         </div>
         <div className={styles.headerActions}>
           <button
+            className={`${styles.btn} ${styles.btnPrimary}`}
+            onClick={() => setShowRagModal(true)}
+          >
+            Index To RAG
+          </button>
+          <button
             className={`${styles.btn} ${styles.btnSecondary}`}
             onClick={handleReindex}
             disabled={reindexing}
@@ -223,7 +303,14 @@ export default function DocumentsPage() {
                 docs.map(doc => (
                   <tr key={doc.id}>
                     <td className={styles.filename}>
-                      {doc.original_filename ?? doc.source_path.split("/").pop()}
+                      {doc.source_path.startsWith("doc_pages:") ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ background: '#3b82f6', color: '#fff', padding: '2px 6px', borderRadius: 4, fontSize: 11, fontWeight: 'bold', whiteSpace: 'nowrap' }}>Doc Page</span>
+                          <span>{doc.original_filename ?? doc.source_path.split(":").pop()}</span>
+                        </div>
+                      ) : (
+                        doc.original_filename ?? doc.source_path.split("/").pop()
+                      )}
                     </td>
                     <td className={styles.title}>{doc.title ?? "—"}</td>
                     <td className={styles.num}>{doc.chunk_count}</td>
@@ -244,6 +331,74 @@ export default function DocumentsPage() {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {showRagModal && (
+        <div className={styles.modalOverlay} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div className={styles.modalContent} style={{ background: '#1e293b', padding: 24, borderRadius: 8, width: 500, maxWidth: '90vw', color: '#fff' }}>
+            <h2 style={{ marginTop: 0, marginBottom: 16 }}>Index Documentation to RAG</h2>
+            
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', marginBottom: 8, color: '#9ca3af', fontSize: 14 }}>Version</label>
+              <select 
+                value={ragSelectedVersion} 
+                onChange={e => setRagSelectedVersion(e.target.value)}
+                style={{ width: '100%', padding: '8px 12px', background: 'rgba(0,0,0,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6 }}
+              >
+                {ragVersions.map(v => (
+                  <option key={v.id} value={v.id}>{v.version_name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', marginBottom: 8, color: '#9ca3af', fontSize: 14 }}>Visibility Filter</label>
+              <div style={{ display: 'flex', gap: 16 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                  <input type="checkbox" checked={ragIncludePublic} onChange={e => setRagIncludePublic(e.target.checked)} />
+                  Public
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                  <input type="checkbox" checked={ragIncludePrivate} onChange={e => setRagIncludePrivate(e.target.checked)} />
+                  Private
+                </label>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 24, maxHeight: 300, overflowY: 'auto', background: 'rgba(0,0,0,0.2)', padding: 12, borderRadius: 6 }}>
+              <label style={{ display: 'block', marginBottom: 12, color: '#9ca3af', fontSize: 14 }}>Pages</label>
+              
+              <div style={{ fontWeight: 'bold', marginBottom: 8, color: '#60a5fa' }}>Public Pages</div>
+              {ragPages.filter(p => p.visibility === 'public').map(p => (
+                <div key={p.id} style={{ marginBottom: 4, opacity: ragIncludePublic ? 1 : 0.5 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: ragIncludePublic ? 'pointer' : 'not-allowed' }}>
+                    <input type="checkbox" disabled={!ragIncludePublic} checked={ragIncludePublic && ragSelectedPages.has(p.id)} onChange={() => toggleRagPage(p.id)} />
+                    {p.title}
+                  </label>
+                </div>
+              ))}
+              {ragPages.filter(p => p.visibility === 'public').length === 0 && <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>None</div>}
+
+              <div style={{ fontWeight: 'bold', marginBottom: 8, marginTop: 16, color: '#f87171' }}>Private Pages</div>
+              {ragPages.filter(p => p.visibility === 'private').map(p => (
+                <div key={p.id} style={{ marginBottom: 4, opacity: ragIncludePrivate ? 1 : 0.5 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: ragIncludePrivate ? 'pointer' : 'not-allowed' }}>
+                    <input type="checkbox" disabled={!ragIncludePrivate} checked={ragIncludePrivate && ragSelectedPages.has(p.id)} onChange={() => toggleRagPage(p.id)} />
+                    {p.title}
+                  </label>
+                </div>
+              ))}
+              {ragPages.filter(p => p.visibility === 'private').length === 0 && <div style={{ fontSize: 12, color: '#6b7280' }}>None</div>}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <button onClick={() => setShowRagModal(false)} disabled={ragIndexing} style={{ background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', padding: '8px 16px', borderRadius: 6, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={handleRagIndex} disabled={ragIndexing} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 6, cursor: 'pointer' }}>
+                {ragIndexing ? "Indexing..." : "Index Selected Pages"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

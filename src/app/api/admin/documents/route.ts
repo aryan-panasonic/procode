@@ -20,7 +20,26 @@ export async function GET() {
       ORDER BY d.uploaded_at DESC NULLS LAST, d.id DESC
     `);
 
-    return Response.json({ documents: result.rows });
+    const docs = result.rows;
+
+    // Post-process to enrich doc_pages with their path
+    for (const doc of docs) {
+      if (doc.source_path && doc.source_path.startsWith("doc_pages:")) {
+        const pageId = doc.source_path.split(":")[1];
+        const pageQuery = await pool.query(`
+          SELECT p.visibility, v.version_name 
+          FROM doc_pages p
+          JOIN doc_versions v ON p.version_id = v.id
+          WHERE p.id = $1
+        `, [pageId]);
+        if (pageQuery.rows.length > 0) {
+          const p = pageQuery.rows[0];
+          doc.original_filename = `${p.version_name}/${p.visibility}/${doc.title}`;
+        }
+      }
+    }
+
+    return Response.json({ documents: docs });
   } catch (err) {
     console.error("[admin/documents] GET error:", err);
     return Response.json({ error: "internal error" }, { status: 500 });
@@ -35,6 +54,16 @@ export async function DELETE(req: Request) {
 
     if (!id) {
       return Response.json({ error: "id is required" }, { status: 400 });
+    }
+
+    // Check if it's a doc_page and deactivate in doc_rag_index_entries
+    const docQuery = await pool.query(`SELECT source_path FROM documents WHERE id = $1`, [id]);
+    if (docQuery.rows.length > 0) {
+      const sourcePath = docQuery.rows[0].source_path;
+      if (sourcePath && sourcePath.startsWith("doc_pages:")) {
+        const pageId = sourcePath.split(":")[1];
+        await pool.query(`UPDATE doc_rag_index_entries SET active = false WHERE page_id = $1`, [pageId]);
+      }
     }
 
     // Chunks are cascade-deleted via FK
