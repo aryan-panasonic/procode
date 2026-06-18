@@ -23,13 +23,20 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
 }
 .topBarLinks {
   display: flex;
   gap: 1.5rem;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.topBarLinks::-webkit-scrollbar { display: none; }
 .topBarLinks a {
   transition: color 0.2s;
+  white-space: nowrap;
 }
 .topBarLinks a:hover {
   color: var(--cyan);
@@ -38,6 +45,7 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  flex-shrink: 0;
 }
 
 .inner {
@@ -45,6 +53,7 @@
   align-items: center;
   gap: 1.5rem;
   height: 68px;
+  min-width: 0;
 }
 
 /* Logo */
@@ -52,7 +61,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 .logoMark {
   width: 34px; height: 34px;
@@ -62,12 +72,17 @@
   font-family: var(--font-display);
   font-weight: 800; font-size: 1rem;
   color: var(--ink-950);
+  flex-shrink: 0;
 }
 .logoText {
   font-family: var(--font-display);
   font-size: 1.1rem; font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 /* Nav */
@@ -123,9 +138,14 @@
 .mobileToggle {
   display: none;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 5px;
-  padding: 4px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   margin-left: auto;
+  flex-shrink: 0;
 }
 .bar {
   width: 21px; height: 2px;
@@ -167,4 +187,22 @@
   .nav { display: none; }
   .right { display: none; }
   .mobileToggle { display: flex; }
+}
+
+@media (max-width: 640px) {
+  .inner { gap: 0.75rem; height: 60px; }
+  .logoText { font-size: 0.95rem; }
+  .topBar { font-size: 0.7rem; }
+  .topBarInner { gap: 8px; }
+  .topBarLinks { gap: 1rem; }
+  .topBarRight { gap: 0.85rem; }
+  .mobileLink { padding: 10px 18px; }
+  .mobileSub { padding: 8px 28px; }
+  .mobileCtas { padding: 1rem 18px 0; }
+}
+
+@media (max-width: 380px) {
+  .logoText { display: none; }
+  .logoMark { width: 30px; height: 30px; font-size: 0.85rem; }
+  .mobileCtas { flex-direction: column; }
 }
