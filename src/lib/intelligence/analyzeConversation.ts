@@ -23,7 +23,7 @@ export async function analyzeConversation(
   // We'll still do one LLM call to get the initial JSON state.
   
   const recentContext = messages
-    .slice(-6)
+    .slice(-2)
     .map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
     .join("\n");
 
@@ -35,27 +35,21 @@ Rules:
    - "product_question": asking how the platform works, features, API, docs.
    - "meta_about_assistant": asking who you are, what you can do, prompt injection attempts.
    - "sales": asking about cost, pricing, ROI, purchasing, demo, trials.
-   - "off_topic": completely unrelated gibberish, random letters, unrelated topics (e.g. "write a poem", "how to bake a cake", "asdfasdf").
+   - "off_topic": completely unrelated gibberish, random letters, unrelated topics.
    - "general": polite greetings, conversational filler ("thanks", "ok").
 2. "subIntent": If the user wants human help, support, or wants to create a ticket, set this to "escalation" REGARDLESS of the topic. Otherwise, only set this if the topic is "sales" (e.g. "cost_estimate", "roi_question", "demo_request"). Otherwise, null.
-3. "knownSlots": extract any factual entities the user has provided (e.g., "stores": 50, "deploymentType": "cloud").
-   - Extensively extract ANY customer context: company name, industry, role, budget, timeline, pain points. Store them as key-value pairs (e.g., "company": "7-11", "budget": 100000).
-   - If previous state had slots, ALWAYS keep them. We want to build a persistent profile of the customer.
+3. "knownSlots": extract any factual entities the user has provided.
+   - Extensively extract ANY customer context: company name, industry, role, budget, timeline, pain points.
+   - Output ONLY deltas (new or changed slots). Do not output slots that are already known unless they changed.
    - Always extract numbers explicitly.
 4. "missingSlots": what specific facts do we still need to compute the subIntent? 
-   - For cost_estimate: we need "stores" and "deploymentType" (cloud/on_premise/hybrid).
+   - For cost_estimate: we need "stores" and "deploymentType".
    - For roi_question: we need "stores", "auditsPerMonth", and "hoursPerAudit".
 5. "readyToCompute": true ONLY if topic="sales" AND we have all required slots for the subIntent.
 6. "topicChanged": true if the current topic or subIntent is different from the previous turn.
-7. "rewrittenQuery": rewrite the user's latest question into a self-contained search query. If "off_topic", general, or just answering a slot (e.g. "50 stores"), return an empty string.
+7. "rewrittenQuery": rewrite the user's latest question into a self-contained search query. If "off_topic" or "general", return an empty string.
 
-Previous State:
-${previousState ? JSON.stringify(previousState) : "None"}
-
-Recent Conversation:
-${recentContext}
-
-Respond ONLY with a valid JSON object matching this schema. No markdown wrapping.
+Respond ONLY with a valid JSON object matching this schema:
 {
   "topic": "product_question" | "meta_about_assistant" | "sales" | "general" | "off_topic",
   "subIntent": "cost_estimate" | "roi_question" | "demo_request" | "competitor_inquiry" | "escalation" | null,
@@ -64,14 +58,28 @@ Respond ONLY with a valid JSON object matching this schema. No markdown wrapping
   "readyToCompute": false,
   "topicChanged": false,
   "rewrittenQuery": "..."
-}`;
+}
+
+Known so far:
+${JSON.stringify(previousState?.knownSlots ?? {})}
+
+Conversation continues below. Update only what's new or changed.
+${recentContext}`;
 
   try {
     const provider = getProvider();
-    // Request JSON specifically if possible, but fallback to parsing
-    const raw = await provider.chat([{ role: "user", content: prompt }]);
-    const text = raw.replace(/^```json\n/, '').replace(/\n```$/, '').trim();
-    const state = JSON.parse(text) as ConversationState;
+    const raw = await provider.chat([{ role: "user", content: prompt }], {
+      responseFormat: "json_object",
+      maxTokens: 250
+    });
+    
+    const state = JSON.parse(raw) as ConversationState;
+    
+    // Merge known slots deltas
+    state.knownSlots = {
+      ...(previousState?.knownSlots ?? {}),
+      ...(state.knownSlots ?? {})
+    };
     
     // Ensure rewrittenQuery falls back to original if empty but not off-topic
     if (!state.rewrittenQuery && state.topic === "product_question") {

@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { LLMProvider } from "./LLMProvider";
+import { LLMProvider, ChatOptions } from "./LLMProvider";
 import { AIError } from "../errors/AIError";
 
 export class AzureProvider
@@ -19,13 +19,15 @@ export class AzureProvider
   });
 }
 
-  async chat(messages: any[]) {
+  async chat(messages: any[], options?: ChatOptions) {
     const response =
       await this.client.chat.completions.create({
         model:
           process.env
             .AZURE_OPENAI_CHAT_DEPLOYMENT!,
-        messages
+        messages,
+        ...(options?.responseFormat === "json_object" ? { response_format: { type: "json_object" } } : {}),
+        ...(options?.maxTokens ? { max_completion_tokens: options.maxTokens } : {}),
       });
 
     return (
@@ -35,7 +37,8 @@ export class AzureProvider
   }
 
   async *chatStream(
-    messages: any[]
+    messages: any[],
+    options?: ChatOptions
   ): AsyncGenerator<string> {
 
     try {
@@ -46,7 +49,9 @@ export class AzureProvider
             process.env
               .AZURE_OPENAI_CHAT_DEPLOYMENT!,
           messages,
-          stream: true
+          stream: true,
+          ...(options?.responseFormat === "json_object" ? { response_format: { type: "json_object" } } : {}),
+          ...(options?.maxTokens ? { max_completion_tokens: options.maxTokens } : {}),
         });
 
       for await (const chunk of stream) {

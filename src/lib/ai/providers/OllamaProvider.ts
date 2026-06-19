@@ -1,21 +1,23 @@
 import ollama from "ollama";
-import { LLMProvider } from "./LLMProvider";
+import { LLMProvider, ChatOptions } from "./LLMProvider";
 
 export class OllamaProvider implements LLMProvider {
-  async chat(messages: any[]) {
+  async chat(messages: any[], options?: ChatOptions) {
     const response = await ollama.chat({
       model: process.env.OLLAMA_MODEL!,
-      messages
+      messages,
+      ...(options?.responseFormat === "json_object" ? { format: "json" } : {}),
     });
 
     return response.message.content;
   }
 
-  async *chatStream(messages: any[]): AsyncGenerator<string, void, unknown> {
+  async *chatStream(messages: any[], options?: ChatOptions): AsyncGenerator<string, void, unknown> {
     const stream = await ollama.chat({
       model: process.env.OLLAMA_MODEL!,
       messages,
-      stream: true
+      stream: true,
+      ...(options?.responseFormat === "json_object" ? { format: "json" } : {}),
     });
 
     for await (const chunk of stream) {

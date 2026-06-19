@@ -103,16 +103,7 @@ function buildSystemPrompt(
     ? "\nESCALATION GUIDANCE:\nThe conversation indicates frustration or low confidence. Proactively ask the user if they would like to open a support ticket. Do NOT attempt to solve the problem if you are stuck.\n"
     : "";
 
-  return `You are the official technical support assistant for the INTELLIGENT SHELF ANALYZER — \
-a retail computer-vision platform for shelf analysis, planogram compliance, product recognition, \
-OCR-based price extraction, and retail workflow automation.
-
-${salesBlock
-  ? `// Sales/ROI/cost mode — documentation confidence is not relevant to this response.`
-  : `Documentation Confidence:\n${retrievalConfidence}\n\nIf confidence is LOW and documentation is insufficient:\n- do not fabricate specific ISA feature details, API endpoints, or configuration parameters\n- only mention the documentation gap if the user directly asks about a specific ISA feature you cannot confirm\n- for all other queries, respond helpfully without disclaiming`}
-
-${langInstruction}
-${pageContextSection}${memorySection}${salesSection}${escalationSection}${contextBlock}
+  return `You are the official technical support assistant for the INTELLIGENT SHELF ANALYZER — a retail computer-vision platform for shelf analysis, planogram compliance, product recognition, OCR-based price extraction, and retail workflow automation.
 
 ════════════════════════════════════════════════
 SECURITY RULES — HIGHEST PRIORITY
@@ -202,7 +193,18 @@ RESPONSE RULES
     - Lead directly with the question or figures specified. Do not add preamble.
     - Never open with or mention documentation, retrieval results, or knowledge gaps.
     - Never list inputs you will need later — ask for exactly one thing at a time.
-    - The visitor is in a sales/commercial conversation. Treat it as such.`;
+    - The visitor is in a sales/commercial conversation. Treat it as such.
+
+════════════════════════════════════════════════
+TURN-SPECIFIC CONTEXT
+════════════════════════════════════════════════
+${salesBlock
+  ? `// Sales/ROI/cost mode — documentation confidence is not relevant to this response.`
+  : `Documentation Confidence:\n${retrievalConfidence}\n\nIf confidence is LOW and documentation is insufficient:\n- do not fabricate specific ISA feature details, API endpoints, or configuration parameters\n- only mention the documentation gap if the user directly asks about a specific ISA feature you cannot confirm\n- for all other queries, respond helpfully without disclaiming`}
+
+${langInstruction}
+${pageContextSection}${memorySection}${salesSection}${escalationSection}${contextBlock}
+`;
 }
 
 // ─── ragChatStream ────────────────────────────────────────────────────────────
@@ -241,15 +243,32 @@ export async function ragChatStream(
   console.log("[RAG] Rewritten query:", rewrittenQuery);
 
   // ── 2. Retrieval ─────────────────────────────────────────────────────────────
-  const retrievalResult = await retriever.retrieve(rewrittenQuery, 8, allowedVisibilities);
+  let retrievalResult: Awaited<ReturnType<typeof retriever.retrieve>> = {
+    chunks: [],
+    confidence: "low",
+    maxScore: 0,
+    averageScore: 0,
+    answerType: "NO_MATCH",
+  };
 
-  if (retrievalResult.answerType === "NO_MATCH") {
-    console.log("[RAG] No matching documentation found");
+  const shouldSkipRetrieval = 
+    !rewrittenQuery || 
+    state?.topic === "general" || 
+    state?.topic === "off_topic" ||
+    state?.topic === "meta_about_assistant";
+
+  if (shouldSkipRetrieval) {
+    console.log(`[RAG] Skipping retrieval for topic '${state?.topic}' / query '${rewrittenQuery}'`);
   } else {
-    console.log(
-      `[RAG] Retrieved ${retrievalResult.chunks.length} chunks — ` +
-      `confidence: ${retrievalResult.confidence}, maxScore: ${retrievalResult.maxScore.toFixed(3)}`
-    );
+    retrievalResult = await retriever.retrieve(rewrittenQuery, 8, allowedVisibilities);
+    if (retrievalResult.answerType === "NO_MATCH") {
+      console.log("[RAG] No matching documentation found");
+    } else {
+      console.log(
+        `[RAG] Retrieved ${retrievalResult.chunks.length} chunks — ` +
+        `confidence: ${retrievalResult.confidence}, maxScore: ${retrievalResult.maxScore.toFixed(3)}`
+      );
+    }
   }
 
   const context = buildContext(retrievalResult.chunks);
