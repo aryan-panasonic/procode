@@ -338,3 +338,92 @@ export async function getAnalytics(days = 7): Promise<AnalyticsStats> {
     })),
   };
 }
+
+// ─── getSessionInsights ───────────────────────────────────────────────────────
+// Returns top sessions by intent score, with their insights, for the Visitors tab.
+// Reads from the new session_state table (JSON blob).
+
+export interface SessionInsightRow {
+  sessionId:    string;
+  intentScore:  number;
+  insights:     { type: string; text: string; source: string; confidence: number | null; created_at: string }[];
+  lastActivity: string;
+}
+
+export async function getSessionInsights(
+  limit  = 50,
+  days   = 30
+): Promise<SessionInsightRow[]> {
+  try {
+    const result = await pool.query<{
+      session_id: string;
+      state: any;
+      updated_at: string;
+    }>(
+      `SELECT session_id, state, updated_at
+       FROM session_state
+       WHERE updated_at >= now() - interval '${days} days'
+       ORDER BY updated_at DESC
+       LIMIT ${limit}`
+    );
+
+    const rows: SessionInsightRow[] = [];
+
+    for (const row of result.rows) {
+      const state = row.state || {};
+      let intentScore = 0;
+      const insights: SessionInsightRow['insights'] = [];
+
+      // Derive intent score from topic & subIntent
+      if (state.topic === "sales") {
+        intentScore += 20;
+        if (state.subIntent === "cost_estimate") intentScore += 10;
+        if (state.subIntent === "roi_question")  intentScore += 15;
+        if (state.subIntent === "demo_request")  intentScore += 20;
+        if (state.subIntent === "competitor_inquiry") intentScore += 15;
+      }
+      if (state.subIntent === "escalation") intentScore += 30;
+
+      // Add points for known slots
+      const slots = state.knownSlots || {};
+      const slotKeys = Object.keys(slots);
+      intentScore += slotKeys.length * 5;
+
+      // Create synthetic insight chips for the UI
+      if (state.subIntent) {
+        insights.push({
+          type: state.subIntent,
+          text: `User intent: ${state.subIntent.replace('_', ' ')}`,
+          source: 'llm',
+          confidence: 0.9,
+          created_at: row.updated_at
+        });
+      }
+
+      for (const key of slotKeys) {
+        insights.push({
+          type: 'fact',
+          text: `${key}: ${slots[key]}`,
+          source: 'llm',
+          confidence: 0.9,
+          created_at: row.updated_at
+        });
+      }
+
+      rows.push({
+        sessionId:    row.session_id,
+        intentScore,
+        lastActivity: row.updated_at,
+        insights
+      });
+    }
+
+    // Sort by intent score descending
+    rows.sort((a, b) => b.intentScore - a.intentScore);
+
+    return rows;
+  } catch (err) {
+    console.error("[monitoring] getSessionInsights failed:", err);
+    return [];
+  }
+}

@@ -4,6 +4,7 @@ import { logChatRequest,
          logRetrievalChunks } from "@/lib/monitoring/logger";
 import { getSessionFiles, buildFileContextBlock, getSessionImages } from "@/lib/uploads/sessionFileStore";
 import { verifyOutputLeakage } from "@/lib/security/redaction";
+import { analyzeConversation, getSessionState, saveSessionState } from "@/lib/intelligence/analyzeConversation";
 import "@/lib/env";
 import { validateDatabase } from "@/lib/db-health";
 
@@ -53,6 +54,9 @@ export async function POST(req: Request) {
       ? (body as any).sessionId
       : undefined;
 
+    // Parse optional page context from the client (zero AI cost)
+    const pageContext = (body as any).pageContext ?? undefined;
+
     const validated = raw
       .filter(
         (m): m is { role: "user" | "assistant"; content: string } =>
@@ -91,9 +95,29 @@ export async function POST(req: Request) {
 
     const sessionImages = sessionId ? getSessionImages(sessionId) : [];
 
+    // Load previous session state
+    const previousState = sessionId
+      ? await getSessionState(sessionId)
+      : undefined;
+
+    // Determine the state for THIS turn and rewrite query
+    let currentState = previousState;
+    let rewrittenQuery = lastUserQuery;
+
+    if (lastUserQuery) {
+      // One LLM call replaces both insight extraction and query rewriting
+      currentState = await analyzeConversation(budgeted, previousState);
+      if (currentState.rewrittenQuery) {
+        rewrittenQuery = currentState.rewrittenQuery;
+      }
+      if (sessionId) {
+        saveSessionState(sessionId, currentState).catch(() => {});
+      }
+    }
+
     let ragResult: Awaited<ReturnType<typeof ragChatStream>>;
     try {
-      ragResult = await ragChatStream(budgeted, fileContextBlock || undefined, sessionImages, ['public']);
+      ragResult = await ragChatStream(budgeted, fileContextBlock || undefined, sessionImages, ['public'], pageContext, currentState, sessionId, rewrittenQuery);
     } catch (err) {
       console.error("[chat/route] Chat creation error:", err);
 
@@ -154,7 +178,7 @@ export async function POST(req: Request) {
           logChatRequest({
             sessionId,
             query:          lastUserQuery,
-            rewrittenQuery: meta.rewrittenQuery,
+            rewrittenQuery: rewrittenQuery,
             answerType:     meta.answerType,
             retrievalConf:  meta.retrievalConf,
             maxScore:       meta.maxScore,
@@ -169,7 +193,7 @@ export async function POST(req: Request) {
               logRetrievalChunks(
                 meta.chunks.map((c, i) => ({
                   chatLogId,
-                  query: meta.rewrittenQuery,
+                  query: rewrittenQuery,
                   chunkId: c.id,
                   rank:    i + 1,
                   visibility: c.visibility,
@@ -189,7 +213,7 @@ export async function POST(req: Request) {
         "X-Content-Type-Options": "nosniff",
 
         "X-Escalate":
-          meta.shouldEscalate ? "1" : "0",
+          currentState?.subIntent === "escalation" ? "1" : "0",
 
         "X-Escalation-Score":
           String(meta.escalationScore ?? 0),

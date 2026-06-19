@@ -1,4 +1,4 @@
-import { getProvider } from "@/lib/ai/providers/ProviderFactory";
+import { getProvider }  from "@/lib/ai/providers/ProviderFactory";
 import { ChatMessage }  from "@/lib/ai/types/ChatMessage";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -32,7 +32,8 @@ const RECENT_WINDOW = 6;
 // On LLM failure, also returns null so the caller can fall back to full history.
 
 export async function summarizeConversation(
-  messages: ChatMessage[]
+  messages:  ChatMessage[],
+  sessionId?: string
 ): Promise<ConversationSummary | null> {
 
   const turns = messages.filter(
@@ -69,11 +70,11 @@ ${transcript}`;
   try {
 
     const provider = getProvider();
-    const summary  = await provider.chat([
+    const raw      = await provider.chat([
       { role: "user", content: prompt }
     ]);
 
-    const text = summary.trim();
+    const text = raw.trim();
     if (!text) return null;
 
     return {
@@ -94,10 +95,11 @@ ${transcript}`;
 // Returns an empty string when no summary is needed.
 
 export async function buildMemoryBlock(
-  messages: ChatMessage[]
+  messages:  ChatMessage[],
+  sessionId?: string
 ): Promise<string> {
 
-  const summary = await summarizeConversation(messages);
+  const summary = await summarizeConversation(messages, sessionId);
   if (!summary) return "";
 
   return [

@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
         sourcePath,
         title: page.title,
         language: "markdown",
+        visibility: page.visibility,
       });
 
       // Delete existing chunks just in case

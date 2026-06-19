@@ -1,0 +1,47 @@
+{
+  "rules": [
+    {
+      "key": "roi_offer",
+      "threshold": 80,
+      "message": "👋 Thinking about the ROI of shelf automation? I can walk you through an estimate based on your store count and audit frequency.",
+      "conditions": [
+        { "type": "path_sequence", "sequence": ["platform", "pricing"], "score": 60 },
+        { "type": "dwell_on_page", "pageType": "pricing", "minSeconds": 60, "score": 30 }
+      ]
+    },
+    {
+      "key": "plan_comparison",
+      "threshold": 80,
+      "message": "Hi! It looks like you're exploring our plans. Want me to help compare them or calculate the best fit for your store count?",
+      "conditions": [
+        { "type": "dwell_on_page", "pageType": "pricing", "minSeconds": 120, "score": 80 }
+      ]
+    },
+    {
+      "key": "platform_deep_dive",
+      "threshold": 80,
+      "message": "Exploring the platform? I'm happy to walk you through any specific capability — shelf recognition, planogram compliance, or the API.",
+      "conditions": [
+        { "type": "dwell_on_page", "pageType": "platform", "minSeconds": 90, "score": 50 },
+        { "type": "scroll_depth", "minDepth": 60, "score": 30 }
+      ]
+    },
+    {
+      "key": "returning_pricing",
+      "threshold": 80,
+      "message": "Welcome back! Were you still evaluating pricing options from last time? I can pick up where we left off.",
+      "conditions": [
+        { "type": "returning_with_pricing_interest", "score": 80 }
+      ]
+    },
+    {
+      "key": "returning_visitor",
+      "threshold": 80,
+      "message": "Welcome back! Can I help you find something specific today, or continue from a previous question?",
+      "conditions": [
+        { "type": "returning_visitor", "score": 50 },
+        { "type": "dwell_on_page", "pageType": "home", "minSeconds": 30, "score": 30 }
+      ]
+    }
+  ]
+}

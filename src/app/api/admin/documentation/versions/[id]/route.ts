@@ -12,6 +12,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     await pool.query('BEGIN');
+    await pool.query(`DELETE FROM doc_rag_index_entries WHERE page_id IN (SELECT id FROM doc_pages WHERE version_id = $1)`, [id]);
     await pool.query(`DELETE FROM doc_page_revisions WHERE page_id IN (SELECT id FROM doc_pages WHERE version_id = $1)`, [id]);
     await pool.query(`DELETE FROM doc_pages WHERE version_id = $1`, [id]);
     await pool.query(`DELETE FROM doc_versions WHERE id = $1`, [id]);

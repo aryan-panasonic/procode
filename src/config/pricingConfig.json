@@ -1,0 +1,27 @@
+{
+  "currency": "$",
+  "implementationCost": 15000,
+  "storageGBPerStore": 5,
+  "tiers": [
+    {
+      "name": "Starter",
+      "maxStores": 10,
+      "annualPlatformCost": 12000
+    },
+    {
+      "name": "Growth",
+      "maxStores": 50,
+      "annualPlatformCost": 36000
+    },
+    {
+      "name": "Professional",
+      "maxStores": 200,
+      "annualPlatformCost": 90000
+    },
+    {
+      "name": "Enterprise",
+      "maxStores": -1,
+      "annualPlatformCost": 180000
+    }
+  ]
+}

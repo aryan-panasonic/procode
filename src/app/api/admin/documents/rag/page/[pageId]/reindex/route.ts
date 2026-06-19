@@ -37,6 +37,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pag
       sourcePath,
       title: page.title,
       language: "markdown",
+      visibility: page.visibility,
     });
     await store.deleteDocumentChunks(documentId);
 

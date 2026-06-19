@@ -16,6 +16,7 @@ import {
   detectPromptLeakage,
   LEAKAGE_FALLBACK,
 } from "@/lib/security/redaction";
+import { evaluate, pageTypeFromPath } from "@/lib/intelligence/triggerEngine";
 
 type FeedbackMap = Record<number, "up" | "down">;
 
@@ -112,9 +113,64 @@ const [escalationInfo, setEscalationInfo] =
   const [ticketLoading, setTicketLoading] = useState(false);
   const [ticketDone,    setTicketDone]    = useState<TicketConfirmation | null>(null);
   const [attachments,   setAttachments]   = useState<AttachedFile[]>([]);
+  const [triggerMsg,    setTriggerMsg]    = useState<string | null>(null);
+  const [triggerDismissed, setTriggerDismissed] = useState(false);
 
   const bottomRef  = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const mountTimeRef = useRef<number>(Date.now());
+  const scrollDepthRef = useRef<number>(0);
+
+  // ── Track scroll depth ───────────────────────────────────────────────────────
+  useEffect(() => {
+    function onScroll() {
+      const depth = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight || 1)) * 100);
+      scrollDepthRef.current = Math.min(100, Math.max(0, depth || 0));
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // ── Proactive trigger (unconditional, zero LLM) ─────────────────────────────────
+  useEffect(() => {
+    // Only check after 30s minimum dwell; don't show if user already chatted
+    const timer = setTimeout(() => {
+      if (triggerDismissed || messages.length > 1) return;
+
+      const allSess  = loadAllChats();
+      const pathname = window.location.pathname;
+      const pageType = pageTypeFromPath(pathname);
+
+      // Derive path history from saved sessions' first message content
+      const pathHistory = allSess
+        .slice(0, 5)
+        .map(s => s.messages.find(m => m.role === 'user'))
+        .filter(Boolean)
+        .map(() => 'platform'); // coarse; replace with stored pageType when available
+
+      const previousHadPricing = allSess.some(s =>
+        s.messages.some(m => /pricing|plan|cost|quote/i.test(m.content))
+      );
+
+      const ctx = {
+        path: pathname,
+        pageType,
+        dwellMs: Date.now() - mountTimeRef.current,
+        scrollDepth: scrollDepthRef.current,
+        pathHistory: [...pathHistory, pageType],
+        returningVisitor: allSess.length > 0,
+        previousSessionHadPricingQuestion: previousHadPricing,
+      };
+
+      const result = evaluate(ctx);
+      if (result.shouldTrigger && result.message) {
+        setTriggerMsg(result.message);
+      }
+    }, 30_000);
+
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [triggerDismissed]);
 
   // ── Restore last session on mount ─────────────────────────────────────────
   useEffect(() => {
@@ -200,6 +256,20 @@ const [escalationInfo, setEscalationInfo] =
     }
   }
 
+  // ─── Dismiss escalation ──────────────────────────────────────────────────────
+  async function dismissEscalation() {
+    setShowEscalate(false);
+    try {
+      await fetch("/api/chat/escalation/dismiss", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: session.sessionId }),
+      });
+    } catch {
+      // Best-effort
+    }
+  }
+
   // ─── Submit support ticket ─────────────────────────────────────────────────
   async function submitTicket() {
     setTicketLoading(true);
@@ -235,7 +305,7 @@ const [escalationInfo, setEscalationInfo] =
       const createData = await createRes.json();
       if (createData.error) throw new Error(createData.error);
       setTicketDone({ id: createData.ticket.id, title: createData.ticket.title });
-      setShowEscalate(false);
+      dismissEscalation();
     } catch (e: any) {
       alert("Failed to create ticket: " + e.message);
     } finally {
@@ -327,11 +397,25 @@ const [escalationInfo, setEscalationInfo] =
       const res = await fetch("/api/chat", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ messages: historyToSend, sessionId: session.sessionId }),
+        body:    JSON.stringify({
+          messages: historyToSend,
+          sessionId: session.sessionId,
+          pageContext: {
+            path:            window.location.pathname,
+            pageType:        pageTypeFromPath(window.location.pathname),
+            dwellMs:         Date.now() - mountTimeRef.current,
+            scrollDepth:     scrollDepthRef.current,
+            pathHistory:     [],
+            returningVisitor: loadAllChats().length > 1,
+            previousSessionHadPricingQuestion: false,
+          },
+        }),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       
+      const isEscalationTriggered = res.headers.get("X-Escalate") === "1";
+
       const escalationScore =
         Number(
           res.headers.get(
@@ -385,11 +469,8 @@ const [escalationInfo, setEscalationInfo] =
         reasons: escalationReasons,
       });
 
-      if (escalationScore >= 80) {
+      if (isEscalationTriggered) {
         setShowEscalate(true);
-      }
-      else if (escalationScore >= 50) {
-        setSupportSuggestion(true);
       }
 
     } catch (error) {
@@ -586,6 +667,39 @@ const [escalationInfo, setEscalationInfo] =
         <div ref={bottomRef} />
       </div>
 
+      {/* ── Proactive Trigger Banner (zero LLM, template only) ── */}
+      {triggerMsg && !triggerDismissed && messages.length === 1 && (
+        <div style={{
+          margin: "0 12px 8px", padding: "10px 14px", borderRadius: 8,
+          background: "linear-gradient(135deg, rgba(59,130,246,0.12), rgba(99,102,241,0.10))",
+          border: "1px solid rgba(99,102,241,0.3)",
+          display: "flex", alignItems: "flex-start", gap: 10,
+        }}>
+          <span style={{ fontSize: 16, flexShrink: 0 }}>💬</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 12, color: "#c7d2fe", lineHeight: 1.5 }}>{triggerMsg}</div>
+            <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+              <button
+                onClick={() => { send(triggerMsg); setTriggerDismissed(true); }}
+                style={{ fontSize: 11, padding: "4px 10px", borderRadius: 4, border: "none",
+                  background: "#4f46e5", color: "#fff", cursor: "pointer" }}
+              >
+                Yes, tell me more
+              </button>
+              <button
+                onClick={() => setTriggerDismissed(true)}
+                style={{ fontSize: 11, padding: "4px 10px", borderRadius: 4,
+                  border: "1px solid rgba(255,255,255,0.1)", background: "transparent",
+                  color: "#6b7280", cursor: "pointer" }}
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* ── Escalation Panel ── */}
       {showEscalate && !ticketDone && (
         <div style={{
@@ -624,7 +738,7 @@ const [escalationInfo, setEscalationInfo] =
               {ticketLoading ? "Creating…" : "Submit Ticket"}
             </button>
             <button
-              onClick={() => setShowEscalate(false)}
+              onClick={dismissEscalation}
               style={{ padding: "8px 12px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)",
                 background: "transparent", color: "#9ca3af", fontSize: 12, cursor: "pointer" }}
             >

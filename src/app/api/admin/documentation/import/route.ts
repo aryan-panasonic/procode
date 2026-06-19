@@ -26,6 +26,7 @@ async function indexPage(page: { id: string; title: string; content_md: string; 
     sourcePath,
     title: page.title,
     language: "markdown",
+    visibility: page.visibility,
   });
   await store.deleteDocumentChunks(documentId);
 

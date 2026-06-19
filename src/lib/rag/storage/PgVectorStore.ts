@@ -35,12 +35,13 @@ export class PgVectorStore {
   }): Promise<string> {
     const existing = await pool.query<{ id: string }>(
       `
-      SELECT id
-      FROM documents
+      UPDATE documents 
+      SET title = COALESCE($2, title),
+          visibility = COALESCE($3, visibility)
       WHERE source_path = $1
-      LIMIT 1
+      RETURNING id
       `,
-      [input.sourcePath]
+      [input.sourcePath, input.title ?? null, input.visibility ?? null]
     );
 
     if (existing.rows.length > 0) {

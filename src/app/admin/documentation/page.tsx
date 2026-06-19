@@ -90,21 +90,30 @@ export default function DocumentationAdmin() {
   };
 
   const deleteVersion = async () => {
+    if (!activeVersionId) return;
     if (!confirm("Are you sure you want to delete this version?")) return;
     const r = await fetch(`/api/admin/documentation/versions/${activeVersionId}`, { method: "DELETE" });
     if (r.ok) {
       setActiveVersionId("");
       loadVersions();
     } else {
-      alert((await r.json()).error);
+      let msg = "Failed to delete";
+      try { msg = (await r.json()).error || msg; } catch {}
+      alert(msg);
     }
   };
 
   const publishVersion = async () => {
+    if (!activeVersionId) return;
     if (!confirm("Publish this version? Currently published version will be archived.")) return;
     const r = await fetch(`/api/admin/documentation/versions/${activeVersionId}/publish`, { method: "POST" });
-    if (r.ok) loadVersions();
-    else alert((await r.json()).error);
+    if (r.ok) {
+      loadVersions();
+    } else {
+      let msg = "Failed to publish";
+      try { msg = (await r.json()).error || msg; } catch {}
+      alert(msg);
+    }
   };
 
   const createPage = async () => {
