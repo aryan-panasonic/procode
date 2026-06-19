@@ -14,7 +14,7 @@ export default function SupportPage() {
       <section className={`${styles.hero} section`}>
         <div className="container" style={{textAlign: "center"}}>
           <span className="sectionLabel">{t("label")}</span>
-          <h1 className="sectionTitle" style={{marginTop: ".75rem"}}>{t("title1")} <span className="gradientText">{t("title2")}</span></h1>
+          <h1 className="sectionTitle" style={{marginTop: ".75rem"}}>{t("title")} <span className="gradientText">{t("titleAccent")}</span></h1>
           <p className="sectionSubtitle" style={{margin: "1rem auto 0"}}>{t("sub")}</p>
         </div>
       </section>

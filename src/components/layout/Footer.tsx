@@ -1,9 +1,10 @@
 import Link from "next/link";
 import styles from "./Footer.module.css";
-import {getTranslations} from "next-intl/server";
+import {getTranslations, getLocale} from "next-intl/server";
 
 export default async function Footer() {
   const t = await getTranslations("footer");
+  const locale = await getLocale();
   const cols = [
     {
       title: t("colProduct"),
@@ -66,11 +67,14 @@ export default async function Footer() {
               <div key={col.title} className={styles.col}>
                 <div className={styles.colTitle}>{col.title}</div>
                 <ul className={styles.colList}>
-                  {col.links.map(l => (
-                    <li key={l.href}>
-                      <Link href={l.href} className={styles.colLink}>{l.label}</Link>
-                    </li>
-                  ))}
+                  {col.links.map(l => {
+                    const href = l.href.startsWith("/" + locale) ? l.href : `/${locale}${l.href}`;
+                    return (
+                      <li key={l.href}>
+                        <Link href={href} className={styles.colLink}>{l.label}</Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}
@@ -81,8 +85,8 @@ export default async function Footer() {
           <div className={styles.bottomLeft}>
             <span>{t("copyright")}</span>
             <div className={styles.bottomLinks}>
-              <Link href="/legal/privacy" className={styles.bottomLink}>{t("privacy")}</Link>
-              <Link href="/legal/terms" className={styles.bottomLink}>{t("terms")}</Link>
+              <Link href={`/${locale}/legal/privacy`} className={styles.bottomLink}>{t("privacy")}</Link>
+              <Link href={`/${locale}/legal/terms`} className={styles.bottomLink}>{t("terms")}</Link>
             </div>
           </div>
           <div className={styles.companyInfo}>{t("companyInfo")}</div>

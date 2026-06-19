@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import React, { useState, Fragment } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import styles from "./pricing.module.css";
@@ -76,8 +76,8 @@ export default function PricingClient() {
               </thead>
               <tbody>
                 {matrix.map(cat => (
-                  <>
-                    <tr key={cat.category} className={styles.catRow}>
+                  <Fragment key={cat.category}>
+                    <tr className={styles.catRow}>
                       <td colSpan={4} className={styles.catLabel}>{cat.category}</td>
                     </tr>
                     {cat.rows.map(row => (
@@ -90,7 +90,7 @@ export default function PricingClient() {
                         ))}
                       </tr>
                     ))}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>

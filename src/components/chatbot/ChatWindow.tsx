@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import styles from "./ChatWindow.module.css";
 import {
   ChatSession,
@@ -43,7 +44,7 @@ interface TicketConfirmation {
 const MAX_INPUT_CHARS = 500;
 const MAX_HISTORY     = 20;   // turns sent to the API
 
-const SUGGESTED = [
+const DEFAULT_SUGGESTED = [
   "What is planogram compliance?",
   "How does the API work?",
   "Pricing & plans",
@@ -92,6 +93,38 @@ function formatRelativeTime(timestamp: number): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function ChatWindow({ onClose, inline }: { onClose: () => void; inline?: boolean }) {
+  const pathname = usePathname() || "";
+  
+  let currentSuggested = DEFAULT_SUGGESTED;
+  if (pathname.includes("/pricing")) {
+    currentSuggested = [
+      "How much does it cost?",
+      "Can I get a custom quote?",
+      "What is included in the enterprise plan?",
+      "Is there a free trial?"
+    ];
+  } else if (pathname.includes("/documentation") || pathname.includes("/docs")) {
+    currentSuggested = [
+      "How to authenticate API?",
+      "Where are the OCR endpoints?",
+      "Code examples for Python",
+      "Rate limits"
+    ];
+  } else if (pathname.includes("/platform")) {
+    currentSuggested = [
+      "How does planogram compliance work?",
+      "What is OCR price extraction?",
+      "Integration capabilities",
+      "Accuracy metrics"
+    ];
+  } else if (pathname.includes("/case-studies") || pathname.includes("/solutions") || pathname.includes("/industries")) {
+    currentSuggested = [
+      "Show me supermarket examples",
+      "How do convenience stores use this?",
+      "What is the average ROI?",
+      "FMCG brand use cases"
+    ];
+  }
 
   const [session,       setSession]       = useState<ChatSession>(() => createSession());
   const [messages,      setMessages]      = useState<StoredMessage[]>([WELCOME]);
@@ -656,10 +689,8 @@ const [escalationInfo, setEscalationInfo] =
         {messages.length === 1 && !loading && (
           <div className={styles.suggests}>
             <div className={styles.sugLabel}>Suggested questions</div>
-            {SUGGESTED.map(s => (
-              <button key={s} className={styles.sugBtn} onClick={() => send(s)}>
-                {s}
-              </button>
+            {currentSuggested.map(s => (
+              <button key={s} className={styles.sugBtn} onClick={() => send(s)}>{s}</button>
             ))}
           </div>
         )}

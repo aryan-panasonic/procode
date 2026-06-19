@@ -145,9 +145,9 @@ export default function Header() {
       <div className={styles.topBar}>
         <div className={`container ${styles.topBarInner}`}>
           <div className={styles.topBarLinks}>
-            <Link href="/documentation">{megaT("docs")}</Link>
-            <Link href="/support">{megaT("help")}</Link>
-            <Link href="/company">{megaT("company")}</Link>
+            <Link href={`/${locale}/documentation`}>{megaT("docs")}</Link>
+            <Link href={`/${locale}/support`}>{megaT("help")}</Link>
+            <Link href={`/${locale}/company`}>{megaT("company")}</Link>
           </div>
           <div className={styles.topBarRight}>
             <LanguageSwitcher />
@@ -167,7 +167,7 @@ export default function Header() {
             {navigation.map(item => (
               <div key={item.label} className={styles.navItem} onMouseEnter={() => setOpen(item.label)} onMouseLeave={() => setOpen(null)}>
                 {item.href ? (
-                  <Link href={item.href} className={styles.navBtn}>{item.label}</Link>
+                  <Link href={`/${locale}${item.href}`} className={styles.navBtn}>{item.label}</Link>
                 ) : (
                   <button type="button" className={styles.navBtn}>
                     {item.label}
@@ -181,7 +181,7 @@ export default function Header() {
 
           <div className={styles.right}>
             <button onClick={() => setShowSupport(true)} className="btnOutline" style={{padding: "9px 16px", fontSize: "0.84rem"}}>{t("support")}</button>
-            <Link href="/contact" className={styles.ctaBtn}>{t("cta")}</Link>
+            <Link href={`/${locale}/contact`} className={styles.ctaBtn}>{t("cta")}</Link>
           </div>
 
           <button className={styles.mobileToggle} onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
@@ -197,12 +197,12 @@ export default function Header() {
           {navigation.map(item => (
             <div key={item.label}>
               {item.href ? (
-                <Link href={item.href} className={styles.mobileLink} onClick={() => setMobileOpen(false)}>{item.label}</Link>
+                <Link href={`/${locale}${item.href}`} className={styles.mobileLink} onClick={() => setMobileOpen(false)}>{item.label}</Link>
               ) : (
                 <>
                   <span className={styles.mobileLink}>{item.label}</span>
                   {item.groups?.map(g => g.items.map(it => (
-                    <Link key={it.href} href={it.href} className={styles.mobileSub} onClick={() => setMobileOpen(false)}>{it.label}</Link>
+                    <Link key={it.href} href={`/${locale}${it.href}`} className={styles.mobileSub} onClick={() => setMobileOpen(false)}>{it.label}</Link>
                   )))}
                 </>
               )}
@@ -210,7 +210,7 @@ export default function Header() {
           ))}
           <div className={styles.mobileCtas}>
             <button className="btnPrimary" onClick={() => {setMobileOpen(false); setShowSupport(true);}}>{t("support")}</button>
-            <Link href="/contact" className="btnPrimary" onClick={() => setMobileOpen(false)}>{t("cta")}</Link>
+            <Link href={`/${locale}/contact`} className="btnPrimary" onClick={() => setMobileOpen(false)}>{t("cta")}</Link>
           </div>
         </div>
       )}
