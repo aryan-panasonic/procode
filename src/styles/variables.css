@@ -32,7 +32,7 @@
   --font-mono:    'Fira Code', 'Courier New', monospace;
 
   /* Layout */
-  --container: 1200px;
+  --container: clamp(960px, 90vw, 1440px);
   --radius:    4px; /* More rigid corporate border radius */
   --radius-lg: 8px;
   --radius-xl: 12px;

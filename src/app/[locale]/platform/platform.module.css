@@ -1,7 +1,7 @@
 .page { padding-top: 68px; min-height: 100vh; background: var(--ink-950); }
 .hero { padding: 5rem 0 3.5rem; text-align: center; }
 .grid {
-  display: grid; grid-template-columns: repeat(3,1fr);
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 1.25rem; margin-bottom: 2.5rem;
 }
 .moduleCard {
@@ -48,8 +48,8 @@
   border-radius: var(--radius); font-size: .8rem; color: var(--slate-400);
 }
 
-@media (max-width: 960px) { .grid { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 600px)  { .grid { grid-template-columns: 1fr; } }
+@media (max-width: 960px) { .grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); } }
+
 .hero { padding: 5rem 0 3.5rem; text-align: center; background: var(--ink-900); border-bottom: 1px solid var(--border); }
 .heroMetrics { display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap; margin-top: 2.5rem; }
 .heroMetric { display: flex; flex-direction: column; gap: 4px; align-items: center; }
@@ -79,7 +79,7 @@
   padding: 2rem 0 3rem;
   align-items: start;
 }
-@media (max-width: 900px) { .tabContent { grid-template-columns: 1fr; } }
+
 .tabLeft { display: flex; flex-direction: column; gap: 1.25rem; }
 .tabTitle { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); }
 .tabDesc { font-size: 0.9rem; color: var(--slate-400); line-height: 1.7; }
@@ -96,7 +96,7 @@
   min-height: 280px;
 }
 .demoLabel { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.12em; color: var(--cyan); text-transform: uppercase; margin-bottom: 14px; }
-.recGrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.recGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 8px; }
 .recCell { display: flex; flex-direction: column; gap: 4px; align-items: center; }
 .recBox { width: 100%; height: 48px; border: 1px solid; border-radius: var(--radius); }
 .recLabel { font-size: 0.68rem; color: var(--slate-400); text-align: center; }
@@ -152,12 +152,12 @@
 .securitySection { margin: 3rem 0; padding: 2.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius-xl); }
 .secTitle { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: .5rem; }
 .secDesc { font-size: .88rem; color: var(--slate-400); line-height: 1.7; margin-bottom: 1.5rem; }
-.secPoints { display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; }
+.secPoints { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1rem; }
 .secPoint { display: flex; align-items: flex-start; gap: 12px; padding: 1rem; background: var(--ink-900); border: 1px solid var(--border); border-radius: var(--radius-lg); }
 .secIcon { font-size: 1.4rem; flex-shrink: 0; }
 .secPointTitle { font-size: .88rem; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
 .secPointDesc { font-size: .8rem; color: var(--slate-400); line-height: 1.6; }
-@media (max-width: 600px) { .secPoints { grid-template-columns: 1fr; } }
+
 .challengeSection { scroll-margin-top: 80px; }
 .tabsSection { scroll-margin-top: 80px; }
 .securitySection { scroll-margin-top: 80px; }

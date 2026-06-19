@@ -8,6 +8,7 @@ export interface RetrievedChunk {
   metadata: Record<string, unknown>;
   score: number;
   chunkIndex: number;
+  visibility: string;
 }
 
 interface SearchRow {
@@ -18,6 +19,7 @@ interface SearchRow {
   title: string | null;
   source: string;
   score: number | string;
+  visibility: string;
 }
 
 export class PgVectorStore {
@@ -29,6 +31,7 @@ export class PgVectorStore {
     sourcePath: string;
     title?: string | null;
     language?: string | null;
+    visibility?: string;
   }): Promise<string> {
     const existing = await pool.query<{ id: string }>(
       `
@@ -49,15 +52,17 @@ export class PgVectorStore {
       INSERT INTO documents (
         source_path,
         title,
-        language
+        language,
+        visibility
       )
-      VALUES ($1, $2, $3)
+      VALUES ($1, $2, $3, $4)
       RETURNING id
       `,
       [
         input.sourcePath,
         input.title ?? null,
         input.language ?? null,
+        input.visibility ?? 'private',
       ]
     );
 
@@ -115,7 +120,8 @@ export class PgVectorStore {
 
   async search(
     embedding: number[],
-    limit: number = 5
+    limit: number = 5,
+    allowedVisibilities: string[] = ['public']
   ): Promise<RetrievedChunk[]> {
     const vector =
       this.toVectorLiteral(embedding);
@@ -130,17 +136,19 @@ export class PgVectorStore {
           c.metadata,
           d.title,
           d.source_path AS source,
+          d.visibility,
           1 - (
             c.embedding <=> $1::vector
           ) AS score
         FROM chunks c
         INNER JOIN documents d
           ON d.id = c.document_id
+        WHERE d.visibility = ANY($3::varchar[])
         ORDER BY
           c.embedding <=> $1::vector
         LIMIT $2
         `,
-        [vector, limit]
+        [vector, limit, allowedVisibilities]
       );
 
     return result.rows.map(
@@ -152,6 +160,7 @@ export class PgVectorStore {
         metadata: row.metadata ?? {},
         score: Number(row.score),
         chunkIndex: row.chunk_index,
+        visibility: row.visibility,
       })
     );
   }

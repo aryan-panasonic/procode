@@ -32,6 +32,7 @@ export interface RetrievalLogInput {
   chunkId?:   string;
   score?:     number;
   rank?:      number;
+  visibility?: string;
 }
 
 export interface ModelLogInput {
@@ -132,19 +133,21 @@ export async function logRetrievalChunks(
     const chunkIds    = inputs.map(r => r.chunkId   ?? null);
     const scores      = inputs.map(r => r.score     ?? null);
     const ranks       = inputs.map(r => r.rank      ?? null);
+    const visibilities= inputs.map(r => r.visibility?? null);
 
     await pool.query(
       `
-      INSERT INTO retrieval_logs (chat_log_id, query, chunk_id, score, rank)
+      INSERT INTO retrieval_logs (chat_log_id, query, chunk_id, score, rank, visibility)
       SELECT * FROM unnest(
         $1::uuid[],
         $2::text[],
         $3::uuid[],
         $4::numeric[],
-        $5::int[]
+        $5::int[],
+        $6::varchar[]
       )
       `,
-      [chatLogIds, queries, chunkIds, scores, ranks]
+      [chatLogIds, queries, chunkIds, scores, ranks, visibilities]
     );
   } catch (err) {
     console.error("[monitoring] logRetrievalChunks failed:", err);

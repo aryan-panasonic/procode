@@ -176,8 +176,8 @@
   backdrop-filter: blur(16px);
   box-shadow: var(--shadow-card);
 }
-.fb1 { top: -1.5rem; left: -2rem; animation: floatY 6s ease-in-out infinite; color: var(--cyan); }
-.fb2 { bottom: -1.5rem; right: -1.5rem; animation: floatY 8s ease-in-out infinite reverse; }
+.fb1 { top: clamp(-0.5rem, -2vw, -1.5rem); left: clamp(-0.5rem, -3vw, -2rem); animation: floatY 6s ease-in-out infinite; color: var(--cyan); }
+.fb2 { bottom: clamp(-0.5rem, -2vw, -1.5rem); right: clamp(-0.5rem, -2vw, -1.5rem); animation: floatY 8s ease-in-out infinite reverse; }
 .fbTitle { font-size: 0.63rem; color: var(--slate-500); }
 .fbVal { font-family: var(--font-mono); font-size: 0.88rem; font-weight: 500; color: var(--cyan); }
 
@@ -194,7 +194,7 @@
   animation: floatY 2.2s ease-in-out infinite;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1080px) {
   .inner { grid-template-columns: 1fr; gap: 3rem; padding: 3rem 0; }
   .visual { order: -1; }
   .scrollHint { display: none; }

@@ -20,7 +20,7 @@ export interface RagChatMeta {
   retrievalConf:      string;   // high | medium | low
   maxScore:           number;
   chunksReturned:     number;
-  chunkIds:           string[]; // for retrieval_logs
+  chunks:             { id: string; visibility: string }[]; // for retrieval_logs
   inputChars:         number;   // system + conversation chars (approx)
   shouldEscalate:     boolean;
   escalationScore: number;
@@ -64,7 +64,7 @@ function buildSystemPrompt(
       : [
           "RETRIEVED DOCUMENTATION:",
           "No documentation chunks were retrieved for this query.",
-          "Answer from general knowledge where appropriate.",
+          "Platform-specific claims must come ONLY from retrieved docs. For genuinely general/conversational questions, answer normally but NEVER invent ISA-specific facts.",
           "Clearly indicate when something cannot be confirmed from platform documentation.",
         ].join("\n");
 
@@ -145,6 +145,8 @@ RESPONSE RULES
    When documentation does not cover a topic: acknowledge the gap, provide general technical
    context where it helps the user move forward, and recommend contacting support for
    platform-specific confirmation.
+   If the user asks about internal infrastructure, architecture, source code, or internal APIs,
+   decline the request politely.
 
 5. CONVERSATIONAL MESSAGES
    Respond naturally and helpfully to greetings, thank-yous, follow-up questions, and questions
@@ -173,7 +175,8 @@ RESPONSE RULES
 export async function ragChatStream(
   messages: ChatMessage[],
   fileContextBlock?: string,
-  sessionImages?: SessionFile[]
+  sessionImages?: SessionFile[],
+  allowedVisibilities: string[] = ['public']
 ): Promise<RagChatResult> {
 
   const safeMessages = messages.filter(
@@ -200,7 +203,7 @@ export async function ragChatStream(
   console.log("[RAG] Rewritten query:", rewrittenQuery);
 
   // ── 2. Retrieval ─────────────────────────────────────────────────────────────
-  const retrievalResult = await retriever.retrieve(rewrittenQuery, 8);
+  const retrievalResult = await retriever.retrieve(rewrittenQuery, 8, allowedVisibilities);
 
   if (retrievalResult.answerType === "NO_MATCH") {
     console.log("[RAG] No matching documentation found");
@@ -284,7 +287,7 @@ export async function ragChatStream(
     retrievalConf:  retrievalResult.confidence,
     maxScore:       retrievalResult.maxScore,
     chunksReturned: retrievalResult.chunks.length,
-    chunkIds:       retrievalResult.chunks.map(c => c.id),
+    chunks:         retrievalResult.chunks.map(c => ({ id: c.id, visibility: c.visibility })),
     inputChars,
     shouldEscalate: escalation.shouldEscalate,
     escalationScore: escalation.score,

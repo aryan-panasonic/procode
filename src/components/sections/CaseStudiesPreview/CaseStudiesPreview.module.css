@@ -1,7 +1,7 @@
 .section { background: var(--ink-900); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem; }
-.grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
-@media (max-width:900px) { .grid { grid-template-columns: 1fr; } }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 20px; }
+
 .card {
   background: var(--ink-950);
   border: 1px solid var(--border);

@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" data-theme="dark">
+    <html lang="en" data-theme="dark" data-scroll-behavior="smooth">
       <body style={{
         margin: 0,
         fontFamily: "'Inter', system-ui, sans-serif",
@@ -55,7 +55,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </span>
         </nav>
 
-        <main style={{ padding: "32px", maxWidth: 1200, margin: "0 auto" }}>
+        <main style={{ padding: "32px max(32px, 4vw)", maxWidth: 1600, margin: "0 auto" }}>
           {children}
         </main>
       </body>

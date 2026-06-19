@@ -2,11 +2,11 @@
 .hero { background: var(--ink-900); border-bottom: 1px solid var(--border); padding: 5rem 0 3.5rem; }
 .planCards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 20px;
   margin: 3rem 0;
 }
-@media (max-width: 800px) { .planCards { grid-template-columns: 1fr; } }
+
 .planCard {
   background: var(--ink-900);
   border: 1px solid var(--border);

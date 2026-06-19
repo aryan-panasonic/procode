@@ -117,10 +117,13 @@ export async function POST(req: Request) {
     const store      = new PgVectorStore();
     const sourcePath = `uploaded/${file.name}`;
 
+    const visibility = formData.get("visibility") as string || "private";
+
     const documentId = await store.createOrGetDocument({
       sourcePath,
       title,
       language: null,
+      visibility,
     });
 
     // Clear existing chunks so re-upload replaces content cleanly

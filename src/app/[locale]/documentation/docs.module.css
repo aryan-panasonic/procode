@@ -48,7 +48,7 @@
 
 /* Main grid */
 .grid {
-  display: grid; grid-template-columns: repeat(3,1fr);
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 1.25rem; margin-bottom: 2rem;
 }
 .secCard {
@@ -95,5 +95,5 @@
 }
 
 @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } .sidebar { position: static; } }
-@media (max-width: 720px) { .grid { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 500px) { .grid { grid-template-columns: 1fr; } }
+@media (max-width: 720px) { .grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); } }
+

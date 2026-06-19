@@ -131,7 +131,7 @@
   font-weight: 500;
   max-width: 200px;
   white-space: nowrap;
-  overflow: hidden;
+  
   text-overflow: ellipsis;
 }
 
@@ -139,7 +139,7 @@
   color: var(--c-muted);
   max-width: 200px;
   white-space: nowrap;
-  overflow: hidden;
+  
   text-overflow: ellipsis;
 }
 

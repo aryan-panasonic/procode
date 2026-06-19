@@ -7,7 +7,8 @@ export class PgVectorRetriever {
 
   async retrieve(
     query: string,
-    topK: number = 15
+    topK: number = 15,
+    allowedVisibilities: string[] = ['public']
   ): Promise<RetrievalResult> {
 
     const provider =
@@ -19,7 +20,8 @@ export class PgVectorRetriever {
     const results =
       await this.store.search(
         embedding,
-        topK
+        topK,
+        allowedVisibilities
       );
 
     const MIN_SIMILARITY = 0.35;

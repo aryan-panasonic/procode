@@ -28,7 +28,7 @@
 .filterBtn:hover { border-color:rgba(0,200,232,0.3); color:var(--text-primary); }
 .filterActive { background:rgba(0,200,232,0.1); border-color:rgba(0,200,232,0.3); color:var(--cyan); }
 
-.grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.25rem; margin-bottom:3rem; }
+.grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap:1.25rem; margin-bottom:3rem; }
 .postCard {
   background:rgba(255,255,255,0.032); border:1px solid rgba(255,255,255,0.07);
   border-radius:var(--radius-lg); padding:1.5rem; display:flex; flex-direction:column; gap:.75rem;
@@ -59,6 +59,6 @@
 .newsletterInput:focus { border-color:rgba(0,200,232,0.4); }
 .newsletterInput::placeholder { color:var(--slate-500); }
 
-@media (max-width:1100px) { .grid { grid-template-columns:repeat(3,1fr); } }
-@media (max-width: 860px) { .grid { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:1100px) { .grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); } }
+@media (max-width: 860px) { .grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); } }
 @media (max-width: 580px) { .grid { grid-template-columns:1fr; } .newsletterForm { flex-direction:column; } .newsletterInput { width:100%; } }

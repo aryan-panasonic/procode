@@ -1,8 +1,8 @@
 .section { background: var(--ink-950); }
 .head { display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:3.5rem; }
-.grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1.25rem; }
+.grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap:1.25rem; }
 .card {
-  position:relative; overflow:hidden;
+  position:relative; 
   background:rgba(255,255,255,0.032);
   border:1px solid rgba(255,255,255,0.07);
   border-radius:var(--radius-lg); padding:2rem;
@@ -30,4 +30,4 @@
 .featDot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
 .link { display:inline-flex; align-items:center; gap:5px; font-size:.82rem; font-weight:500; transition:gap .2s; margin-top:.25rem; }
 .link:hover { gap:9px; }
-@media(max-width:860px){ .grid{grid-template-columns:1fr;} }
+

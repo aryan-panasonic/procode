@@ -3,6 +3,7 @@ import { AIError }            from "@/lib/ai/errors/AIError";
 import { logChatRequest,
          logRetrievalChunks } from "@/lib/monitoring/logger";
 import { getSessionFiles, buildFileContextBlock, getSessionImages } from "@/lib/uploads/sessionFileStore";
+import { verifyOutputLeakage } from "@/lib/security/redaction";
 import "@/lib/env";
 import { validateDatabase } from "@/lib/db-health";
 
@@ -92,7 +93,7 @@ export async function POST(req: Request) {
 
     let ragResult: Awaited<ReturnType<typeof ragChatStream>>;
     try {
-      ragResult = await ragChatStream(budgeted, fileContextBlock || undefined, sessionImages);
+      ragResult = await ragChatStream(budgeted, fileContextBlock || undefined, sessionImages, ['public']);
     } catch (err) {
       console.error("[chat/route] Chat creation error:", err);
 
@@ -164,13 +165,14 @@ export async function POST(req: Request) {
             responseStatus: "ok",
           }).then(chatLogId => {
             // Log individual retrieved chunks for quality analysis
-            if (chatLogId && meta.chunkIds.length > 0) {
+            if (chatLogId && meta.chunks.length > 0) {
               logRetrievalChunks(
-                meta.chunkIds.map((id, i) => ({
+                meta.chunks.map((c, i) => ({
                   chatLogId,
                   query: meta.rewrittenQuery,
-                  chunkId: id,
+                  chunkId: c.id,
                   rank:    i + 1,
+                  visibility: c.visibility,
                 }))
               ).catch(() => {});
             }

@@ -13,6 +13,7 @@ export async function GET() {
         d.status,
         d.file_size_bytes,
         d.uploaded_at,
+        d.visibility,
         COUNT(c.id)::int AS chunk_count
       FROM documents d
       LEFT JOIN chunks c ON c.document_id = d.id
@@ -42,6 +43,36 @@ export async function GET() {
     return Response.json({ documents: docs });
   } catch (err) {
     console.error("[admin/documents] GET error:", err);
+    return Response.json({ error: "internal error" }, { status: 500 });
+  }
+}
+
+// ─── PATCH /api/admin/documents — update visibility ──────────────────────────
+export async function PATCH(req: Request) {
+  try {
+    const body = await req.json();
+    const { id, visibility } = body;
+
+    if (!id || !visibility) {
+      return Response.json({ error: "id and visibility are required" }, { status: 400 });
+    }
+
+    if (visibility !== "public" && visibility !== "private") {
+      return Response.json({ error: "invalid visibility" }, { status: 400 });
+    }
+
+    const result = await pool.query(
+      `UPDATE documents SET visibility = $1 WHERE id = $2 RETURNING id, visibility`,
+      [visibility, id]
+    );
+
+    if (result.rowCount === 0) {
+      return Response.json({ error: "document not found" }, { status: 404 });
+    }
+
+    return Response.json({ ok: true, document: result.rows[0] });
+  } catch (err) {
+    console.error("[admin/documents] PATCH error:", err);
     return Response.json({ error: "internal error" }, { status: 500 });
   }
 }

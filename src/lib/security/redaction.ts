@@ -133,3 +133,21 @@ export function detectPromptLeakage(text: string): boolean {
 export const LEAKAGE_FALLBACK =
   "I'm sorry, I encountered an issue generating that response. " +
   "Please try rephrasing your question.";
+
+// ─── verifyOutputLeakage ──────────────────────────────────────────────────────
+//
+// Defense in depth: if the response accidentally regurgitates an exact substantial
+// snippet of a chunk marked 'private', it's flagged as a leak.
+
+export function verifyOutputLeakage(response: string, retrievedChunks: { content?: string, visibility?: string }[]): boolean {
+  for (const chunk of retrievedChunks) {
+    if (chunk.visibility === "private" && chunk.content) {
+      // Very basic leakage check: if a large enough exact substring of the private chunk appears
+      const snippet = chunk.content.substring(0, 100);
+      if (snippet.length >= 50 && response.includes(snippet)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}

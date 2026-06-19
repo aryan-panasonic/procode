@@ -21,7 +21,7 @@
   color: var(--text-primary); margin-bottom: 2rem;
 }
 .form { display: flex; flex-direction: column; gap: 1.25rem; }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1rem; }
 .field { display: flex; flex-direction: column; gap: 6px; }
 .label { font-size: .78rem; font-weight: 500; color: var(--slate-300); }
 .input {
@@ -84,7 +84,7 @@
   .grid { grid-template-columns: 1fr; }
   .info { order: -1; }
 }
-@media (max-width: 580px) { .row2 { grid-template-columns: 1fr; } }
+
 .success { text-align: center; padding: 3rem 1rem; }
 .successIcon { font-size: 3rem; color: var(--green); margin-bottom: 1rem; }
 .success h3 { font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin-bottom: .5rem; }

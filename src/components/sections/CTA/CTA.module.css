@@ -1,6 +1,6 @@
 .section { background: var(--ink-950); padding-bottom: 6rem; }
 .box {
-  position:relative; overflow:hidden;
+  position:relative; 
   background:linear-gradient(135deg, var(--cyan-pale) 0%, var(--ink-900) 50%, var(--cyan-pale) 100%);
   border:1px solid var(--border);
   border-radius:var(--radius-xl);

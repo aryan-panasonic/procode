@@ -12,9 +12,10 @@ interface DocRow {
   original_filename: string | null;
   language:          string | null;
   status:            string | null;
-  file_size_bytes:   number | null;
   chunk_count:       number;
+  file_size_bytes:   number | null;
   uploaded_at:       string | null;
+  visibility:        string;
 }
 
 function fmtBytes(n: number | null): string {
@@ -57,6 +58,7 @@ export default function DocumentsPage() {
   const [uploadMsg,  setUploadMsg]  = useState<{ ok: boolean; text: string } | null>(null);
   const [reindexing, setReindexing] = useState(false);
   const [reindexMsg, setReindexMsg] = useState<string | null>(null);
+  const [uploadVisibility, setUploadVisibility] = useState("private");
   const fileRef = useRef<HTMLInputElement>(null);
 
   // RAG Modal State
@@ -158,6 +160,7 @@ export default function DocumentsPage() {
 
     const form = new FormData();
     form.append("file", file);
+    form.append("visibility", uploadVisibility);
 
     try {
       const r = await fetch("/api/admin/documents/upload", { method: "POST", body: form });
@@ -188,6 +191,23 @@ export default function DocumentsPage() {
       setDocs(prev => prev.filter(doc => doc.id !== id));
     } catch (e: any) {
       alert(`Delete failed: ${e.message}`);
+    }
+  }
+
+  // ── Toggle Visibility ──────────────────────────────────────────────────────
+  async function handleToggleVisibility(id: string, current: string) {
+    const next = current === "public" ? "private" : "public";
+    try {
+      const r = await fetch("/api/admin/documents", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, visibility: next }),
+      });
+      const d = await r.json();
+      if (!r.ok || d.error) throw new Error(d.error ?? `HTTP ${r.status}`);
+      setDocs(prev => prev.map(doc => doc.id === id ? { ...doc, visibility: next } : doc));
+    } catch (e: any) {
+      alert(`Visibility update failed: ${e.message}`);
     }
   }
 
@@ -243,13 +263,25 @@ export default function DocumentsPage() {
             style={{ display: "none" }}
             onChange={handleUpload}
           />
-          <button
-            className={`${styles.btn} ${styles.btnPrimary}`}
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-          >
-            {uploading ? "Uploading…" : "+ Upload Document"}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.05)', padding: '2px 2px 2px 12px', borderRadius: 6 }}>
+            <span style={{ fontSize: 13, color: '#9ca3af' }}>Upload as:</span>
+            <select
+              value={uploadVisibility}
+              onChange={e => setUploadVisibility(e.target.value)}
+              style={{ background: 'transparent', color: '#fff', border: 'none', outline: 'none', fontSize: 13, cursor: 'pointer' }}
+            >
+              <option value="private">Private</option>
+              <option value="public">Public</option>
+            </select>
+            <button
+              className={`${styles.btn} ${styles.btnPrimary}`}
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              style={{ marginLeft: 4 }}
+            >
+              {uploading ? "Uploading…" : "+ Upload Document"}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -288,6 +320,7 @@ export default function DocumentsPage() {
                 <th>Chunks</th>
                 <th>Size</th>
                 <th>Status</th>
+                <th>Visibility</th>
                 <th>Uploaded</th>
                 <th></th>
               </tr>
@@ -316,6 +349,26 @@ export default function DocumentsPage() {
                     <td className={styles.num}>{doc.chunk_count}</td>
                     <td className={styles.num}>{fmtBytes(doc.file_size_bytes)}</td>
                     <td><StatusBadge status={doc.status} /></td>
+                    <td>
+                      <button
+                        onClick={() => handleToggleVisibility(doc.id, doc.visibility)}
+                        disabled={doc.source_path.startsWith("doc_pages:")}
+                        style={{
+                          background: doc.visibility === 'public' ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+                          color: doc.visibility === 'public' ? '#22c55e' : '#ef4444',
+                          border: `1px solid ${doc.visibility === 'public' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                          padding: '2px 8px',
+                          borderRadius: 4,
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: doc.source_path.startsWith("doc_pages:") ? 'not-allowed' : 'pointer',
+                          textTransform: 'capitalize'
+                        }}
+                        title={doc.source_path.startsWith("doc_pages:") ? "Managed via Documentation tab" : "Click to toggle visibility"}
+                      >
+                        {doc.visibility}
+                      </button>
+                    </td>
                     <td className={styles.date}>{fmtDate(doc.uploaded_at)}</td>
                     <td>
                       <button

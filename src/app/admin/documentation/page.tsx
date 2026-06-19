@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import styles from "./documentation.module.css";
+import ImportMarkdownModal from "@/components/admin/documentation/ImportMarkdownModal";
 
 type DocVersion = { id: string; version_name: string; status: string; published_at: string };
 type DocPage = { id: string; title: string; slug: string; visibility: string; content_md: string; sort_order: number };
@@ -28,6 +29,7 @@ export default function DocumentationAdmin() {
   // Modals state
   const [showVersionModal, setShowVersionModal] = useState(false);
   const [showPageModal, setShowPageModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [newVersionName, setNewVersionName] = useState("");
   const [copyFromId, setCopyFromId] = useState("");
   const [pageForm, setPageForm] = useState({ title: "", slug: "", visibility: "public" });
@@ -237,6 +239,9 @@ export default function DocumentationAdmin() {
         </select>
         
         <button className={styles.btn} onClick={() => setShowVersionModal(true)}>Create Version</button>
+        {activeVersionId && (
+          <button className={styles.btn} onClick={() => setShowImportModal(true)}>Import Markdown Files</button>
+        )}
         {activeVer?.status !== 'published' && activeVer?.status !== 'archived' && (
           <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={publishVersion}>Publish Version</button>
         )}
@@ -312,7 +317,7 @@ export default function DocumentationAdmin() {
           <div className={styles.editorArea}>
             <div className={styles.editorHeader}>
               <div className={styles.editorTitle}>{activePage.title}</div>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {indexedPageIds.has(activePage.id) ? (
                   <>
                     <button className={styles.btn} onClick={reindexRag} disabled={ragActionLoading}>Reindex</button>
@@ -420,6 +425,15 @@ export default function DocumentationAdmin() {
             </div>
           </div>
         </div>
+      )}
+      {showImportModal && activeVer && (
+        <ImportMarkdownModal
+          versionId={activeVersionId}
+          versionName={activeVer.version_name}
+          existingPages={pages}
+          onClose={() => setShowImportModal(false)}
+          onImported={() => { loadPages(activeVersionId); loadRagStatus(); }}
+        />
       )}
     </div>
   );

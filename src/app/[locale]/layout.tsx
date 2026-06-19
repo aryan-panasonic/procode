@@ -23,7 +23,7 @@ export default async function LocaleLayout({
   const base = "https://isa.panasonic-connect.com";
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <link rel="alternate" hrefLang="ja" href={`${base}/ja`} />
         <link rel="alternate" hrefLang="en" href={`${base}/en`} />
